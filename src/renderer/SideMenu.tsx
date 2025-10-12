@@ -1,17 +1,13 @@
 import {
   Clapperboard,
   Cog,
-  Dice2,
-  Dice3,
-  Dice5,
-  Goal,
   HardHat,
   MonitorCog,
   Sword,
   Swords,
 } from 'lucide-react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDungeon, faDragon } from '@fortawesome/free-solid-svg-icons';
+import { faDragon, faDungeon } from '@fortawesome/free-solid-svg-icons';
 import {
   AppState,
   ErrorReport,
@@ -189,20 +185,16 @@ const SideMenu = (props: IProps) => {
           <Menu.Label>
             {getLocalePhrase(appState.language, Phrase.RecordingsHeading)}
           </Menu.Label>
-          {renderCategoryTab(VideoCategory.TwoVTwo, <Dice2 />)}
-          {renderCategoryTab(VideoCategory.ThreeVThree, <Dice3 />)}
-          {renderCategoryTab(VideoCategory.FiveVFive, <Dice5 />)}
-          {renderCategoryTab(VideoCategory.Skirmish, <Sword />)}
-          {renderCategoryTab(VideoCategory.SoloShuffle, <Swords />)}
+          {renderCategoryTab(VideoCategory.Quickplays, <Sword />)}
+          {renderCategoryTab(VideoCategory.Adventures, <Swords />)}
           {renderCategoryTab(
-            VideoCategory.MythicPlus,
+            VideoCategory.Dungeons,
             <FontAwesomeIcon icon={faDungeon} size="xl" />,
           )}
           {renderCategoryTab(
             VideoCategory.Raids,
             <FontAwesomeIcon icon={faDragon} size="lg" />,
           )}
-          {renderCategoryTab(VideoCategory.Battlegrounds, <Goal />)}
           {renderCategoryTab(VideoCategory.Manual, <HardHat />)}
           {renderCategoryTab(VideoCategory.Clips, <Clapperboard />)}
         </Menu>

@@ -1,35 +1,35 @@
-import { URL } from 'url';
-import path from 'path';
-import fs, { promises as fspromise } from 'fs';
-import { app, Display, screen } from 'electron';
+import { URL } from "url";
+import path from "path";
+import fs, { promises as fspromise } from "fs";
+import { app, Display, screen } from "electron";
 import {
   EventType,
   uIOhook,
   UiohookKeyboardEvent,
   UiohookMouseEvent,
-} from 'uiohook-napi';
-import checkDiskSpace from 'check-disk-space';
-import { PTTEventType, PTTKeyPressEvent } from '../types/KeyTypesUIOHook';
+} from "uiohook-napi";
+import checkDiskSpace from "check-disk-space";
+import { PTTEventType, PTTKeyPressEvent } from "../types/KeyTypesUIOHook";
 import {
-  Metadata,
+  CloudSignedMetadata,
+  ErrorReport,
   FileInfo,
   FileSortDirection,
+  Metadata,
+  ObsAudioConfig,
   OurDisplayType,
   RendererVideo,
-  ObsAudioConfig,
-  ErrorReport,
-  CloudSignedMetadata,
-} from './types';
-import { VideoCategory } from '../types/VideoCategory';
-import ConfigService from 'config/ConfigService';
-import { AxiosError } from 'axios';
-import { send } from './main';
+} from "./types";
+import { VideoCategory } from "../types/VideoCategory";
+import ConfigService from "config/ConfigService";
+import { AxiosError } from "axios";
+import { send } from "./main";
 
 /**
  * When packaged, we need to fix some paths
  */
 const fixPathWhenPackaged = (p: string) => {
-  return p.replace('app.asar', 'app.asar.unpacked');
+  return p.replace("app.asar", "app.asar.unpacked");
 };
 
 /**
@@ -41,19 +41,19 @@ const fixPathWhenPackaged = (p: string) => {
  * This only applies to main process console logs, not the renderer logs.
  */
 const setupApplicationLogging = () => {
-  const log = require('electron-log');
+  const log = require("electron-log");
   const date = new Date().toISOString().slice(0, 10);
-  const logRelativePath = `logs/WarcraftRecorder-${date}.log`;
+  const logRelativePath = `logs/Fellowsnip-${date}.log`;
   const logPath = fixPathWhenPackaged(path.join(__dirname, logRelativePath));
   log.transports.file.resolvePath = () => logPath;
   Object.assign(console, log.functions);
   return path.dirname(logPath);
 };
 
-const { exec } = require('child_process');
+const { exec } = require("child_process");
 
 const getResolvedHtmlPath = () => {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     const port = process.env.PORT || 1212;
 
     return (htmlFileName: string) => {
@@ -64,7 +64,7 @@ const getResolvedHtmlPath = () => {
   }
 
   return (htmlFileName: string) => {
-    return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}`;
+    return `file://${path.resolve(__dirname, "../renderer/", htmlFileName)}`;
   };
 };
 
@@ -126,20 +126,20 @@ const getSortedVideos = async (
   storageDir: string,
   sortDirection: FileSortDirection = FileSortDirection.NewestFirst,
 ): Promise<FileInfo[]> => {
-  return getSortedFiles(storageDir, '.*\\.mp4', sortDirection);
+  return getSortedFiles(storageDir, ".*\\.mp4", sortDirection);
 };
 
 /**
  * Get the filename for the metadata file associated with the given video file.
  */
 const getMetadataFileNameForVideo = (video: string) => {
-  const videoFileName = path.basename(video, '.mp4');
+  const videoFileName = path.basename(video, ".mp4");
   const videoDirName = path.dirname(video);
   return path.join(videoDirName, `${videoFileName}.json`);
 };
 
 /**
- * The Korean build of WCR had translated video categories. Now that
+ * The Korean build of Fellowsnip had translated video categories. Now that
  * they are going to use the main build with the localisation feature,
  * this translates them back to english so we can process them. This is
  * purely to bridge the gap, and in theory could be removed in the future.
@@ -147,33 +147,33 @@ const getMetadataFileNameForVideo = (video: string) => {
 const convertKoreanVideoCategory = (
   metadata: Metadata | CloudSignedMetadata,
 ) => {
-  const raw = metadata as any;
+  const raw = metadata as Record<string, unknown>;
 
-  if (raw.category === '연습전투') {
+  if (raw.category === "연습전투") {
     raw.category = VideoCategory.Skirmish;
-  } else if (raw.category === '1인전') {
+  } else if (raw.category === "1인전") {
     raw.category = VideoCategory.SoloShuffle;
-  } else if (raw.category === '쐐기+') {
+  } else if (raw.category === "쐐기+") {
     raw.category = VideoCategory.MythicPlus;
-  } else if (raw.category === '레이드') {
+  } else if (raw.category === "레이드") {
     raw.category = VideoCategory.Raids;
-  } else if (raw.category === '전장') {
+  } else if (raw.category === "전장") {
     raw.category = VideoCategory.Battlegrounds;
-  } else if (raw.category === '클립') {
+  } else if (raw.category === "클립") {
     raw.category = VideoCategory.Clips;
   }
 
-  if (raw.parentCategory === '연습전투') {
+  if (raw.parentCategory === "연습전투") {
     raw.parentCategory = VideoCategory.Skirmish;
-  } else if (raw.parentCategory === '1인전') {
+  } else if (raw.parentCategory === "1인전") {
     raw.parentCategory = VideoCategory.SoloShuffle;
-  } else if (raw.parentCategory === '쐐기+') {
+  } else if (raw.parentCategory === "쐐기+") {
     raw.parentCategory = VideoCategory.MythicPlus;
-  } else if (raw.parentCategory === '레이드') {
+  } else if (raw.parentCategory === "레이드") {
     raw.parentCategory = VideoCategory.Raids;
-  } else if (raw.parentCategory === '전장') {
+  } else if (raw.parentCategory === "전장") {
     raw.parentCategory = VideoCategory.Battlegrounds;
-  } else if (raw.parentCategory === '클립') {
+  } else if (raw.parentCategory === "클립") {
     raw.parentCategory = VideoCategory.Clips;
   }
 };
@@ -211,7 +211,7 @@ const tryUnlink = async (file: string): Promise<boolean> => {
  * Delete a video and its metadata file if it exists.
  */
 const deleteVideoDisk = async (videoPath: string) => {
-  console.info('[Util] Deleting video', videoPath);
+  console.info("[Util] Deleting video", videoPath);
   const deletedMp4 = await tryUnlink(videoPath);
 
   if (!deletedMp4) {
@@ -240,10 +240,10 @@ const deleteVideoDisk = async (videoPath: string) => {
  */
 const delayedDeleteVideo = (video: RendererVideo) => {
   const src = video.videoSource;
-  console.info('[Util] Will soon remove a video marked for deletion', src);
+  console.info("[Util] Will soon remove a video marked for deletion", src);
 
   setTimeout(() => {
-    console.info('[Util] Removing a video marked for deletion', src);
+    console.info("[Util] Removing a video marked for deletion", src);
     deleteVideoDisk(video.videoSource);
   }, 2000);
 };
@@ -256,7 +256,7 @@ const loadVideoDetailsDisk = async (
 ): Promise<RendererVideo> => {
   try {
     const metadata = await getMetadataForVideo(video.name);
-    const videoName = path.basename(video.name, '.mp4');
+    const videoName = path.basename(video.name, ".mp4");
     const uniqueId = `${videoName}-disk`;
 
     return {
@@ -271,7 +271,7 @@ const loadVideoDetailsDisk = async (
     };
   } catch (error) {
     // Just log it and rethrow. Want this to be diagnosable.
-    console.warn('[Util] Failed to load video:', video.name, String(error));
+    console.warn("[Util] Failed to load video:", video.name, String(error));
     throw error;
   }
 };
@@ -280,13 +280,13 @@ const loadVideoDetailsDisk = async (
  * Writes video metadata asynchronously and returns a Promise
  */
 const writeMetadataFile = async (videoPath: string, metadata: Metadata) => {
-  console.info('[Util] Write Metadata file', videoPath);
+  console.info("[Util] Write Metadata file", videoPath);
 
   const metadataFileName = getMetadataFileNameForVideo(videoPath);
   const jsonString = JSON.stringify(metadata, null, 2);
 
   fspromise.writeFile(metadataFileName, jsonString, {
-    encoding: 'utf-8',
+    encoding: "utf-8",
   });
 };
 
@@ -294,7 +294,7 @@ const writeMetadataFile = async (videoPath: string, metadata: Metadata) => {
  * Open a folder in system explorer.
  */
 const openSystemExplorer = (filePath: string) => {
-  const windowsPath = filePath.replace(/\//g, '\\');
+  const windowsPath = filePath.replace(/\//g, "\\");
   const cmd = `explorer.exe /select,"${windowsPath}"`;
   exec(cmd, () => {});
 };
@@ -304,8 +304,8 @@ const openSystemExplorer = (filePath: string) => {
  * on its index.
  */
 const getDisplayPhysicalPosition = (count: number, index: number): string => {
-  if (index === 0) return 'Left';
-  if (index === count - 1) return 'Right';
+  if (index === 0) return "Left";
+  if (index === count - 1) return "Right";
 
   return `Middle #${index}`;
 };
@@ -366,7 +366,7 @@ const getAvailableDisplays = (): OurDisplayType[] => {
 
 const deferredPromiseHelper = <T>() => {
   let resolveHelper!: (value: T | PromiseLike<T>) => void;
-  let rejectHelper!: (reason?: any) => void;
+  let rejectHelper!: (reason?: unknown) => void;
 
   const promise = new Promise<T>((resolve, reject) => {
     resolveHelper = resolve;
@@ -378,8 +378,8 @@ const deferredPromiseHelper = <T>() => {
 
 const getAssetPath = (...paths: string[]): string => {
   const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+    ? path.join(process.resourcesPath, "assets")
+    : path.join(__dirname, "../../assets");
 
   return path.join(RESOURCES_PATH, ...paths);
 };
@@ -390,31 +390,31 @@ const getAssetPath = (...paths: string[]): string => {
  */
 const getWowFlavour = (pathSpec: string): string => {
   const flavourInfoFile = path.normalize(
-    path.join(pathSpec, '../.flavor.info'),
+    path.join(pathSpec, "../.flavor.info"),
   );
 
   // If this file doesn't exist, it's not a subdirectory of a WoW flavour.
   if (!fs.existsSync(flavourInfoFile)) {
-    return 'unknown';
+    return "unknown";
   }
 
-  const content = fs.readFileSync(flavourInfoFile).toString().split('\n');
+  const content = fs.readFileSync(flavourInfoFile).toString().split("\n");
 
-  return content.length > 1 ? content[1] : 'unknown';
+  return content.length > 1 ? content[1] : "unknown";
 };
 
 /**
  * Adds an error to the error report component.
  */
 const emitErrorReport = (data: unknown) => {
-  console.error('[Util] Emitting error report', String(data));
+  console.error("[Util] Emitting error report", String(data));
 
   const report: ErrorReport = {
     date: new Date(),
     reason: String(data),
   };
 
-  send('updateErrorReport', report);
+  send("updateErrorReport", report);
 };
 
 const isPushToTalkHotkey = (
@@ -424,8 +424,7 @@ const isPushToTalkHotkey = (
   const { keyCode, mouseButton, altKey, ctrlKey, shiftKey, metaKey } = event;
   const { pushToTalkKey, pushToTalkMouseButton, pushToTalkModifiers } = config;
 
-  const buttonMatch =
-    (keyCode > 0 && keyCode === pushToTalkKey) ||
+  const buttonMatch = (keyCode > 0 && keyCode === pushToTalkKey) ||
     (mouseButton > 0 && mouseButton === pushToTalkMouseButton);
 
   if (event.type === PTTEventType.EVENT_KEY_RELEASED) {
@@ -439,11 +438,11 @@ const isPushToTalkHotkey = (
   // config are met but we don't enforce the inverse, i.e. we'll accept
   // an additional modifier present (so CTRL + SHIFT + E will trigger
   // a CTRL + E hotkey).
-  const modifierMatch = pushToTalkModifiers.split(',').reduce((acc, mod) => {
-    if (mod === 'alt') return acc && altKey;
-    if (mod === 'ctrl') return acc && ctrlKey;
-    if (mod === 'shift') return acc && shiftKey;
-    if (mod === 'win') return acc && metaKey;
+  const modifierMatch = pushToTalkModifiers.split(",").reduce((acc, mod) => {
+    if (mod === "alt") return acc && altKey;
+    if (mod === "ctrl") return acc && ctrlKey;
+    if (mod === "shift") return acc && shiftKey;
+    if (mod === "win") return acc && metaKey;
     return acc; // Ignore unknown modifiers
   }, true);
 
@@ -459,9 +458,9 @@ const isManualRecordHotKey = (event: UiohookKeyboardEvent) => {
     return false;
   }
 
-  const manualRecordHotKey = cfg.get<number>('manualRecordHotKey');
+  const manualRecordHotKey = cfg.get<number>("manualRecordHotKey");
   const manualRecordHotKeyModifiers = cfg.get<string>(
-    'manualRecordHotKeyModifiers',
+    "manualRecordHotKeyModifiers",
   );
 
   const buttonMatch = keycode > 0 && keycode === manualRecordHotKey;
@@ -471,12 +470,12 @@ const isManualRecordHotKey = (event: UiohookKeyboardEvent) => {
   // an additional modifier present (so CTRL + SHIFT + E will trigger
   // a CTRL + E hotkey).
   const modifierMatch = manualRecordHotKeyModifiers
-    .split(',')
+    .split(",")
     .reduce((acc, mod) => {
-      if (mod === 'alt') return acc && altKey;
-      if (mod === 'ctrl') return acc && ctrlKey;
-      if (mod === 'shift') return acc && shiftKey;
-      if (mod === 'win') return acc && metaKey;
+      if (mod === "alt") return acc && altKey;
+      if (mod === "ctrl") return acc && ctrlKey;
+      if (mod === "shift") return acc && shiftKey;
+      if (mod === "win") return acc && metaKey;
       return acc; // Ignore unknown modifiers
     }, true);
 
@@ -557,7 +556,7 @@ const convertUioHookEvent = (
 
 const nextKeyPressPromise = (): Promise<PTTKeyPressEvent> => {
   return new Promise((resolve) => {
-    uIOhook.once('keyup', (event) => {
+    uIOhook.once("keyup", (event) => {
       resolve(convertUioHookEvent(event));
     });
   });
@@ -567,7 +566,7 @@ const nextMousePressPromise = (): Promise<PTTKeyPressEvent> => {
   return new Promise((resolve) => {
     // Deliberatly 'mousedown' else we fire on the initial click
     // and always get mouse button 1.
-    uIOhook.once('mousedown', (event) => {
+    uIOhook.once("mousedown", (event) => {
       resolve(convertUioHookEvent(event));
     });
   });
@@ -596,7 +595,7 @@ const buildClipMetadata = (initial: Metadata, duration: number, date: Date) => {
 
 const getOBSFormattedDate = (date: Date) => {
   const toFixedDigits = (n: number, d: number) =>
-    n.toLocaleString('en-US', { minimumIntegerDigits: d, useGrouping: false });
+    n.toLocaleString("en-US", { minimumIntegerDigits: d, useGrouping: false });
 
   const day = toFixedDigits(date.getDate(), 2);
   const month = toFixedDigits(date.getMonth() + 1, 2);
@@ -616,7 +615,7 @@ const getOBSFormattedDate = (date: Date) => {
  * @param req size required in GB
  */
 const checkDisk = async (dir: string, req: number) => {
-  const files = await getSortedFiles(dir, '.*');
+  const files = await getSortedFiles(dir, ".*");
   let inUseBytes = 0;
 
   files.forEach((file) => {
@@ -630,7 +629,7 @@ const checkDisk = async (dir: string, req: number) => {
   } catch (error) {
     // If we fail to check how much space is free then just log a warning and
     // return, we don't want to fail config validation in this case. See issue 478.
-    console.warn('[Util] Failed to get free disk space from OS');
+    console.warn("[Util] Failed to get free disk space from OS");
     console.warn(String(error));
     return;
   }
@@ -640,7 +639,8 @@ const checkDisk = async (dir: string, req: number) => {
   const reqBytes = req * 1024 ** 3 - inUseBytes;
 
   if (freeBytes < reqBytes) {
-    const msg = `Disk '${disk}' does not have enough free space, needs ${req}GB.`;
+    const msg =
+      `Disk '${disk}' does not have enough free space, needs ${req}GB.`;
     console.error(`Disk check failed: ${msg}`);
     throw new Error(msg);
   }
@@ -685,7 +685,7 @@ const markForVideoForDelete = async (videoPath: string) => {
     // Just log it so it's diagnosable, a user could fix it easily with a
     // manual delete.
     console.error(
-      '[Util] Failed to mark a video for deletion',
+      "[Util] Failed to mark a video for deletion",
       videoPath,
       String(error),
     );
@@ -697,7 +697,7 @@ const markForVideoForDelete = async (videoPath: string) => {
  * videos from cloud to disk.
  */
 const rendererVideoToMetadata = (video: RendererVideo) => {
-  const data = video as any;
+  const data = video as Record<string, unknown>;
   delete data.videoSource;
   delete data.videoName;
   delete data.mtime;
@@ -716,16 +716,15 @@ const cloudSignedMetadataToRendererVideo = (metadata: CloudSignedMetadata) => {
   const videoSource = metadata.signedVideoKey;
   const uniqueId = `${metadata.videoName}-cloud`;
 
-  // We don't want the signed properties themselves.
-  const mutable: any = metadata;
-  delete mutable.signedVideoKey;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { signedVideoKey, ...rest } = metadata;
 
   const video: RendererVideo = {
-    ...mutable,
+    ...rest,
     videoSource,
     multiPov: [],
     cloud: true,
-    isProtected: Boolean(mutable.protected),
+    isProtected: Boolean(metadata.protected),
     mtime: 0,
     uniqueId,
   };
@@ -747,17 +746,17 @@ const exists = async (file: string) => {
 
 /**
  * Check if the folder contains the managed.txt file indicating it is owned
- * by Warcraft Recorder.
+ * by Fellowsnip Recorder.
  */
 const isFolderOwned = async (dir: string) => {
-  const file = path.join(dir, 'managed.txt');
+  const file = path.join(dir, "managed.txt");
 
   if (await exists(file)) {
-    console.info('[Util] Ownership file exists in', dir);
+    console.info("[Util] Ownership file exists in", dir);
     return true;
   }
 
-  console.info('[Util] Ownership file does not exist in', dir);
+  console.info("[Util] Ownership file does not exist in", dir);
   return false;
 };
 
@@ -765,15 +764,15 @@ const isFolderOwned = async (dir: string) => {
  * Take ownership of a directory as the storage directory by writing a file to
  * indicate our ownership. This does the necessary checks that it doesn't contain
  * files we don't recognise first, to avoid the case where a user sets a storage
- * path that contains other files which Warcraft Recorder may go on to delete.
+ * path that contains other files which Fellowsnip may go on to delete.
  * More context: https://github.com/aza547/wow-recorder/issues/400.
  */
 const takeOwnershipStorageDir = async (dir: string) => {
   const helptext =
-    'If you are setting up Warcraft Recorder for the first time, this folder should be empty.';
+    "If you are setting up Fellowsnip for the first time, this folder should be empty.";
 
   const content =
-    'This folder is managed by Warcraft Recorder, files in it may be automatically created, modified or deleted.';
+    "This folder is managed by Fellowsnip, files in it may be automatically created, modified or deleted.";
 
   const files = await fs.promises.readdir(dir);
 
@@ -781,18 +780,18 @@ const takeOwnershipStorageDir = async (dir: string) => {
   // Recorder creates. We won't take ownership of a directory with
   // other files in it.
   const unexpected = files
-    .filter((file) => !file.endsWith('.mp4'))
-    .filter((file) => !file.endsWith('.json'))
-    .filter((file) => !file.endsWith('.png'))
-    .filter((file) => file !== '.temp')
-    .filter((file) => file !== 'managed.txt')
-    .filter((file) => file !== 'desktop.ini');
+    .filter((file) => !file.endsWith(".mp4"))
+    .filter((file) => !file.endsWith(".json"))
+    .filter((file) => !file.endsWith(".png"))
+    .filter((file) => file !== ".temp")
+    .filter((file) => file !== "managed.txt")
+    .filter((file) => file !== "desktop.ini");
 
   if (unexpected.length > 0) {
     console.warn(
-      '[Util] Found',
+      "[Util] Found",
       unexpected.length,
-      'unexpected files in storage dir',
+      "unexpected files in storage dir",
       dir,
       unexpected,
     );
@@ -802,23 +801,23 @@ const takeOwnershipStorageDir = async (dir: string) => {
 
   // Ensure that every MP4 file we saw has a corresponding JSON and PNG file,
   // this covers the case that we've seen before where someone was otherwise
-  // recording MP4s to the same directory as they configured Warcraft Recorder
+  // recording MP4s to the same directory as they configured Fellowsnip for
   // to use.
-  const mp4s = files.filter((file) => file.endsWith('.mp4'));
+  const mp4s = files.filter((file) => file.endsWith(".mp4"));
 
   for (let i = 0; i < mp4s.length; i++) {
     const mp4 = mp4s[i];
-    const base = path.basename(mp4, '.mp4');
+    const base = path.basename(mp4, ".mp4");
 
     const metadata = `${base}.json`;
 
     if (!files.includes(metadata)) {
-      console.warn('[Util] Mismatch of files in storage dir', base);
+      console.warn("[Util] Mismatch of files in storage dir", base);
       throw new Error(`Can not take ownership of ${dir}. ${helptext}`);
     }
   }
 
-  const file = path.join(dir, 'managed.txt');
+  const file = path.join(dir, "managed.txt");
   await fs.promises.writeFile(file, content);
 };
 
@@ -826,27 +825,27 @@ const takeOwnershipStorageDir = async (dir: string) => {
  * Take ownership of a directory as the buffer directory by writing a file to
  * indicate our ownership. This does the necessary checks that it doesn't contain
  * files we don't recognise first, to avoid the case where a user sets a buffer
- * storage path that contains other files which Warcraft Recorder may go on to delete.
+ * storage path that contains other files which Fellowsnip may go on to delete.
  * More context: https://github.com/aza547/wow-recorder/issues/400.
  */
 const takeOwnershipBufferDir = async (dir: string) => {
   const helptext =
-    'If you are setting up Warcraft Recorder for the first time, this folder should be empty.';
+    "If you are setting up Fellowsnip for the first time, this folder should be empty.";
 
   const content =
-    'This folder is managed by Warcraft Recorder, files in it may be automatically created, modified or deleted.';
+    "This folder is managed by Fellowsnip, files in it may be automatically created, modified or deleted.";
 
   const files = await fs.promises.readdir(dir);
 
   const unexpected = files
-    .filter((file) => !file.endsWith('.mp4'))
-    .filter((file) => file !== 'managed.txt');
+    .filter((file) => !file.endsWith(".mp4"))
+    .filter((file) => file !== "managed.txt");
 
   if (unexpected.length > 0) {
     console.warn(
-      '[Util] Found',
+      "[Util] Found",
       unexpected.length,
-      'unexpected files in buffer dir',
+      "unexpected files in buffer dir",
       dir,
       unexpected,
     );
@@ -857,17 +856,17 @@ const takeOwnershipBufferDir = async (dir: string) => {
   const regex = /^\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2}.mp4$/;
 
   files
-    .filter((file) => file.endsWith('.mp4'))
+    .filter((file) => file.endsWith(".mp4"))
     .forEach((file) => {
       const match = regex.test(file);
 
       if (!match) {
-        console.warn('[Util] Unrecognized file in buffer dir', file);
+        console.warn("[Util] Unrecognized file in buffer dir", file);
         throw new Error(`Can not take ownership of ${dir}. ${helptext}`);
       }
     });
 
-  const file = path.join(dir, 'managed.txt');
+  const file = path.join(dir, "managed.txt");
   await fs.promises.writeFile(file, content);
 };
 
@@ -884,41 +883,41 @@ const logAxiosError = (msg: string, error: AxiosError) => {
 };
 
 export {
-  setupApplicationLogging,
-  writeMetadataFile,
-  deleteVideoDisk,
-  openSystemExplorer,
-  fixPathWhenPackaged,
-  getSortedVideos,
-  getAvailableDisplays,
-  getSortedFiles,
-  tryUnlink,
-  getMetadataForVideo,
+  areDatesWithinSeconds,
+  buildClipMetadata,
+  checkDisk,
+  cloudSignedMetadataToRendererVideo,
+  convertKoreanVideoCategory,
+  convertUioHookEvent,
   deferredPromiseHelper,
+  delayedDeleteVideo,
+  deleteVideoDisk,
+  emitErrorReport,
+  exists,
+  fixPathWhenPackaged,
   getAssetPath,
+  getAvailableDisplays,
+  getMetadataFileNameForVideo,
+  getMetadataForVideo,
+  getOBSFormattedDate,
+  getPromiseBomb,
+  getSortedFiles,
+  getSortedVideos,
   getWowFlavour,
+  isFolderOwned,
+  isManualRecordHotKey,
   isPushToTalkHotkey,
+  loadVideoDetailsDisk,
+  logAxiosError,
+  markForVideoForDelete,
   nextKeyPressPromise,
   nextMousePressPromise,
-  convertUioHookEvent,
-  getPromiseBomb,
-  emitErrorReport,
-  buildClipMetadata,
-  getOBSFormattedDate,
-  checkDisk,
-  getMetadataFileNameForVideo,
-  loadVideoDetailsDisk,
-  reverseChronologicalVideoSort,
-  areDatesWithinSeconds,
-  markForVideoForDelete,
+  openSystemExplorer,
   rendererVideoToMetadata,
-  cloudSignedMetadataToRendererVideo,
-  exists,
-  isFolderOwned,
-  takeOwnershipStorageDir,
+  reverseChronologicalVideoSort,
+  setupApplicationLogging,
   takeOwnershipBufferDir,
-  convertKoreanVideoCategory,
-  isManualRecordHotKey,
-  delayedDeleteVideo,
-  logAxiosError,
+  takeOwnershipStorageDir,
+  tryUnlink,
+  writeMetadataFile,
 };

@@ -1,7 +1,7 @@
 import ElectronStore from 'electron-store';
 import { Channels } from 'main/preload';
 import { AudioSourceType, SceneItem } from 'main/types';
-import { Crop, ObsProperty, SceneItemPosition, SourceDimensions } from 'noobs';
+import { ObsProperty, SceneItemPosition, SourceDimensions } from 'noobs';
 
 declare global {
   interface Window {
@@ -9,8 +9,8 @@ declare global {
       store: ElectronStore;
       ipcRenderer: {
         sendMessage(channel: Channels, args: unknown[]): void;
-        sendSync(channel: Channels, args: unknown[]): any;
-        invoke(channel: Channels, args: unknown[]): Promise<any>;
+        sendSync(channel: Channels, args: unknown[]): unknown;
+        invoke(channel: Channels, args: unknown[]): Promise<unknown>;
         on(
           channel: string,
           func: (...args: unknown[]) => void,
@@ -37,7 +37,7 @@ declare global {
 
         getSourcePosition(
           src: SceneItem,
-        ): Promise<SceneItemPosition & SourceDimensions & Crop>;
+        ): Promise<SceneItemPosition & SourceDimensions>;
         resetSourcePosition(src: SceneItem): void;
         setSourcePosition(
           src: SceneItem,

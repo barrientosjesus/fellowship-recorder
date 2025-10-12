@@ -7,7 +7,7 @@
     ${If} $1 != '0' 
       ${If} $1 != '3010' # The MSI "need to reboot" return code.
         ${If} $1 != '1638' # The MSI "already installed" return code.
-          MessageBox MB_OK|MB_ICONEXCLAMATION 'WARNING: Warcraft Recorder was unable to install the latest Visual C++ Redistributable package from Microsoft.'
+          MessageBox MB_OK|MB_ICONEXCLAMATION 'WARNING: Fellowsnip was unable to install the latest Visual C++ Redistributable package from Microsoft.'
         ${EndIf}
       ${EndIf}
     ${EndIf}
@@ -17,7 +17,7 @@
     # ${EndIf}
 
   ${Else}
-      MessageBox MB_OK|MB_ICONEXCLAMATION 'WARNING: Warcraft Recorder was unable to download the latest Visual C++ Redistributable package from Microsoft.'
+      MessageBox MB_OK|MB_ICONEXCLAMATION 'WARNING: Fellowsnip was unable to download the latest Visual C++ Redistributable package from Microsoft.'
   ${EndIf}
 
   FileOpen $0 "$INSTDIR\installername" w
@@ -81,13 +81,13 @@
           !insertmacro FIND_PROCESS "${APP_EXECUTABLE_FILENAME}" $R0
           ${if} $R0 == 0
             # wait to give a chance to exit gracefully
-            # Warcraft Recorder Change 1 (2000 -> 1000)
+            # Fellowsnip Change 1 (2000 -> 1000)
             Sleep 10000 
             !ifdef INSTALL_MODE_PER_ALL_USERS
-              # Warcraft Recorder Change 2 (add /t)
+              # Fellowsnip Change 2 (add /t)
               nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}" /fi "PID ne $pid"` 
             !else
-              # Warcraft Recorder Change 2 (add /t)
+              # Fellowsnip Change 2 (add /t)
               nsExec::Exec `cmd /c taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}" /fi "PID ne $pid" /fi "USERNAME eq %USERNAME%"`
             !endif
             !insertmacro FIND_PROCESS "${APP_EXECUTABLE_FILENAME}" $R0

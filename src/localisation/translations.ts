@@ -19,6 +19,12 @@ const getLocaleCategoryLabel = (
   videoCategory: VideoCategory,
 ) => {
   switch (videoCategory) {
+    case VideoCategory.Adventures:
+      return getLocalePhrase(lang, Phrase.VideoCategoryAdventuresLabel);
+    case VideoCategory.Quickplays:
+      return getLocalePhrase(lang, Phrase.VideoCategoryQuickplaysLabel);
+    case VideoCategory.Dungeons:
+      return getLocalePhrase(lang, Phrase.VideoCategoryDungeonsLabel);
     case VideoCategory.TwoVTwo:
       return getLocalePhrase(lang, Phrase.VideoCategoryTwoVTwoLabel);
     case VideoCategory.ThreeVThree:
@@ -44,4 +50,4 @@ const getLocaleCategoryLabel = (
   }
 };
 
-export { getLocalePhrase, getLocaleCategoryLabel, Language };
+export { getLocaleCategoryLabel, getLocalePhrase, Language };

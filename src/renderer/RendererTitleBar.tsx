@@ -46,7 +46,7 @@ export default function RendererTitleBar() {
         style={{ width: '20px', height: '20px', marginRight: 8 }}
       />
       <div className="text-popover-foreground font-semibold text-sm font-sans">
-        Warcraft Recorder
+        Fellowsnip
       </div>
       <div id="title-bar-btns" className="ml-auto absolute right-0 top-0">
         <TitleBarButton id="min-btn" onClick={clickedHide}>

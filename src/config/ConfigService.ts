@@ -1,9 +1,9 @@
-import ElectronStore from 'electron-store';
-import { ipcMain } from 'electron';
-import path from 'path';
-import { EventEmitter } from 'stream';
-import { configSchema, ConfigurationSchema } from './configSchema';
-import _ from 'lodash';
+import ElectronStore from "electron-store";
+import { ipcMain } from "electron";
+import path from "path";
+import { EventEmitter } from "stream";
+import { configSchema, ConfigurationSchema } from "./configSchema";
+import _ from "lodash";
 
 /**
  * Interface for the ConfigService class.
@@ -26,7 +26,7 @@ export interface IConfigService extends EventEmitter {
    * @param key - The configuration key to set.
    * @param value - The value to set for the key.
    */
-  set(key: keyof ConfigurationSchema, value: any): void;
+  set(key: keyof ConfigurationSchema, value: unknown): void;
 
   /**
    * Get the value of a configuration key as a number.
@@ -47,10 +47,8 @@ export interface IConfigService extends EventEmitter {
   getPath(key: keyof ConfigurationSchema): string;
 }
 
-export default class ConfigService
-  extends EventEmitter
-  implements IConfigService
-{
+export default class ConfigService extends EventEmitter
+  implements IConfigService {
   /**
    * Singleton instance of class.
    */
@@ -60,7 +58,7 @@ export default class ConfigService
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore 'schema' is "wrong", but it really isn't.
     configSchema,
-    name: 'config-v3',
+    name: "config-v3",
   });
 
   /**
@@ -80,27 +78,27 @@ export default class ConfigService
     const loggable = this._store.store;
 
     if (loggable.cloudAccountPassword) {
-      loggable.cloudAccountPassword = '**********';
+      loggable.cloudAccountPassword = "**********";
     }
 
-    console.info('[Config Service] Using configuration', loggable);
+    console.info("[Config Service] Using configuration", loggable);
 
-    this._store.onDidAnyChange((newValue: any, oldValue: any) => {
-      this.emit('configChanged', oldValue, newValue);
+    this._store.onDidAnyChange((newValue: unknown, oldValue: unknown) => {
+      this.emit("configChanged", oldValue, newValue);
     });
 
     /**
      * Getter and setter config listeners.
      */
-    ipcMain.on('config', (event, args) => {
+    ipcMain.on("config", (event, args) => {
       switch (args[0]) {
-        case 'get': {
+        case "get": {
           const value = this.get(args[1]);
           event.returnValue = value;
           return;
         }
 
-        case 'set': {
+        case "set": {
           const [key, value] = [args[1], args[2]];
 
           if (!this.configValueChanged(key, value)) {
@@ -108,15 +106,18 @@ export default class ConfigService
           }
 
           this.set(key, value);
-          this.emit('change', key, value);
+          this.emit("change", key, value);
           ConfigService.logConfigChanged({ [key]: value });
           return;
         }
 
-        case 'set_values': {
+        case "set_values": {
           const configObject = args[1];
           const configKeys = Object.keys(configObject);
-          const newConfigValues: { [key: string]: any } = {};
+          const newConfigValues: { [key: string]: unknown } = {};
+
+          console.log("[TEST] CONFIG OBJECT", configObject);
+          console.log("[TEST] CONFIG KEYS", configKeys);
 
           configKeys.forEach((key: string) => {
             if (!this.configValueChanged(key, configObject[key])) {
@@ -126,11 +127,13 @@ export default class ConfigService
             newConfigValues[key] = configObject[key];
           });
 
+          console.log("[TEST] NEW CONFIG VALUES", newConfigValues);
+
           Object.keys(newConfigValues).forEach((key: any) => {
             const value = newConfigValues[key];
 
             this.set(key, value);
-            this.emit('change', key, value);
+            this.emit("change", key, value);
           });
 
           ConfigService.logConfigChanged(newConfigValues);
@@ -140,7 +143,7 @@ export default class ConfigService
 
         default: {
           console.error(
-            '[ConfigService] Unrecognised config call, should be one of get, set or set_values',
+            "[ConfigService] Unrecognised config call, should be one of get, set or set_values",
           );
         }
       }
@@ -169,10 +172,10 @@ export default class ConfigService
     return value as T;
   }
 
-  set(key: keyof ConfigurationSchema, value: any): void {
+  set(key: keyof ConfigurationSchema, value: unknown): void {
     if (!configSchema[key]) {
       throw Error(
-        `[Config Service] Attempted to set invalid configuration key '${key}'`,
+        `[Config Service] Attempted to set invalid configuration key 3'${key}'`,
       );
     }
 
@@ -188,7 +191,7 @@ export default class ConfigService
     const value = this.getString(key);
 
     if (!value) {
-      return '';
+      return "";
     }
 
     return path.join(value, path.sep);
@@ -199,7 +202,7 @@ export default class ConfigService
   }
 
   getString(key: keyof ConfigurationSchema): string {
-    return this.has(key) ? (this.get(key) as string) : '';
+    return this.has(key) ? (this.get(key) as string) : "";
   }
 
   /**
@@ -224,7 +227,7 @@ export default class ConfigService
     keysToDelete.forEach((k) => this._store.delete(k));
 
     console.info(
-      '[Config Service] Deleted deprecated keys from configuration store',
+      "[Config Service] Deleted deprecated keys from configuration store",
       keysToDelete,
     );
   }
@@ -232,7 +235,7 @@ export default class ConfigService
   /**
    * Determine whether a configuration value has changed.
    */
-  private configValueChanged(key: string, value: any): boolean {
+  private configValueChanged(key: string, value: unknown): boolean {
     // We're checking for null here because we don't allow storing
     // null values and as such if we get one, it's because it's empty/shouldn't
     // be saved.
@@ -243,11 +246,11 @@ export default class ConfigService
     return !_.isEqual(this._store.get(key), value);
   }
 
-  private static logConfigChanged(newConfig: { [key: string]: any }): void {
+  private static logConfigChanged(newConfig: { [key: string]: unknown }): void {
     if (newConfig.cloudAccountPassword) {
-      newConfig.cloudAccountPassword = '**********';
+      newConfig.cloudAccountPassword = "**********";
     }
 
-    console.info('[Config Service] Configuration changed:', newConfig);
+    console.info("[Config Service] Configuration changed:", newConfig);
   }
 }

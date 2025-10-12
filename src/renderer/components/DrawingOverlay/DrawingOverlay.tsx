@@ -7,7 +7,7 @@ import { Language } from 'localisation/phrases';
 
 interface DrawingOverlayProps {
   isDrawingEnabled: boolean;
-  onDrawingChange: (elements: readonly any[]) => void;
+  onDrawingChange: (elements: readonly unknown[]) => void;
   appState: AppState;
 }
 

@@ -10,12 +10,12 @@
     "javascriptreact",
     "html",
     "typescriptreact",
-    "typescript"
   ],
 
   "javascript.validate.enable": false,
   "javascript.format.enable": false,
   "typescript.format.enable": false,
+  "files.eol": "\n",
 
   "search.exclude": {
     ".git": true,

@@ -8,4 +8,4 @@ NAME = "mythic_plus_no_boss"
 LOG = f"{CWD}/../../logs/retail/{NAME}.txt"
 OVERRUN = 5
 OUTPUT = "Arcanedemon - The Stonevault +10 (Abandoned)"
-SLEEPS = { "WARCRAFT_RECORDER_FORCE_STOP": 2 }
+SLEEPS = { "FELLOWSNIP_FORCE_STOP": 2 }

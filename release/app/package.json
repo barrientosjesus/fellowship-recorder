@@ -1,10 +1,10 @@
 {
-  "name": "WarcraftRecorder",
-  "version": "7.0.3",
-  "description": "Warcraft Recorder",
+  "name": "Fellowsnip",
+  "version": "1.0.0",
+  "description": "Fellowsnip",
   "main": "./dist/main/main.js",
   "author": {
-    "name": "Alex K"
+    "name": "Chuey"
   },
   "scripts": {
     "electron-rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",

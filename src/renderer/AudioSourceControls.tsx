@@ -661,11 +661,11 @@ const AudioSourceControls = (props: IProps) => {
     let idx = 1;
 
     // Find the next available name.
-    while (ids.includes(`WCR Audio Source ${idx}`)) {
+    while (ids.includes(`FS Audio Source ${idx}`)) {
       idx++;
     }
 
-    const id = `WCR Audio Source ${idx}`;
+    const id = `FS Audio Source ${idx}`;
     const name = await ipc.createAudioSource(id, type);
     const device = type === AudioSourceType.PROCESS ? undefined : 'default';
     const friendly = device;

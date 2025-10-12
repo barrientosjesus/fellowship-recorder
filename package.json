@@ -1,6 +1,6 @@
 {
-  "name": "WarcraftRecorder",
-  "description": "Warcraft Recorder",
+  "name": "Fellowsnip",
+  "description": "Fellowsnip",
   "keywords": [
     "world",
     "of",
@@ -8,19 +8,19 @@
     "screen",
     "recorder"
   ],
-  "homepage": "https://www.warcraftrecorder.com/",
+  "homepage": "https://www.fellowsnip.com/",
   "bugs": {
-    "url": "https://github.com/aza547/wow-recorder/issues"
+    "url": "https://github.com/fellowsguide/fellowsnip/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aza547/wow-recorder.git"
+    "url": "git+https://github.com/fellowsguide/fellowsnip.git"
   },
   "license": "Creative Commons Attribution-NonCommercial",
   "author": {
-    "name": "Alex K",
-    "email": "warcraftrecorder@gmail.com",
-    "url": "https://www.warcraftrecorder.com/"
+    "name": "Chuey",
+    "email": "chuey@fellowsguide.com",
+    "url": "https://www.fellowsnip.com/"
   },
   "main": "./.erb/dll/main.bundle.dev.js",
   "scripts": {
@@ -63,8 +63,8 @@
     "logLevel": "quiet"
   },
   "build": {
-    "productName": "WarcraftRecorder",
-    "appId": "org.WarcraftRecorder",
+    "productName": "Fellowsnip",
+    "appId": "org.Fellowsnip",
     "asar": true,
     "asarUnpack": "**\\**",
     "files": [
@@ -78,10 +78,7 @@
       "deleteAppDataOnUninstall": true
     },
     "win": {
-      "signtoolOptions": {
-        "certificateSubjectName": "Warcraft Recorder Limited"
-      },
-      "artifactName": "WarcraftRecorder-Setup-${version}.exe",
+      "artifactName": "Fellowsnip-Setup-${version}.exe",
       "target": [
         "nsis"
       ]
@@ -97,8 +94,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "aza547",
-      "repo": "wow-recorder"
+      "owner": "fellowsguide",
+      "repo": "fellowsnip"
     }
   },
   "jest": {

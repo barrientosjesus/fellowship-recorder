@@ -57,12 +57,12 @@ export const runRetailRecordingTest = (
     return;
   }
 
-  if (!Poller.getInstance().isWowRunning()) {
-    console.info("[test] WoW isn't running, not starting test.");
+  if (!Poller.getInstance().isFellowshipRunning()) {
+    console.info("[test] Fellowship isn't running, not starting test.");
     return;
   }
 
-  console.info('[test] WoW is running, starting test.');
+  console.info('[test] Fellowship is running, starting test.');
   testRunning = true;
   const startDate = getAdjustedDate();
   let testLines: string[];
@@ -128,12 +128,12 @@ export const runClassicRecordingTest = (
     return;
   }
 
-  if (!Poller.getInstance().isWowRunning()) {
-    console.info("[test] WoW isn't running, not starting test.");
+  if (!Poller.getInstance().isFellowshipRunning()) {
+    console.info("[test] Fellowship isn't running, not starting test.");
     return;
   }
 
-  console.info('[test] WoW is running, starting test.');
+  console.info('[test] Fellowship is running, starting test.');
   testRunning = true;
 
   // This inserts a test date so that the recorder doesn't confuse itself with

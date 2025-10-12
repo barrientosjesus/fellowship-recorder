@@ -21,10 +21,10 @@ export default class Poller extends EventEmitter {
   private cfg: ConfigService = ConfigService.getInstance();
 
   /**
-   * If a WoW process is running AND the corresponding record config is
-   * enabled. Includes various flavours of retail, classic and era.
+   * If a Fellowship process is running AND the corresponding record config is
+   * enabled.
    */
-  private wowRunning = false;
+  private fellowshipRunning = false;
 
   /**
    * Spawned child process.
@@ -54,11 +54,12 @@ export default class Poller extends EventEmitter {
   }
 
   /**
-   * Convienence method to check if WoW is running. Only returns true if WoW
-   * is running, and the configuration is setup to record that flavour of WoW.
+   * Convienence method to check if Fellowship is running. Only returns true if
+   * Fellowship is running, and the configuration is setup to record that
+   * flavour of Fellowship.
    */
-  public isWowRunning() {
-    return this.wowRunning;
+  public isFellowshipRunning() {
+    return this.fellowshipRunning;
   }
 
   /**
@@ -66,7 +67,7 @@ export default class Poller extends EventEmitter {
    */
   public stop() {
     console.info('[Poller] Stop process poller');
-    this.wowRunning = false;
+    this.fellowshipRunning = false;
 
     if (this.child) {
       this.child.kill();
@@ -106,18 +107,11 @@ export default class Poller extends EventEmitter {
       return;
     }
 
-    const { Retail, Classic } = parsed;
+    const { Fellowship } = parsed;
 
-    const recordRetail = this.cfg.get<boolean>('recordRetail');
-    const recordClassic = this.cfg.get<boolean>('recordClassic');
-    const recordEra = this.cfg.get<boolean>('recordEra');
+    const running = Fellowship;
 
-    const running =
-      (recordRetail && Retail) ||
-      (recordClassic && Classic) ||
-      (recordEra && Classic); // Era and Classic clients share a process name.
-
-    if (this.wowRunning === running) {
+    if (this.fellowshipRunning === running) {
       // Nothing to emit.
       return;
     }
@@ -128,7 +122,7 @@ export default class Poller extends EventEmitter {
       this.emit(WowProcessEvent.STOPPED);
     }
 
-    this.wowRunning = running;
+    this.fellowshipRunning = running;
   };
 
   /**

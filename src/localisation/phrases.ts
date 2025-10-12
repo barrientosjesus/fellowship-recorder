@@ -466,13 +466,26 @@ enum Phrase {
   NoAudioSourcesText,
   SelectADevice,
   SelectAnApplication,
+
+  // Fellowship Specific Stuff
+  VideoCategoryAdventuresLabel,
+  VideoCategoryQuickplaysLabel,
+  VideoCategoryDungeonsLabel,
+  FellowshipLogPathDescription,
+  RecordQuickplaysDescription,
+  MinDifficultyLevelDescription,
+  RecordAdventuresDescription,
+  HeroBlacklistDescription,
+  CloudUploadQuickplaysDescription,
+  CloudUploadAdventuresDescription,
+  RecordFellowshipDescription,
 }
 
 enum Language {
-  ENGLISH = 'English',
-  KOREAN = '한국어',
-  GERMAN = 'German',
-  CHINESE_SIMPLIFIED = '简体中文',
+  ENGLISH = "English",
+  KOREAN = "한국어",
+  GERMAN = "German",
+  CHINESE_SIMPLIFIED = "简体中文",
 }
 
 type Translations = {
@@ -483,4 +496,4 @@ type LocalizationDataType = {
   [key in Language]: Translations;
 };
 
-export { Phrase, Language, Translations, LocalizationDataType };
+export { Language, LocalizationDataType, Phrase, Translations };

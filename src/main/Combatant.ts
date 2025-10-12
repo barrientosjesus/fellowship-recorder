@@ -1,4 +1,4 @@
-import { RawCombatant } from './types';
+import { RawCombatant } from "./types";
 
 /**
  * Represents an arena combatant.
@@ -6,9 +6,7 @@ import { RawCombatant } from './types';
 export default class Combatant {
   private _GUID: string;
 
-  private _teamID?: number;
-
-  private _specID?: number;
+  private _heroID?: number;
 
   private _name?: string;
 
@@ -16,22 +14,29 @@ export default class Combatant {
 
   private _region?: string;
 
+  private _isPlayer?: boolean;
+
   /**
    * Constructs a new Combatant.
    *
    * @param GUID the GUID of the combatant.
-   * @param teamID the team the combatant belongs to.
-   * @param specID the specID of the combatant
+   * @param heroID the heroID of the combatant
    */
-  constructor(GUID: string, teamID?: number, specID?: number) {
+  constructor(
+    GUID: string,
+    name?: string,
+    heroID?: number,
+    isPlayer?: boolean,
+  ) {
     this._GUID = GUID;
+    this._name = name;
 
-    if (teamID !== undefined) {
-      this._teamID = teamID;
+    if (heroID !== undefined) {
+      this._heroID = heroID;
     }
 
-    if (specID !== undefined) {
-      this._specID = specID;
+    if (isPlayer !== undefined) {
+      this._isPlayer = isPlayer;
     }
   }
 
@@ -43,38 +48,38 @@ export default class Combatant {
   }
 
   /**
-   * Sets the specID.
+   * Sets the GUID.
    */
   set GUID(value) {
     this._GUID = value;
   }
 
   /**
-   * Gets the team ID.
+   * Gets the isPlayer.
    */
-  get teamID() {
-    return this._teamID;
+  get isPlayer() {
+    return this._isPlayer;
   }
 
   /**
-   * Sets the teamID.
+   * Sets the isPlayer.
    */
-  set teamID(value) {
-    this._teamID = value;
+  set isPlayer(value) {
+    this._isPlayer = value;
   }
 
   /**
-   * Gets the team ID.
+   * Gets the hero ID.
    */
-  get specID() {
-    return this._specID;
+  get heroID() {
+    return this._heroID;
   }
 
   /**
-   * Sets the specID.
+   * Sets the heroID.
    */
-  set specID(value) {
-    this._specID = value;
+  set heroID(value) {
+    this._heroID = value;
   }
 
   /**
@@ -124,24 +129,23 @@ export default class Combatant {
   }
 
   isFullyDefined() {
-    const hasGUID = this.teamID !== undefined;
+    const hasGUID = this.GUID !== undefined;
     const hasName = this.name !== undefined;
     const hasRealm = this.realm !== undefined;
-    const hasSpecID = this.specID !== undefined;
-    const hasTeamID = this.teamID !== undefined;
+    const hasHeroID = this.heroID !== undefined;
+    const hasIsPlayer = this.isPlayer !== undefined;
 
     // We do not check region here, because it may not exists in Classic / Era clients.
-    return hasGUID && hasName && hasRealm && hasSpecID && hasTeamID;
+    return hasGUID && hasName && hasRealm && hasHeroID && hasIsPlayer;
   }
 
   getRaw(): RawCombatant {
     const rawCombatant: RawCombatant = { _GUID: this.GUID };
 
-    if (this.teamID !== undefined) rawCombatant._teamID = this.teamID;
-    if (this.specID !== undefined) rawCombatant._specID = this.specID;
+    if (this.heroID !== undefined) rawCombatant._heroID = this.heroID;
     if (this.name !== undefined) rawCombatant._name = this.name;
-    if (this.realm !== undefined) rawCombatant._realm = this.realm;
     if (this.region !== undefined) rawCombatant._region = this.region;
+    if (this.isPlayer !== undefined) rawCombatant._isPlayer = this.isPlayer;
 
     return rawCombatant;
   }

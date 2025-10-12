@@ -96,7 +96,7 @@ ERA_TEST_NAMES = list(map(lambda t: t.NAME, ERA_TESTS))
 PTR_TEST_NAMES = list(map(lambda t: t.NAME, PTR_TESTS))
 
 # Define the CLI arguments.
-parser = argparse.ArgumentParser(prog="Warcraft Recorder Tests")
+parser = argparse.ArgumentParser(prog="Fellowsnip Tests")
 parser.add_argument("-f", help="flavour", choices=["classic", "retail", "era", "ptr"])
 parser.add_argument("-t", help="test", choices=RETAIL_TEST_NAMES + CLASSIC_TEST_NAMES + ERA_TEST_NAMES + PTR_TEST_NAMES)
 args = parser.parse_args()

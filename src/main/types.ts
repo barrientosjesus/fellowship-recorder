@@ -1,16 +1,15 @@
-import { Size } from 'electron';
-import { Language } from '../localisation/translations';
-import { RawChallengeModeTimelineSegment } from './keystone';
-import { VideoCategory } from '../types/VideoCategory';
-import { Tag } from 'react-tag-autocomplete';
-import { DateValueType } from 'react-tailwindcss-datepicker';
+import { Size } from "electron";
+import { Language } from "../localisation/translations";
+import { RawChallengeModeTimelineSegment } from "./keystone";
+import { VideoCategory } from "../types/VideoCategory";
+import { Tag } from "react-tag-autocomplete";
+import { DateValueType } from "react-tailwindcss-datepicker";
 
 /**
  * Application recording status.
  */
 enum Flavour {
-  Retail = 'Retail',
-  Classic = 'Classic',
+  Retail = "Retail",
 }
 
 /**
@@ -93,7 +92,6 @@ type PlayerDeathType = {
   specId: number;
   date: Date;
   timestamp: number;
-  friendly: boolean;
 };
 
 /**
@@ -220,7 +218,7 @@ type CloudMetadata = Metadata & {
 };
 
 /**
- * When we retrieve state from the WCR API, we have a few additional entries
+ * When we retrieve state from the Fellowsnip API, we have a few additional entries
  * in the data, these are signed by the API so that we can read them without
  * the client having credentials.
  */
@@ -235,11 +233,10 @@ type CloudSignedMetadata = CloudMetadata & {
  */
 type RawCombatant = {
   _GUID?: string;
-  _teamID?: number;
-  _specID?: number;
+  _heroID?: number;
   _name?: string;
-  _realm?: string;
   _region?: string;
+  _isPlayer?: boolean;
 };
 
 /**
@@ -267,9 +264,9 @@ type SoloShuffleTimelineSegment = {
 };
 
 enum EDeviceType {
-  audioInput = 'audioInput',
-  audioOutput = 'audioOutput',
-  videoInput = 'videoInput',
+  audioInput = "audioInput",
+  audioOutput = "audioOutput",
+  videoInput = "videoInput",
 }
 
 interface IOBSDevice {
@@ -284,9 +281,9 @@ interface IDevice {
 }
 
 enum AudioSourceType {
-  OUTPUT = 'wasapi_output_capture',
-  INPUT = 'wasapi_input_capture',
-  PROCESS = 'wasapi_process_output_capture',
+  OUTPUT = "wasapi_output_capture",
+  INPUT = "wasapi_input_capture",
+  PROCESS = "wasapi_process_output_capture",
 }
 
 type AudioSource = {
@@ -302,18 +299,18 @@ type AudioSource = {
  * else in TNavigatorState.
  */
 enum Pages {
-  'None',
-  'SceneEditor',
-  'Settings',
+  "None",
+  "SceneEditor",
+  "Settings",
 }
 
 /**
  * Storage filtering options.
  */
 enum StorageFilter {
-  DISK = 'Disk',
-  CLOUD = 'Cloud',
-  BOTH = 'Both',
+  DISK = "Disk",
+  CLOUD = "Cloud",
+  BOTH = "Both",
 }
 
 /**
@@ -379,6 +376,8 @@ type BaseConfig = {
   eraLogPath: string;
   recordRetailPtr: boolean;
   retailPtrLogPath: string;
+  recordFellowship: boolean;
+  fellowshipLogPath: string;
 };
 
 type ObsVideoConfig = {
@@ -421,15 +420,15 @@ type CloudConfig = {
 };
 
 enum DeathMarkers {
-  NONE = 'None',
-  OWN = 'Own',
-  ALL = 'All',
+  NONE = "None",
+  OWN = "Own",
+  ALL = "All",
 }
 
 enum MarkerColors {
-  WIN = 'rgba(30, 255, 0, 1)',
-  LOSS = 'rgba(255, 0, 0, 1)',
-  ENCOUNTER = 'rgba(163, 53, 238, 1)',
+  WIN = "rgba(30, 255, 0, 1)",
+  LOSS = "rgba(255, 0, 0, 1)",
+  ENCOUNTER = "rgba(163, 53, 238, 1)",
 }
 
 type VideoMarker = {
@@ -511,23 +510,23 @@ export declare type TObsValue =
   | TObsStringList;
 
 export declare type TObsType =
-  | 'OBS_PROPERTY_BOOL'
-  | 'OBS_PROPERTY_INT'
-  | 'OBS_PROPERTY_LIST'
-  | 'OBS_PROPERTY_PATH'
-  | 'OBS_PROPERTY_FILE'
-  | 'OBS_PROPERTY_EDIT_TEXT'
-  | 'OBS_PROPERTY_TEXT'
-  | 'OBS_PROPERTY_UINT'
-  | 'OBS_PROPERTY_COLOR'
-  | 'OBS_PROPERTY_DOUBLE'
-  | 'OBS_PROPERTY_FLOAT'
-  | 'OBS_PROPERTY_SLIDER'
-  | 'OBS_PROPERTY_FONT'
-  | 'OBS_PROPERTY_EDITABLE_LIST'
-  | 'OBS_PROPERTY_BUTTON'
-  | 'OBS_PROPERTY_BITMASK'
-  | 'OBS_INPUT_RESOLUTION_LIST';
+  | "OBS_PROPERTY_BOOL"
+  | "OBS_PROPERTY_INT"
+  | "OBS_PROPERTY_LIST"
+  | "OBS_PROPERTY_PATH"
+  | "OBS_PROPERTY_FILE"
+  | "OBS_PROPERTY_EDIT_TEXT"
+  | "OBS_PROPERTY_TEXT"
+  | "OBS_PROPERTY_UINT"
+  | "OBS_PROPERTY_COLOR"
+  | "OBS_PROPERTY_DOUBLE"
+  | "OBS_PROPERTY_FLOAT"
+  | "OBS_PROPERTY_SLIDER"
+  | "OBS_PROPERTY_FONT"
+  | "OBS_PROPERTY_EDITABLE_LIST"
+  | "OBS_PROPERTY_BUTTON"
+  | "OBS_PROPERTY_BITMASK"
+  | "OBS_INPUT_RESOLUTION_LIST";
 
 export interface IObsInput<TValueType> {
   value: TValueType;
@@ -570,8 +569,8 @@ type ObsVolmeterCallbackInfo = {
 };
 
 enum SceneItem {
-  OVERLAY = 'Overlay',
-  GAME = 'Game',
+  OVERLAY = "Overlay",
+  GAME = "Game",
 }
 
 enum SceneInteraction {
@@ -592,87 +591,96 @@ type BoxDimensions = {
 };
 
 enum VideoSourceName {
-  WINDOW = 'WCR Window Capture',
-  GAME = 'WCR Game Capture',
-  MONITOR = 'WCR Monitor Capture',
-  OVERLAY = 'WCR Chat Overlay',
+  WINDOW = "FS Window Capture",
+  GAME = "FS Game Capture",
+  MONITOR = "FS Monitor Capture",
+  OVERLAY = "FS Chat Overlay",
 }
 
 enum AudioSourcePrefix {
-  SPEAKER = 'WCR Speaker Capture',
-  MIC = 'WCR Mic Capture',
-  PROCESS = 'WCR Process Capture',
+  SPEAKER = "FS Speaker Capture",
+  MIC = "FS Mic Capture",
+  PROCESS = "FS Process Capture",
 }
 
 enum WowProcessEvent {
-  STARTED = 'wowProcessStart',
-  STOPPED = 'wowProcessStop',
+  STARTED = "fellowshipProcessStart",
+  STOPPED = "fellowshipProcessStop",
 }
 
 enum SoundAlerts {
-  MANUAL_RECORDING_ERROR = 'manual-recording-error',
-  MANUAL_RECORDING_START = 'manual-recording-start',
-  MANUAL_RECORDING_STOP = 'manual-recording-stop',
+  MANUAL_RECORDING_ERROR = "manual-recording-error",
+  MANUAL_RECORDING_START = "manual-recording-start",
+  MANUAL_RECORDING_STOP = "manual-recording-stop",
 }
 
+// FELLOWSHIP
+type League = {
+  name: string;
+  baseDifficulty: number;
+  maxDifficulty: number;
+  color: string;
+};
+
 export {
-  RecStatus,
-  SaveStatus,
-  UnitFlags,
-  PlayerDeathType,
-  VideoPlayerSettings,
-  FileSortDirection,
-  OurDisplayType,
-  NumberKeyToStringValueMapType,
-  StringKeyToNumberValueMapType,
-  RaidInstanceType,
-  FileInfo,
-  FileFinderCallbackType,
-  VideoQueueItem,
-  Metadata,
-  RendererVideo,
-  Flavour,
-  SoloShuffleTimelineSegment,
-  EDeviceType,
-  IOBSDevice,
-  IDevice,
-  AudioSourceType,
   AppState,
-  RawCombatant,
-  TPreviewPosition,
-  DeviceType,
-  Pages,
-  EncoderType,
-  Encoder,
-  BaseConfig,
-  ObsVideoConfig,
-  ObsOverlayConfig,
-  ObsAudioConfig,
-  CloudConfig,
-  DeathMarkers,
-  VideoMarker,
-  MarkerColors,
-  MicStatus,
-  ErrorReport,
-  SliderMark,
-  CloudStatus,
-  DiskStatus,
-  CloudObject,
-  IBrowserWindow,
-  UploadQueueItem,
-  CloudMetadata,
-  CloudSignedMetadata,
-  CreateMultiPartUploadResponseBody,
-  CompleteMultiPartUploadRequestBody,
-  StorageFilter,
-  ObsSourceCallbackInfo,
-  ObsVolmeterCallbackInfo,
-  VideoSourceName,
   AudioSource,
   AudioSourcePrefix,
-  SceneItem,
-  SceneInteraction,
+  AudioSourceType,
+  BaseConfig,
   BoxDimensions,
-  WowProcessEvent,
+  CloudConfig,
+  CloudMetadata,
+  CloudObject,
+  CloudSignedMetadata,
+  CloudStatus,
+  CompleteMultiPartUploadRequestBody,
+  CreateMultiPartUploadResponseBody,
+  DeathMarkers,
+  DeviceType,
+  DiskStatus,
+  EDeviceType,
+  Encoder,
+  EncoderType,
+  ErrorReport,
+  FileFinderCallbackType,
+  FileInfo,
+  FileSortDirection,
+  Flavour,
+  IBrowserWindow,
+  IDevice,
+  IOBSDevice,
+  League,
+  MarkerColors,
+  Metadata,
+  MicStatus,
+  NumberKeyToStringValueMapType,
+  ObsAudioConfig,
+  ObsOverlayConfig,
+  ObsSourceCallbackInfo,
+  ObsVideoConfig,
+  ObsVolmeterCallbackInfo,
+  OurDisplayType,
+  Pages,
+  PlayerDeathType,
+  RaidInstanceType,
+  RawCombatant,
+  RecStatus,
+  RendererVideo,
+  SaveStatus,
+  SceneInteraction,
+  SceneItem,
+  SliderMark,
+  SoloShuffleTimelineSegment,
   SoundAlerts,
+  StorageFilter,
+  StringKeyToNumberValueMapType,
+  TPreviewPosition,
+  UnitFlags,
+  UploadQueueItem,
+  VideoMarker,
+  VideoPlayerSettings,
+  VideoQueueItem,
+  VideoSourceName,
+  WowProcessEvent,
 };

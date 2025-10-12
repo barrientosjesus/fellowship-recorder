@@ -1,49 +1,49 @@
-import path from 'path';
+import path from "path";
 import {
   app,
   BrowserWindow,
-  shell,
-  ipcMain,
-  dialog,
-  Tray,
-  Menu,
   clipboard,
-} from 'electron';
-import os from 'os';
-import { uIOhook } from 'uiohook-napi';
-import assert from 'assert';
-import { getLocalePhrase, Language } from 'localisation/translations';
+  dialog,
+  ipcMain,
+  Menu,
+  shell,
+  Tray,
+} from "electron";
+import os from "os";
+import { uIOhook } from "uiohook-napi";
+import assert from "assert";
+import { getLocalePhrase, Language } from "localisation/translations";
 import {
-  resolveHtmlPath,
-  openSystemExplorer,
-  setupApplicationLogging,
-  getAvailableDisplays,
   getAssetPath,
-} from './util';
-import { OurDisplayType, SoundAlerts, VideoPlayerSettings } from './types';
-import ConfigService from '../config/ConfigService';
-import Manager from './Manager';
-import AppUpdater from './AppUpdater';
-import MenuBuilder from './menu';
-import { Phrase } from 'localisation/phrases';
-import CloudClient from 'storage/CloudClient';
-import DiskClient from 'storage/DiskClient';
-import Poller from 'utils/Poller';
-import Recorder from './Recorder';
-import AsyncQueue from 'utils/AsyncQueue';
-import { ESupportedEncoders } from './obsEnums';
+  getAvailableDisplays,
+  openSystemExplorer,
+  resolveHtmlPath,
+  setupApplicationLogging,
+} from "./util";
+import { OurDisplayType, SoundAlerts, VideoPlayerSettings } from "./types";
+import ConfigService from "../config/ConfigService";
+import Manager from "./Manager";
+import AppUpdater from "./AppUpdater";
+import MenuBuilder from "./menu";
+import { Phrase } from "localisation/phrases";
+import CloudClient from "storage/CloudClient";
+import DiskClient from "storage/DiskClient";
+import Poller from "utils/Poller";
+import Recorder from "./Recorder";
+import AsyncQueue from "utils/AsyncQueue";
+import { ESupportedEncoders } from "./obsEnums";
 
 const logDir = setupApplicationLogging();
 const appVersion = app.getVersion();
 const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const tzOffset = new Date().getTimezoneOffset() * -1; // Offset is wrong direction so flip it.
-const tzOffsetStr = `UTC${tzOffset >= 0 ? '+' : ''}${tzOffset / 60}`;
+const tzOffsetStr = `UTC${tzOffset >= 0 ? "+" : ""}${tzOffset / 60}`;
 
-console.info('[Main] App starting, version:', appVersion);
-console.info('[Main] Node version', process.versions.node);
-console.info('[Main] ICU version', process.versions.icu);
-console.info('[Main] On OS:', os.platform(), os.release());
-console.info('[Main] In timezone:', tz, tzOffsetStr);
+console.info("[Main] App starting, version:", appVersion);
+console.info("[Main] Node version", process.versions.node);
+console.info("[Main] ICU version", process.versions.icu);
+console.info("[Main] On OS:", os.platform(), os.release());
+console.info("[Main] In timezone:", tz, tzOffsetStr);
 
 let window: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -52,7 +52,7 @@ const manager = new Manager();
 /**
  * Create a settings store to handle the config.
  * This defaults to a path like:
- *   - (prod) "C:\Users\alexa\AppData\Roaming\WarcraftRecorder\config-v3.json"
+ *   - (prod) "C:\Users\alexa\AppData\Roaming\Fellowsnip\config-v3.json"
  *   - (dev)  "C:\Users\alexa\AppData\Roaming\Electron\config-v3.json"
  */
 const cfg = ConfigService.getInstance();
@@ -60,8 +60,8 @@ const cfg = ConfigService.getInstance();
 // It's a common problem that hardware acceleration causes rendering issues.
 // Unclear why this happens and surely not an application bug but we can
 // make it easy for users to disable it if they want to.
-if (!cfg.get<boolean>('hardwareAcceleration')) {
-  console.info('[Main] Disabling hardware acceleration');
+if (!cfg.get<boolean>("hardwareAcceleration")) {
+  console.info("[Main] Disabling hardware acceleration");
   app.disableHardwareAcceleration();
 }
 
@@ -73,22 +73,22 @@ const videoPlayerSettings: VideoPlayerSettings = {
   volume: 1,
 };
 
-if (process.env.NODE_ENV === 'production') {
-  const sourceMapSupport = require('source-map-support');
+if (process.env.NODE_ENV === "production") {
+  const sourceMapSupport = require("source-map-support");
   sourceMapSupport.install();
 }
 
-const isDebug =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDebug = process.env.NODE_ENV === "development" ||
+  process.env.DEBUG_PROD === "true";
 
 if (isDebug) {
-  require('electron-debug').default();
+  require("electron-debug").default();
 }
 
 const installExtensions = async () => {
-  const installer = require('electron-devtools-installer');
+  const installer = require("electron-devtools-installer");
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-  const extensions = ['REACT_DEVELOPER_TOOLS'];
+  const extensions = ["REACT_DEVELOPER_TOOLS"];
 
   return installer
     .default(
@@ -102,23 +102,23 @@ const installExtensions = async () => {
  * Setup tray icon, menu and event listeners.
  */
 const setupTray = () => {
-  tray = new Tray(getAssetPath('./icon/small-icon.png'));
+  tray = new Tray(getAssetPath("./icon/small-icon.png"));
 
   // This wont update without an app restart but whatever.
-  const language = cfg.get<string>('language') as Language;
+  const language = cfg.get<string>("language") as Language;
 
   const contextMenu = Menu.buildFromTemplate([
     {
       label: getLocalePhrase(language, Phrase.SystemTrayOpen),
       click() {
-        console.info('[Main] User clicked open on tray icon');
+        console.info("[Main] User clicked open on tray icon");
         if (window) window.show();
       },
     },
     {
       label: getLocalePhrase(language, Phrase.SystemTrayQuit),
       click() {
-        console.info('[Main] User clicked close on tray icon');
+        console.info("[Main] User clicked close on tray icon");
 
         if (window) {
           window.close();
@@ -127,11 +127,11 @@ const setupTray = () => {
     },
   ]);
 
-  tray.setToolTip('Warcraft Recorder');
+  tray.setToolTip("Fellowsnip");
   tray.setContextMenu(contextMenu);
 
-  tray.on('double-click', () => {
-    console.info('[Main] User double clicked tray icon');
+  tray.on("double-click", () => {
+    console.info("[Main] User double clicked tray icon");
 
     if (window) {
       window.show();
@@ -151,15 +151,15 @@ const createWindow = async () => {
     show: false,
     height: 1020 * 0.9,
     width: 1980 * 0.8,
-    icon: getAssetPath('./icon/small-icon.png'),
+    icon: getAssetPath("./icon/small-icon.png"),
     frame: false,
-    title: `Warcraft Recorder v${appVersion}`,
+    title: `Fellowsnip v${appVersion}`,
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false,
       preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
+        ? path.join(__dirname, "preload.js")
+        : path.join(__dirname, "../../.erb/dll/preload.js"),
     },
   });
 
@@ -171,40 +171,39 @@ const createWindow = async () => {
   // if the current value is the software encoder, as this is new in 7.0.0, all
   // users would be subject to it. This way, only the few people who really do
   // prefer the software encoder will be inconvenienced.
-  const firstTimeSetup =
-    cfg.get<boolean>('firstTimeSetup') &&
-    cfg.get<string>('obsRecEncoder') === ESupportedEncoders.OBS_X264;
+  const firstTimeSetup = cfg.get<boolean>("firstTimeSetup") &&
+    cfg.get<string>("obsRecEncoder") === ESupportedEncoders.OBS_X264;
 
   if (firstTimeSetup) {
     // Don't bother to signal to the frontend here, they would have to be
     // very fast to have opened the settings already.
-    console.info('[Main] First time setup, picking default encoder');
+    console.info("[Main] First time setup, picking default encoder");
     const encoder = Recorder.getInstance().getSensibleEncoderDefault();
-    cfg.set('obsRecEncoder', encoder);
+    cfg.set("obsRecEncoder", encoder);
   }
 
   // Ensure we don't hit the above branch again.
-  cfg.set('firstTimeSetup', false);
+  cfg.set("firstTimeSetup", false);
 
   // This gets hit on a user triggering refresh with CTRL-R.
-  window.on('ready-to-show', async () => {
-    console.log('[Main] Ready to show');
+  window.on("ready-to-show", async () => {
+    console.log("[Main] Ready to show");
 
     const status = app.getGPUFeatureStatus();
-    const info = await app.getGPUInfo('complete');
-    console.info('[Main] GPU info', { status, info });
+    const info = await app.getGPUInfo("complete");
+    console.info("[Main] GPU info", { status, info });
 
     if (!window) {
-      throw new Error('window is not defined');
+      throw new Error("window is not defined");
     }
 
     // This shows the correct version on a release build, not during development.
     window.webContents.send(
-      'updateVersionDisplay',
-      `Warcraft Recorder v${appVersion}`,
+      "updateVersionDisplay",
+      `Fellowsnip v${appVersion}`,
     );
 
-    const startMinimized = cfg.get<boolean>('startMinimized');
+    const startMinimized = cfg.get<boolean>("startMinimized");
     if (!startMinimized) window.show();
 
     // Important to refresh status and videos after a user triggered
@@ -222,25 +221,25 @@ const createWindow = async () => {
     ]);
   });
 
-  window.on('focus', () => {
-    window?.webContents.send('window-focus-status', true);
+  window.on("focus", () => {
+    window?.webContents.send("window-focus-status", true);
   });
 
-  window.on('blur', () => {
-    window?.webContents.send('window-focus-status', false);
+  window.on("blur", () => {
+    window?.webContents.send("window-focus-status", false);
   });
 
-  window.on('closed', () => {
+  window.on("closed", () => {
     window = null;
   });
 
-  await window.loadURL(resolveHtmlPath('index.html'));
+  await window.loadURL(resolveHtmlPath("index.html"));
   setupTray();
 
   // Open urls in the user's browser
   window.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
-    return { action: 'deny' };
+    return { action: "deny" };
   });
 
   uIOhook.start();
@@ -253,24 +252,24 @@ const createWindow = async () => {
 /**
  * window event listeners.
  */
-ipcMain.on('window', (_event, args) => {
+ipcMain.on("window", (_event, args) => {
   if (window === null) return;
 
-  if (args[0] === 'minimize') {
-    console.info('[Main] User clicked minimize');
+  if (args[0] === "minimize") {
+    console.info("[Main] User clicked minimize");
 
-    if (cfg.get<boolean>('minimizeToTray')) {
-      console.info('[Main] Minimize main window to tray');
-      window.webContents.send('pausePlayer');
+    if (cfg.get<boolean>("minimizeToTray")) {
+      console.info("[Main] Minimize main window to tray");
+      window.webContents.send("pausePlayer");
       window.hide();
     } else {
-      console.info('[Main] Minimize main window to taskbar');
+      console.info("[Main] Minimize main window to taskbar");
       window.minimize();
     }
   }
 
-  if (args[0] === 'resize') {
-    console.info('[Main] User clicked resize');
+  if (args[0] === "resize") {
+    console.info("[Main] User clicked resize");
 
     if (window.isMaximized()) {
       window.unmaximize();
@@ -279,15 +278,15 @@ ipcMain.on('window', (_event, args) => {
     }
   }
 
-  if (args[0] === 'quit') {
-    console.info('[Main] User clicked quit button');
+  if (args[0] === "quit") {
+    console.info("[Main] User clicked quit button");
 
-    if (cfg.get<boolean>('minimizeOnQuit')) {
-      console.info('[Main] Hiding main window');
-      window.webContents.send('pausePlayer');
+    if (cfg.get<boolean>("minimizeOnQuit")) {
+      console.info("[Main] Hiding main window");
+      window.webContents.send("pausePlayer");
       window.hide();
     } else {
-      console.info('[Main] Closing main window');
+      console.info("[Main] Closing main window");
       window.close();
     }
   }
@@ -296,18 +295,18 @@ ipcMain.on('window', (_event, args) => {
 /**
  * Opens a system explorer window to select a path.
  */
-ipcMain.handle('selectPath', async () => {
+ipcMain.handle("selectPath", async () => {
   if (!window) {
-    return '';
+    return "";
   }
 
   const result = await dialog.showOpenDialog(window, {
-    properties: ['openDirectory'],
+    properties: ["openDirectory"],
   });
 
   if (result.canceled) {
-    console.info('[Main] User cancelled path selection');
-    return '';
+    console.info("[Main] User cancelled path selection");
+    return "";
   }
 
   return result.filePaths[0];
@@ -316,16 +315,16 @@ ipcMain.handle('selectPath', async () => {
 /**
  * Opens a system explorer window to select a path.
  */
-ipcMain.handle('selectFile', async () => {
+ipcMain.handle("selectFile", async () => {
   if (!window) {
-    return '';
+    return "";
   }
 
   const result = await dialog.showOpenDialog(window);
 
   if (result.canceled) {
-    console.info('[Main] User cancelled file selection');
-    return '';
+    console.info("[Main] User cancelled file selection");
+    return "";
   }
 
   return result.filePaths[0];
@@ -334,29 +333,29 @@ ipcMain.handle('selectFile', async () => {
 /**
  * Opens a system explorer window to select a path.
  */
-ipcMain.handle('selectImage', async () => {
+ipcMain.handle("selectImage", async () => {
   if (!window) {
-    return '';
+    return "";
   }
 
   const result = await dialog.showOpenDialog(window, {
-    properties: ['openFile'],
-    filters: [{ name: 'Images', extensions: ['gif', 'png'] }],
+    properties: ["openFile"],
+    filters: [{ name: "Images", extensions: ["gif", "png"] }],
   });
 
   if (result.canceled) {
-    console.info('[Main] User cancelled file selection');
-    return '';
+    console.info("[Main] User cancelled file selection");
+    return "";
   }
 
   return result.filePaths[0];
 });
 
 /**
- * Listener to open the folder containing the Warcraft Recorder logs.
+ * Listener to open the folder containing the Fellowsnip logs.
  */
-ipcMain.on('logPath', (_event, args) => {
-  if (args[0] === 'open') {
+ipcMain.on("logPath", (_event, args) => {
+  if (args[0] === "open") {
     openSystemExplorer(logDir);
   }
 });
@@ -364,7 +363,7 @@ ipcMain.on('logPath', (_event, args) => {
 /**
  * Listener to write to clipboard.
  */
-ipcMain.on('writeClipboard', (_event, args) => {
+ipcMain.on("writeClipboard", (_event, args) => {
   clipboard.writeText(args[0] as string);
 });
 
@@ -376,47 +375,47 @@ const reconfigureBaseQueue = new AsyncQueue(1);
 /**
  * A reconfig is triggered when a base setting changes.
  */
-ipcMain.on('reconfigureBase', () => {
-  console.info('[Main] Queue a reconfigure');
+ipcMain.on("reconfigureBase", () => {
+  console.info("[Main] Queue a reconfigure");
   reconfigureBaseQueue.add(() => manager.reconfigureBase());
 });
 
 /**
  * Opens a URL in the default browser.
  */
-ipcMain.on('openURL', (event, args) => {
+ipcMain.on("openURL", (event, args) => {
   event.preventDefault();
-  require('electron').shell.openExternal(args[0]);
+  require("electron").shell.openExternal(args[0]);
 });
 
 /**
  * Get all displays.
  */
-ipcMain.handle('getAllDisplays', (): OurDisplayType[] => {
+ipcMain.handle("getAllDisplays", (): OurDisplayType[] => {
   return getAvailableDisplays();
 });
 
 const refreshCloudGuilds = async () => {
-  console.info('[Main] Frontend triggered cloud guilds refresh');
+  console.info("[Main] Frontend triggered cloud guilds refresh");
   const client = CloudClient.getInstance();
   await client.fetchAffiliations(true);
   client.refreshStatus();
 };
 
-ipcMain.on('refreshCloudGuilds', refreshCloudGuilds);
+ipcMain.on("refreshCloudGuilds", refreshCloudGuilds);
 
 /**
  * Set/get global video player settings.
  */
-ipcMain.on('videoPlayerSettings', (event, args) => {
+ipcMain.on("videoPlayerSettings", (event, args) => {
   const action = args[0];
 
-  if (action === 'get') {
+  if (action === "get") {
     event.returnValue = videoPlayerSettings;
     return;
   }
 
-  if (action === 'set') {
+  if (action === "set") {
     const settings = args[1] as VideoPlayerSettings;
     videoPlayerSettings.muted = settings.muted;
     videoPlayerSettings.volume = settings.volume;
@@ -426,16 +425,16 @@ ipcMain.on('videoPlayerSettings', (event, args) => {
 /**
  * Shutdown the app if all windows closed.
  */
-app.on('window-all-closed', async () => {
-  console.info('[Main] User closed app');
+app.on("window-all-closed", async () => {
+  console.info("[Main] User closed app");
   app.quit();
 });
 
 /**
  * Before quit events, also called invoked the automatic quit on upgrade.
  */
-app.on('before-quit', () => {
-  console.info('[Main] Running before-quit actions');
+app.on("before-quit", () => {
+  console.info("[Main] Running before-quit actions");
   Poller.getInstance().stop();
   uIOhook.stop();
   Recorder.getInstance().shutdownOBS();
@@ -447,17 +446,17 @@ app.on('before-quit', () => {
 app
   .whenReady()
   .then(() => {
-    console.info('[Main] App ready');
+    console.info("[Main] App ready");
     const singleInstanceLock = app.requestSingleInstanceLock();
 
     if (!singleInstanceLock) {
-      console.warn('[Main] Blocked attempt to launch a second instance');
+      console.warn("[Main] Blocked attempt to launch a second instance");
       app.quit();
       return;
     }
 
-    app.on('second-instance', () => {
-      console.info('[Main] Second instance attempted, will restore app');
+    app.on("second-instance", () => {
+      console.info("[Main] Second instance attempted, will restore app");
       if (!window) return;
       if (window.isMinimized()) window.restore();
       window.show();
@@ -476,9 +475,9 @@ const send = (channel: string, ...args: unknown[]) => {
 
 const playSoundAlert = (alert: SoundAlerts) => {
   if (!window || window.isDestroyed()) return; // Can happen on shutdown.
-  console.info('[Main] Playing sound alert', alert);
+  console.info("[Main] Playing sound alert", alert);
   const path = getAssetPath(`sounds/${alert}.mp3`);
-  send('playAudio', path);
+  send("playAudio", path);
 };
 
 const getNativeWindowHandle = () => {
@@ -487,4 +486,4 @@ const getNativeWindowHandle = () => {
   return window.getNativeWindowHandle();
 };
 
-export { send, getNativeWindowHandle, playSoundAlert };
+export { getNativeWindowHandle, playSoundAlert, send };

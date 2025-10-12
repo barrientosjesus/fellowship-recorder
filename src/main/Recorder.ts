@@ -62,7 +62,7 @@ import { isHighRes } from 'renderer/rendererutils';
 const devMode = process.env.NODE_ENV === 'development';
 
 /**
- * Class for handing the interface between Warcraft Recorder and OBS.
+ * Class for handing the interface between Fellowsnip and OBS.
  *
  * This works by constantly recording a "buffer" whenever WoW is open. If an
  * interesting event is spotted in the combatlog (e.g. an ENCOUNTER_START
@@ -238,8 +238,10 @@ export default class Recorder extends EventEmitter {
       console.info('[Manager] Audio settings were opened');
       noobs.SetVolmeterEnabled(true);
 
-      if (Poller.getInstance().isWowRunning()) {
-        console.info('[Manager] Wont touch audio sources as WoW is running');
+      if (Poller.getInstance().isFellowshipRunning()) {
+        console.info(
+          '[Manager] Wont touch audio sources as Fellowship is running',
+        );
         return;
       }
 
@@ -251,8 +253,10 @@ export default class Recorder extends EventEmitter {
       console.info('[Manager] Audio settings were closed');
       noobs.SetVolmeterEnabled(false);
 
-      if (Poller.getInstance().isWowRunning()) {
-        console.info('[Manager] Wont touch audio sources as WoW is running');
+      if (Poller.getInstance().isFellowshipRunning()) {
+        console.info(
+          '[Manager] Wont touch audio sources as Fellowship is running',
+        );
         return;
       }
 
@@ -607,9 +611,9 @@ export default class Recorder extends EventEmitter {
       throw new Error('Unrecognised capture mode');
     }
 
-    const wowRunning = Poller.getInstance().isWowRunning();
+    const fellowshipRunning = Poller.getInstance().isFellowshipRunning();
 
-    if (wowRunning && obsCaptureMode !== 'monitor_capture') {
+    if (fellowshipRunning && obsCaptureMode !== 'monitor_capture') {
       this.attachCaptureSource();
     }
 
@@ -1425,10 +1429,13 @@ export default class Recorder extends EventEmitter {
    */
   private static windowMatch(item: { name: string; value: string | number }) {
     return (
-      item.name.startsWith('[Wow.exe]: ') ||
-      item.name.startsWith('[WowT.exe]: ') ||
-      item.name.startsWith('[WowB.exe]: ') ||
-      item.name.startsWith('[WowClassic.exe]: ')
+      item.name.startsWith('[Fellowship.exe]: ') ||
+      item.name.startsWith('[fellowship-Win64-Shipping.exe]: ') ||
+      item.name.startsWith('fellowship') ||
+      ((item.name.includes('fellowship') || item.name.includes('Fellowship')) &&
+        !item.name.toLowerCase().includes('discord') &&
+        !item.name.toLowerCase().includes('-') &&
+        !item.name.toLowerCase().includes('|'))
     );
   }
 
@@ -1596,7 +1603,7 @@ export default class Recorder extends EventEmitter {
 
     noobs.SetSourcePos(src, updated);
 
-    const item = src.startsWith('WCR Chat Overlay')
+    const item = src.startsWith('FS Chat Overlay')
       ? SceneItem.OVERLAY
       : SceneItem.GAME;
 
@@ -1646,7 +1653,7 @@ export default class Recorder extends EventEmitter {
       cropBottom: 0,
     };
 
-    const item = src.startsWith('WCR Chat Overlay')
+    const item = src.startsWith('FS Chat Overlay')
       ? SceneItem.OVERLAY
       : SceneItem.GAME;
 

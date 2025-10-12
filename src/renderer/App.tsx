@@ -36,7 +36,7 @@ import _ from 'lodash';
 
 const ipc = window.electron.ipcRenderer;
 
-const WarcraftRecorder = () => {
+const Fellowsnip = () => {
   const [config, setConfig] = useSettings();
   const [error, setError] = useState<string>('');
   const [micStatus, setMicStatus] = useState<MicStatus>(MicStatus.NONE);
@@ -153,6 +153,9 @@ const WarcraftRecorder = () => {
   // counters.
   const videoCounters = useMemo<Record<VideoCategory, number>>(() => {
     const counts = {
+      [VideoCategory.Adventures]: 0,
+      [VideoCategory.Dungeons]: 0,
+      [VideoCategory.Quickplays]: 0,
       [VideoCategory.TwoVTwo]: 0,
       [VideoCategory.ThreeVThree]: 0,
       [VideoCategory.FiveVFive]: 0,
@@ -536,7 +539,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<WarcraftRecorder />} />
+        <Route path="/" element={<Fellowsnip />} />
       </Routes>
     </Router>
   );

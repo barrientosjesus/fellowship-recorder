@@ -12,8 +12,8 @@ import {
   Eye,
   GripHorizontal,
   LockKeyhole,
-  Trash,
   LockOpen,
+  Trash,
 } from 'lucide-react';
 import { getLocalePhrase } from 'localisation/translations';
 import { VideoCategory } from '../types/VideoCategory';
@@ -499,7 +499,7 @@ const CategoryPage = (props: IProps) => {
 
   const openSetupInstructions = () => {
     window.electron.ipcRenderer.sendMessage('openURL', [
-      'https://www.warcraftrecorder.com/about',
+      'https://www.fellowsnip.com/',
     ]);
   };
 

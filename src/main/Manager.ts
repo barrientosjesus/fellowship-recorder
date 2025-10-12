@@ -1,6 +1,6 @@
-import { app, ipcMain, powerMonitor } from 'electron';
-import { uIOhook, UiohookKeyboardEvent } from 'uiohook-napi';
-import EraLogHandler from '../parsing/EraLogHandler';
+import { app, ipcMain, powerMonitor } from "electron";
+import { uIOhook, UiohookKeyboardEvent } from "uiohook-napi";
+import EraLogHandler from "../parsing/EraLogHandler";
 import {
   buildClipMetadata,
   getMetadataForVideo,
@@ -8,37 +8,38 @@ import {
   isManualRecordHotKey,
   nextKeyPressPromise,
   nextMousePressPromise,
-} from './util';
-import { VideoCategory } from '../types/VideoCategory';
-import Poller from '../utils/Poller';
-import ClassicLogHandler from '../parsing/ClassicLogHandler';
-import RetailLogHandler from '../parsing/RetailLogHandler';
-import Recorder from './Recorder';
-import ConfigService from '../config/ConfigService';
+} from "./util";
+import { VideoCategory } from "../types/VideoCategory";
+import Poller from "../utils/Poller";
+import ClassicLogHandler from "../parsing/ClassicLogHandler";
+import RetailLogHandler from "../parsing/RetailLogHandler";
+import Recorder from "./Recorder";
+import ConfigService from "../config/ConfigService";
 import {
+  BaseConfig,
+  MicStatus,
   RecStatus,
   VideoQueueItem,
-  MicStatus,
   WowProcessEvent,
-  BaseConfig,
-} from './types';
+} from "./types";
 import {
-  getObsVideoConfig,
-  getObsAudioConfig,
-  getOverlayConfig,
   getBaseConfig,
+  getObsAudioConfig,
+  getObsVideoConfig,
+  getOverlayConfig,
   validateBaseConfig,
-} from '../utils/configUtils';
-import { ERecordingState } from './obsEnums';
+} from "../utils/configUtils";
+import { ERecordingState } from "./obsEnums";
 import {
   runClassicRecordingTest,
   runRetailRecordingTest,
-} from '../utils/testButtonUtils';
-import VideoProcessQueue from './VideoProcessQueue';
-import LogHandler from 'parsing/LogHandler';
-import { PTTKeyPressEvent } from 'types/KeyTypesUIOHook';
-import { send } from './main';
-import DiskClient from 'storage/DiskClient';
+} from "../utils/testButtonUtils";
+import VideoProcessQueue from "./VideoProcessQueue";
+import LogHandler from "parsing/LogHandler";
+import { PTTKeyPressEvent } from "types/KeyTypesUIOHook";
+import { send } from "./main";
+import DiskClient from "storage/DiskClient";
+import FellowshipLogHandler from "parsing/FellowshipLogHandler";
 
 /**
  * Manager class.
@@ -59,6 +60,8 @@ export default class Manager {
   private classicLogHandler: ClassicLogHandler | undefined;
   private eraLogHandler: EraLogHandler | undefined;
 
+  private fellowshipLogHandler: FellowshipLogHandler | undefined;
+
   /**
    * If the config is valid or not.
    */
@@ -68,7 +71,7 @@ export default class Manager {
    * The config message, typically used to show the user why their config is
    * invalid.
    */
-  private configMessage = '';
+  private configMessage = "";
 
   /**
    * If we are in the middle of a reconfigure or not.
@@ -93,23 +96,23 @@ export default class Manager {
    * Constructor.
    */
   constructor() {
-    console.info('[Manager] Creating manager');
+    console.info("[Manager] Creating manager");
     this.setupListeners();
 
-    this.recorder.on('state-change', () => {
+    this.recorder.on("state-change", () => {
       setTimeout(() => this.refreshStatus(), 0);
     });
 
     this.poller
-      .on(WowProcessEvent.STARTED, () => this.onWowStarted())
-      .on(WowProcessEvent.STOPPED, () => this.onWowStopped());
+      .on(WowProcessEvent.STARTED, () => this.onFellowshipStarted())
+      .on(WowProcessEvent.STOPPED, () => this.onFellowshipStopped());
   }
 
   /**
    * Run the startup configuration. Run once, on startup.
    */
   public async startup() {
-    console.info('[Manager] Starting up');
+    console.info("[Manager] Starting up");
     this.reconfiguring = true;
     let success = false;
 
@@ -118,7 +121,7 @@ export default class Manager {
       await this.configureBase(true);
       success = true;
     } catch (error) {
-      console.error('[Manager] Failed to configure base on startup', error);
+      console.error("[Manager] Failed to configure base on startup", error);
       this.setConfigInvalid(String(error));
     }
 
@@ -145,7 +148,7 @@ export default class Manager {
    * calls can overlap and cause race conditions. Do not run this concurrently.
    */
   public async reconfigureBase() {
-    console.info('[Manager] Reconfiguring base');
+    console.info("[Manager] Reconfiguring base");
 
     // The recording must be stopped to do this.
     await this.recorder.forceStop();
@@ -157,7 +160,7 @@ export default class Manager {
       await this.configureBase(false);
       success = true;
     } catch (error) {
-      console.error('[Manager] Failed to configure base on startup', error);
+      console.error("[Manager] Failed to configure base on startup", error);
       this.setConfigInvalid(String(error));
     }
 
@@ -189,11 +192,11 @@ export default class Manager {
    */
   public async forceStop() {
     if (!LogHandler.activity) {
-      console.info('[Manager] No activity to force end');
+      console.info("[Manager] No activity to force end");
       return;
     }
 
-    console.info('[Manager] Force ending activity');
+    console.info("[Manager] Force ending activity");
     LogHandler.forceEndActivity();
   }
 
@@ -207,14 +210,14 @@ export default class Manager {
     const retail = this.retailLogHandler || this.retailPtrLogHandler;
 
     if (retail) {
-      console.info('[Manager] Running retail test');
+      console.info("[Manager] Running retail test");
       const parser = retail.combatLogWatcher;
       runRetailRecordingTest(category, parser, endTest);
       return;
     }
 
     if (this.classicLogHandler) {
-      console.info('[Manager] Running classic test');
+      console.info("[Manager] Running classic test");
       const parser = this.classicLogHandler.combatLogWatcher;
       runClassicRecordingTest(parser, endTest);
     }
@@ -225,7 +228,7 @@ export default class Manager {
    */
   private setConfigValid() {
     this.configValid = true;
-    this.configMessage = '';
+    this.configMessage = "";
     this.refreshStatus();
   }
 
@@ -280,15 +283,15 @@ export default class Manager {
   /**
    * Send a message to the frontend to update the recorder status icon.
    */
-  private refreshRecStatus(status: RecStatus, msg = '') {
-    send('updateRecStatus', status, msg);
+  private refreshRecStatus(status: RecStatus, msg = "") {
+    send("updateRecStatus", status, msg);
   }
 
   /**
    * Send a message to the frontend to update the mic status icon.
    */
   private refreshMicStatus(status: MicStatus) {
-    send('updateMicStatus', status);
+    send("updateMicStatus", status);
   }
 
   /**
@@ -299,7 +302,7 @@ export default class Manager {
     // gets stale data otherwise. A caching thing in libobs maybe? Noobs will
     // send a source signal to the recorder if the size of sources change, but
     // for other changes we need to manually trigger a redraw.
-    setTimeout(() => send('redrawPreview'), 100);
+    setTimeout(() => send("redrawPreview"), 100);
   }
 
   /**
@@ -307,8 +310,8 @@ export default class Manager {
    * of the App if WoW is open, or the user has genuinely opened WoW. Attaches
    * the audio sources and starts the buffer recording.
    */
-  private async onWowStarted() {
-    console.info('[Manager] Detected WoW is running');
+  private async onFellowshipStarted() {
+    console.info("[Manager] Detected Fellowship is running");
     this.recorder.attachCaptureSource();
 
     const audioConfig = getObsAudioConfig(this.cfg);
@@ -317,21 +320,21 @@ export default class Manager {
     try {
       await this.recorder.startBuffer();
     } catch (error) {
-      console.error('[Manager] OBS failed to record when WoW started', error);
+      console.error("[Manager] OBS failed to record when Fellowship started", error);
     }
   }
 
   /**
-   * Called when the WoW process is detected to have exited. Ends any
+   * Called when the Fellowship process is detected to have exited. Ends any
    * recording that is still ongoing. We detach audio sources here to
-   * allow Windows to go to sleep with WCR running.
+   * allow Windows to go to sleep with Fellowsnip running.
    */
-  private async onWowStopped() {
-    console.info('[Manager] Detected WoW not running');
+  private async onFellowshipStopped() {
+    console.info("[Manager] Detected Fellowship not running");
     const inActivity = Boolean(LogHandler.activity);
 
     if (inActivity) {
-      console.info('[Manager] Force ending activity');
+      console.info("[Manager] Force ending activity");
       LogHandler.forceEndActivity();
     } else {
       await this.recorder.forceStop();
@@ -357,13 +360,14 @@ export default class Manager {
     LogHandler.setStateChangeCallback(() => this.refreshStatus());
 
     if (!startup) {
-      console.info('[Manager] Not startup, so reset log handlers');
+      console.info("[Manager] Not startup, so reset log handlers");
 
       const logHandlers = [
         this.retailLogHandler,
         this.classicLogHandler,
         this.eraLogHandler,
         this.retailPtrLogHandler,
+        this.fellowshipLogHandler,
       ];
 
       logHandlers
@@ -374,6 +378,13 @@ export default class Manager {
       this.classicLogHandler = undefined;
       this.eraLogHandler = undefined;
       this.retailPtrLogHandler = undefined;
+      this.fellowshipLogHandler = undefined;
+    }
+
+    if (config.recordFellowship) {
+      this.fellowshipLogHandler = new FellowshipLogHandler(
+        config.fellowshipLogPath,
+      );
     }
 
     if (config.recordRetail) {
@@ -406,11 +417,13 @@ export default class Manager {
    * Configure audio settings in OBS. This can all be changed live.
    */
   private configureObsAudio() {
-    const isWowRunning = this.poller.isWowRunning();
-    const shouldConfigure = isWowRunning || this.audioSettingsOpen;
+    const isFellowshipRunning = this.poller.isFellowshipRunning();
+    const shouldConfigure = isFellowshipRunning || this.audioSettingsOpen;
 
     if (!shouldConfigure) {
-      console.info("[Manager] Won't configure audio sources, WoW not running");
+      console.info(
+        "[Manager] Won't configure audio sources, Fellowship not running",
+      );
       return;
     }
 
@@ -432,10 +445,10 @@ export default class Manager {
   private setupListeners() {
     // Config change listener we use to tweak the app settings in Windows if
     // the user enables/disables run on start-up.
-    this.cfg.on('change', (key: string, value: unknown) => {
-      if (key === 'startUp') {
+    this.cfg.on("change", (key: string, value: unknown) => {
+      if (key === "startUp") {
         const isStartUp = value === true;
-        console.info('[Main] OS level set start-up behaviour:', isStartUp);
+        console.info("[Main] OS level set start-up behaviour:", isStartUp);
 
         app.setLoginItemSettings({
           openAtLogin: isStartUp,
@@ -444,15 +457,15 @@ export default class Manager {
     });
 
     // Test listener, to enable the test button to start a test.
-    ipcMain.on('test', (_event, args) => {
+    ipcMain.on("test", (_event, args) => {
       const testCategory = args[0] as VideoCategory;
       const endTest = Boolean(args[1]);
       this.test(testCategory, endTest);
     });
 
     // Clipping listener.
-    ipcMain.on('clip', async (_event, args) => {
-      console.info('[Manager] Clip request received with args', args);
+    ipcMain.on("clip", async (_event, args) => {
+      console.info("[Manager] Clip request received with args", args);
 
       const source = args[0];
       const offset = args[1];
@@ -475,17 +488,17 @@ export default class Manager {
     });
 
     // Force stop listener, to enable the force stop button to do its job.
-    ipcMain.on('recorder', async (_event, args) => {
-      if (args[0] === 'stop') {
-        console.info('[Manager] Force stopping recording due to user request.');
+    ipcMain.on("recorder", async (_event, args) => {
+      if (args[0] === "stop") {
+        console.info("[Manager] Force stopping recording due to user request.");
         this.forceStop();
         return;
       }
 
-      const isWowRunning = this.poller.isWowRunning();
+      const isFellowshipRunning = this.poller.isFellowshipRunning();
 
-      if (isWowRunning) {
-        this.onWowStarted();
+      if (isFellowshipRunning) {
+        this.onFellowshipStarted();
       }
     });
 
@@ -497,7 +510,7 @@ export default class Manager {
      * Probably should rename the PTTKeyPressEvent, it's generic and not
      * specific to Push to Talk, it's just like that for historical reasons.
      */
-    ipcMain.handle('getNextKeyPress', async (): Promise<PTTKeyPressEvent> => {
+    ipcMain.handle("getNextKeyPress", async (): Promise<PTTKeyPressEvent> => {
       this.manualHotKeyDisabled = true;
 
       const event = await Promise.race([
@@ -513,13 +526,13 @@ export default class Manager {
      * Manually start/stop recording. Being careful with the logs here as
      * some of this is very spammy as it fires on every key press.
      */
-    uIOhook.on('keydown', (event: UiohookKeyboardEvent) => {
+    uIOhook.on("keydown", (event: UiohookKeyboardEvent) => {
       if (this.manualHotKeyDisabled) {
         // This user is updating their settings. Don't do anything.
         return;
       }
 
-      if (!this.cfg.get('manualRecord')) {
+      if (!this.cfg.get("manualRecord")) {
         // Manual recording is not enabled.
         return;
       }
@@ -529,13 +542,15 @@ export default class Manager {
         return;
       }
 
-      if (!this.poller.isWowRunning()) {
-        console.warn('[Manager] WoW not running when manual hotkey pressed');
+      if (!this.poller.isFellowshipRunning()) {
+        console.warn(
+          "[Manager] Fellowship not running when manual hotkey pressed",
+        );
         return;
       }
 
       if (this.recorder.obsState !== ERecordingState.Recording) {
-        console.warn('[Manager] Recorder not ready when manual hotkey pressed');
+        console.warn("[Manager] Recorder not ready when manual hotkey pressed");
         return;
       }
 
@@ -545,15 +560,15 @@ export default class Manager {
     // If Windows is going to sleep, we don't want to confuse OBS. It would be
     // unusual for someone to sleep windows while WoW is open AND while in an
     // activity, all we can do is drop the activity and stop the recorder.
-    powerMonitor.on('suspend', async () => {
-      console.info('[Manager] Detected Windows is going to sleep.');
+    powerMonitor.on("suspend", async () => {
+      console.info("[Manager] Detected Windows is going to sleep.");
       LogHandler.dropActivity();
       this.poller.stop();
       await this.recorder.forceStop();
     });
 
-    powerMonitor.on('resume', async () => {
-      console.info('[Manager] Detected Windows waking up from a sleep.');
+    powerMonitor.on("resume", async () => {
+      console.info("[Manager] Detected Windows waking up from a sleep.");
       await this.recorder.forceStop();
       this.poller.start();
     });

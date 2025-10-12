@@ -156,6 +156,15 @@ export default abstract class Activity {
     return this.combatantMap.get(GUID);
   }
 
+  findCombatantByName(name: string) {
+    for (const combatant of this.combatantMap.values()) {
+      if (combatant.name === name) {
+        return combatant;
+      }
+    }
+    return undefined;
+  }
+
   addCombatant(combatant: Combatant) {
     this.combatantMap.set(combatant.GUID, combatant);
   }

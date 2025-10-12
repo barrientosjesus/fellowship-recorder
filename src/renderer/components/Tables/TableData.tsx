@@ -418,6 +418,9 @@ const useTable = (
       columns = raidColumns;
       break;
     case VideoCategory.MythicPlus:
+    case VideoCategory.Adventures:
+    case VideoCategory.Quickplays:
+    case VideoCategory.Dungeons:
       columns = dungeonColumns;
       break;
     case VideoCategory.Battlegrounds:

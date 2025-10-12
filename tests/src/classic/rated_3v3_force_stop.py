@@ -9,5 +9,5 @@ OUTPUT = "Alexpals - 3v3 Dalaran (Loss)"
 SLEEPS = {
     "ZONE_CHANGE": 5,
     "UNIT_DIED": 1,
-    "WARCRAFT_RECORDER_FORCE_STOP": 2,
+    "FELLOWSNIP_FORCE_STOP": 2,
 }

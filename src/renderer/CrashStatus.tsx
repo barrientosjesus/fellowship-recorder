@@ -1,6 +1,6 @@
-import { ErrorReport, Crashes } from 'main/types';
+import { Crashes, ErrorReport } from 'main/types';
 import BugReportIcon from '@mui/icons-material/BugReport';
-import { Tooltip, IconButton, Popover, Box, Typography } from '@mui/material';
+import { Box, IconButton, Popover, Tooltip, Typography } from '@mui/material';
 import { useState } from 'react';
 
 interface IProps {
@@ -29,8 +29,8 @@ export default function CrashStatus(props: IProps) {
     return (
       <Typography sx={{ color: 'white', fontSize: '0.75rem', m: 1 }}>
         An OBS crash has occured and has been recovered from. This should not
-        happen in normal operation. You may wish to seek help by sharing your
-        WCR and OBS logs in discord.
+        happen in normal operation. You may wish to seek help by sharing your FS
+        and OBS logs in discord.
       </Typography>
     );
   };

@@ -13,41 +13,40 @@ import {
   instanceDifficulty,
   instanceEncountersById,
   months,
-  mopChallengeModes,
   specializationById,
   WoWCharacterClassType,
   WoWClassColor,
-} from 'main/constants';
+} from "main/constants";
 import {
-  TimelineSegmentType,
   RawChallengeModeTimelineSegment,
-} from 'main/keystone';
+  TimelineSegmentType,
+} from "main/keystone";
 import {
-  MarkerColors,
+  AppState,
+  AudioSource,
   DeathMarkers,
   Encoder,
   EncoderType,
+  Flavour,
+  MarkerColors,
   PlayerDeathType,
+  RawCombatant,
   RendererVideo,
   SoloShuffleTimelineSegment,
-  VideoMarker,
-  RawCombatant,
   StorageFilter,
-  Flavour,
-  AudioSource,
-  AppState,
-} from 'main/types';
-import { ambiguate } from 'parsing/logutils';
-import { VideoCategory } from 'types/VideoCategory';
-import { ESupportedEncoders } from 'main/obsEnums';
+  VideoMarker,
+} from "main/types";
+import { ambiguate } from "parsing/logutils";
+import { VideoCategory } from "types/VideoCategory";
+import { ESupportedEncoders } from "main/obsEnums";
 import {
   PTTEventType,
   PTTKeyPressEvent,
   UiohookKeyMap,
-} from 'types/KeyTypesUIOHook';
-import { ConfigurationSchema } from 'config/configSchema';
-import { getLocalePhrase, Language } from 'localisation/translations';
-import { Phrase } from 'localisation/phrases';
+} from "types/KeyTypesUIOHook";
+import { ConfigurationSchema } from "config/configSchema";
+import { getLocalePhrase, Language } from "localisation/translations";
+import { Phrase } from "localisation/phrases";
 
 const getVideoResult = (video: RendererVideo): boolean => {
   return video.result;
@@ -91,13 +90,7 @@ const getOwnDeathMarkers = (video: RendererVideo, language: Language) => {
 
     let markerText = getLocalePhrase(language, Phrase.Death);
     markerText += ` (${name})`;
-    let color: string;
-
-    if (death.friendly) {
-      color = MarkerColors.LOSS;
-    } else {
-      color = MarkerColors.WIN;
-    }
+    let color = MarkerColors.WIN;
 
     if (!player || !player._name) {
       return;
@@ -158,13 +151,7 @@ const getAllDeathMarkers = (video: RendererVideo, language: Language) => {
     const [name] = ambiguate(death.name);
     let markerText = getLocalePhrase(language, Phrase.Death);
     markerText += ` (${name})`;
-    let color: string;
-
-    if (death.friendly) {
-      color = MarkerColors.LOSS;
-    } else {
-      color = MarkerColors.WIN;
-    }
+    let color = MarkerColors.WIN;
 
     videoMarkers.push({
       time: death.timestamp,
@@ -177,13 +164,7 @@ const getAllDeathMarkers = (video: RendererVideo, language: Language) => {
   simultaenousDeaths.forEach((death: PlayerDeathType) => {
     let markerText = getLocalePhrase(language, Phrase.Death);
     markerText += ` (multiple)`;
-    let color: string;
-
-    if (death.friendly) {
-      color = MarkerColors.LOSS;
-    } else {
-      color = MarkerColors.WIN;
-    }
+    let color = MarkerColors.WIN;
 
     videoMarkers.push({
       time: death.timestamp,
@@ -263,7 +244,7 @@ const getEncounterMarkers = (video: RendererVideo) => {
         (segmentEnd.getTime() - segmentStart.getTime()) / 1000,
       );
 
-      let markerText = '';
+      let markerText = "";
 
       if (segment.encounterId !== undefined) {
         markerText = dungeonEncounters[segment.encounterId];
@@ -289,7 +270,7 @@ const getInstanceDifficultyText = (video: RendererVideo, lang: Language) => {
   const { difficultyID } = video;
 
   if (difficultyID === undefined) {
-    return '';
+    return "";
   }
 
   const knownDifficulty = Object.prototype.hasOwnProperty.call(
@@ -298,7 +279,7 @@ const getInstanceDifficultyText = (video: RendererVideo, lang: Language) => {
   );
 
   if (!knownDifficulty) {
-    return '';
+    return "";
   }
 
   const { phrase } = instanceDifficulty[difficultyID];
@@ -320,7 +301,7 @@ const getEncounterNameById = (encounterId: number): string => {
     return instanceEncountersById[encounterId];
   }
 
-  return 'Unknown Boss';
+  return "Unknown Boss";
 };
 
 /**
@@ -330,15 +311,11 @@ const getDungeonName = (video: RendererVideo) => {
   const { mapID } = video;
 
   if (mapID === undefined) {
-    return '';
+    return "";
   }
 
   if (video.flavour === Flavour.Retail) {
     return dungeonsByMapId[mapID];
-  }
-
-  if (video.flavour === Flavour.Classic) {
-    return mopChallengeModes[mapID];
   }
 };
 
@@ -401,13 +378,13 @@ const getResultColor = (video: RendererVideo) => {
       // a better way to pass it through. Generated with: https://cssgradient.io/.
       // The key is the number of wins.
       const soloShuffleResultColors = [
-        'rgb(53,  164, 50)',
-        'rgb(46,  171, 27)',
-        'rgb(112, 170, 30)',
-        'rgb(171, 150, 30)',
-        'rgb(171, 86,  26)',
-        'rgb(175, 50,  23)',
-        'rgb(156, 21,  21)',
+        "rgb(53,  164, 50)",
+        "rgb(46,  171, 27)",
+        "rgb(112, 170, 30)",
+        "rgb(171, 150, 30)",
+        "rgb(171, 86,  26)",
+        "rgb(175, 50,  23)",
+        "rgb(156, 21,  21)",
       ].reverse();
 
       return soloShuffleResultColors[soloShuffleRoundsWon];
@@ -421,66 +398,52 @@ const getResultColor = (video: RendererVideo) => {
     upgradeLevel < 1
   ) {
     // It's a completed, but depleted mythic+.
-    return 'hsl(var(--warning))';
+    return "hsl(var(--warning))";
   }
 
   if (result) {
-    return 'hsl(var(--success))';
+    return "hsl(var(--success))";
   }
 
   if (isRaidUtil(video)) {
     const bossPercent = raidResultToPercent(video);
 
     if (bossPercent !== undefined) {
-      let color = '';
+      let color = "";
 
       if (bossPercent > 99) {
-        color = '#ccc';
+        color = "#ccc";
       } else if (bossPercent > 75) {
-        color = '#0f8000';
+        color = "#0f8000";
       } else if (bossPercent > 50) {
-        color = '#0070ff';
+        color = "#0070ff";
       } else if (bossPercent > 25) {
-        color = '#a335ee';
+        color = "#a335ee";
       } else if (bossPercent > 5) {
-        color = '#ff8000';
+        color = "#ff8000";
       } else {
-        color = '#e268a8';
+        color = "#e268a8";
       }
 
       return color;
     }
   }
 
-  return 'hsl(var(--error))';
+  return "hsl(var(--error))";
 };
 
 const getPlayerName = (video: RendererVideo) => {
   const { player } = video;
 
   if (player === undefined) {
-    return '';
+    return "";
   }
 
   if (player._name === undefined) {
-    return '';
+    return "";
   }
 
   return player._name;
-};
-
-const getPlayerRealm = (video: RendererVideo) => {
-  const { player } = video;
-
-  if (player === undefined) {
-    return '';
-  }
-
-  if (player._realm === undefined) {
-    return '';
-  }
-
-  return player._realm;
 };
 
 const getPlayerSpecID = (video: RendererVideo) => {
@@ -490,20 +453,20 @@ const getPlayerSpecID = (video: RendererVideo) => {
     return 0;
   }
 
-  if (player._specID === undefined) {
+  if (player._heroID === undefined) {
     return 0;
   }
 
   const knownSpec = Object.prototype.hasOwnProperty.call(
     specializationById,
-    player._specID,
+    player._heroID,
   );
 
   if (!knownSpec) {
     return 0;
   }
 
-  return player._specID;
+  return player._heroID;
 };
 
 const getPlayerTeamID = (video: RendererVideo) => {
@@ -522,11 +485,11 @@ const getPlayerTeamID = (video: RendererVideo) => {
 
 const getSpecClass = (specId: number | undefined): WoWCharacterClassType => {
   if (specId === undefined) {
-    return 'UNKNOWN';
+    return "UNKNOWN";
   }
 
   if (specializationById[specId] === undefined) {
-    return 'UNKNOWN';
+    return "UNKNOWN";
   }
 
   return specializationById[specId].class;
@@ -536,10 +499,10 @@ const getPlayerClass = (video: RendererVideo): WoWCharacterClassType => {
   const { player } = video;
 
   if (player === undefined) {
-    return 'UNKNOWN';
+    return "UNKNOWN";
   }
 
-  return getSpecClass(player._specID);
+  return getSpecClass(player._heroID);
 };
 
 const getVideoTime = (video: RendererVideo) => {
@@ -548,11 +511,11 @@ const getVideoTime = (video: RendererVideo) => {
 
   const hours = date
     .getHours()
-    .toLocaleString('en-US', { minimumIntegerDigits: 2 });
+    .toLocaleString("en-US", { minimumIntegerDigits: 2 });
 
   const mins = date
     .getMinutes()
-    .toLocaleString('en-US', { minimumIntegerDigits: 2 });
+    .toLocaleString("en-US", { minimumIntegerDigits: 2 });
 
   const timeAsString = `${hours}:${mins}`;
   return timeAsString;
@@ -580,11 +543,11 @@ const dateToHumanReadable = (date: Date) => {
 
   const hours = date
     .getHours()
-    .toLocaleString('en-US', { minimumIntegerDigits: 2 });
+    .toLocaleString("en-US", { minimumIntegerDigits: 2 });
 
   const mins = date
     .getMinutes()
-    .toLocaleString('en-US', { minimumIntegerDigits: 2 });
+    .toLocaleString("en-US", { minimumIntegerDigits: 2 });
 
   const timeAsString = `${hours}:${mins}`;
 
@@ -620,8 +583,8 @@ const standardizeAudioDeviceNames = (
 ): string[] => {
   let normalizedDeviceNames: string[];
 
-  if (typeof deviceNames === 'string') {
-    normalizedDeviceNames = deviceNames.split(',');
+  if (typeof deviceNames === "string") {
+    normalizedDeviceNames = deviceNames.split(",");
   } else {
     normalizedDeviceNames = deviceNames;
   }
@@ -630,7 +593,7 @@ const standardizeAudioDeviceNames = (
 };
 
 const isHighRes = (res: string) => {
-  const resolutions = res.split('x');
+  const resolutions = res.split("x");
   const [width, height] = resolutions;
 
   if (parseInt(width, 10) >= 4000 || parseInt(height, 10) >= 4000) {
@@ -680,21 +643,21 @@ const mapEncoderToString = (enc: Encoder, lang: Language) => {
 const getFriendlyEncoderName = (enc: ESupportedEncoders) => {
   switch (enc) {
     case ESupportedEncoders.OBS_X264:
-      return 'OBS H.264';
+      return "OBS H.264";
     case ESupportedEncoders.NVENC_H264:
-      return 'NVIDIA H.264';
+      return "NVIDIA H.264";
     case ESupportedEncoders.NVENC_AV1:
-      return 'NVIDIA AV1';
+      return "NVIDIA AV1";
     case ESupportedEncoders.AMD_H264:
-      return 'AMD H.264';
+      return "AMD H.264";
     case ESupportedEncoders.AMD_AV1:
-      return 'AMD AV1';
+      return "AMD AV1";
     case ESupportedEncoders.QSV_H264:
-      return 'Intel H.264';
+      return "Intel H.264";
     case ESupportedEncoders.QSV_AV1:
-      return 'Intel AV1';
+      return "Intel AV1";
     default:
-      throw new Error('Unknown Encoder');
+      throw new Error("Unknown Encoder");
   }
 };
 
@@ -708,20 +671,21 @@ const mapStringToEncoder = (enc: string): Encoder => {
 
 const pathSelect = async (): Promise<string> => {
   const ipc = window.electron.ipcRenderer;
-  const path = await ipc.invoke('selectPath', []);
-  return path;
+  const path = await ipc.invoke("selectPath", []);
+
+  return path as string;
 };
 
 const fileSelect = async (): Promise<string> => {
   const ipc = window.electron.ipcRenderer;
-  const path = await ipc.invoke('selectFile', []);
-  return path;
+  const path = await ipc.invoke("selectFile", []);
+  return path as string;
 };
 
 const imageSelect = async (): Promise<string> => {
   const ipc = window.electron.ipcRenderer;
-  const path = await ipc.invoke('selectImage', []);
-  return path;
+  const path = await ipc.invoke("selectImage", []);
+  return path as string;
 };
 
 const convertNumToDeathMarkers = (n: number) => {
@@ -739,15 +703,14 @@ const convertDeathMarkersToNum = (d: DeathMarkers) => {
 const getPTTKeyPressEventFromConfig = (
   config: ConfigurationSchema,
 ): PTTKeyPressEvent => {
-  const ctrl = config.pushToTalkModifiers.includes('ctrl');
-  const win = config.pushToTalkModifiers.includes('win');
-  const shift = config.pushToTalkModifiers.includes('shift');
-  const alt = config.pushToTalkModifiers.includes('alt');
+  const ctrl = config.pushToTalkModifiers.includes("ctrl");
+  const win = config.pushToTalkModifiers.includes("win");
+  const shift = config.pushToTalkModifiers.includes("shift");
+  const alt = config.pushToTalkModifiers.includes("alt");
 
-  const type =
-    config.pushToTalkKey > 0
-      ? PTTEventType.EVENT_KEY_PRESSED
-      : PTTEventType.EVENT_MOUSE_PRESSED;
+  const type = config.pushToTalkKey > 0
+    ? PTTEventType.EVENT_KEY_PRESSED
+    : PTTEventType.EVENT_MOUSE_PRESSED;
 
   return {
     altKey: alt,
@@ -763,10 +726,10 @@ const getPTTKeyPressEventFromConfig = (
 const getManualRecordHotKeyFromConfig = (
   config: ConfigurationSchema,
 ): PTTKeyPressEvent => {
-  const ctrl = config.manualRecordHotKeyModifiers.includes('ctrl');
-  const win = config.manualRecordHotKeyModifiers.includes('win');
-  const shift = config.manualRecordHotKeyModifiers.includes('shift');
-  const alt = config.manualRecordHotKeyModifiers.includes('alt');
+  const ctrl = config.manualRecordHotKeyModifiers.includes("ctrl");
+  const win = config.manualRecordHotKeyModifiers.includes("win");
+  const shift = config.manualRecordHotKeyModifiers.includes("shift");
+  const alt = config.manualRecordHotKeyModifiers.includes("alt");
 
   return {
     altKey: alt,
@@ -779,7 +742,7 @@ const getManualRecordHotKeyFromConfig = (
   };
 };
 
-const getKeyByValue = (object: any, value: any) => {
+const getKeyByValue = (object: Record<string, unknown>, value: unknown) => {
   return Object.keys(object).find((key) => object[key] === value);
 };
 
@@ -787,24 +750,25 @@ const getKeyModifiersString = (keyevent: PTTKeyPressEvent) => {
   const modifiers: string[] = [];
 
   if (keyevent.altKey) {
-    modifiers.push('alt');
+    modifiers.push("alt");
   }
   if (keyevent.ctrlKey) {
-    modifiers.push('ctrl');
+    modifiers.push("ctrl");
   }
   if (keyevent.shiftKey) {
-    modifiers.push('shift');
+    modifiers.push("shift");
   }
   if (keyevent.metaKey) {
-    modifiers.push('win');
+    modifiers.push("win");
   }
 
-  return modifiers.join(',');
+  return modifiers.join(",");
 };
 
 const getNextKeyOrMouseEvent = async (): Promise<PTTKeyPressEvent> => {
   const ipc = window.electron.ipcRenderer;
-  return ipc.invoke('getNextKeyPress', []);
+
+  return ipc.invoke("getNextKeyPress", []) as unknown as PTTKeyPressEvent;
 };
 
 const secToMmSs = (s: number) => {
@@ -812,12 +776,12 @@ const secToMmSs = (s: number) => {
   const mins = Math.floor(rounded / 60);
   const secs = rounded - mins * 60;
 
-  const ss = secs.toLocaleString('en-US', {
+  const ss = secs.toLocaleString("en-US", {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
 
-  const mm = mins.toLocaleString('en-US', {
+  const mm = mins.toLocaleString("en-US", {
     minimumIntegerDigits: 2,
     useGrouping: false,
   });
@@ -846,7 +810,7 @@ const getVideoResultText = (
     }
 
     if (upgradeLevel === undefined) {
-      return '';
+      return "";
     }
 
     if (upgradeLevel < 1) {
@@ -875,7 +839,7 @@ const getVideoResultText = (
       soloShuffleRoundsWon === undefined ||
       soloShuffleRoundsPlayed === undefined
     ) {
-      return '';
+      return "";
     }
 
     const wins = soloShuffleRoundsWon;
@@ -974,7 +938,7 @@ const areDatesWithinSeconds = (d1: Date, d2: Date, sec: number) => {
 };
 
 const toFixedDigits = (n: number, d: number) =>
-  n.toLocaleString('en-US', { minimumIntegerDigits: d, useGrouping: false });
+  n.toLocaleString("en-US", { minimumIntegerDigits: d, useGrouping: false });
 
 const getPullNumber = (video: RendererVideo, videoState: RendererVideo[]) => {
   const videoDate = video.start ? new Date(video.start) : new Date(video.mtime);
@@ -1062,7 +1026,7 @@ const raidResultToPercent = (video: RendererVideo) => {
   // show the percent if it exists on any video and not just the first one.
   const bossPercent = [video, ...video.multiPov]
     .map((rv) => rv.bossPercent)
-    .find((bp) => typeof bp === 'number');
+    .find((bp) => typeof bp === "number");
 
   return bossPercent;
 };
@@ -1073,10 +1037,10 @@ const getAudioSourceChoices = async (src: AudioSource) => {
   const properties = await ipc.getAudioSourceProperties(src.id);
 
   const devices = properties.find(
-    (prop) => prop.name === 'device_id' || prop.name === 'window',
+    (prop) => prop.name === "device_id" || prop.name === "window",
   );
 
-  if (!devices || devices.type !== 'list') {
+  if (!devices || devices.type !== "list") {
     return [];
   }
 
@@ -1089,10 +1053,10 @@ const getKeyPressEventString = (
 ) => {
   const keys: string[] = [];
 
-  if (event.altKey) keys.push('Alt');
-  if (event.ctrlKey) keys.push('Ctrl');
-  if (event.shiftKey) keys.push('Shift');
-  if (event.metaKey) keys.push('Win');
+  if (event.altKey) keys.push("Alt");
+  if (event.ctrlKey) keys.push("Ctrl");
+  if (event.shiftKey) keys.push("Shift");
+  if (event.metaKey) keys.push("Win");
 
   const { keyCode, mouseButton } = event;
 
@@ -1101,13 +1065,13 @@ const getKeyPressEventString = (
     if (key !== undefined) keys.push(key);
   } else if (mouseButton > 0) {
     keys.push(
-      `${getLocalePhrase(appState.language, Phrase.Mouse)} ${
-        event.mouseButton
-      }`,
+      `${
+        getLocalePhrase(appState.language, Phrase.Mouse)
+      } ${event.mouseButton}`,
     );
   }
 
-  return keys.join('+');
+  return keys.join("+");
 };
 
 const videoMatch = (a: RendererVideo, b: RendererVideo) =>
@@ -1116,66 +1080,65 @@ const videoMatch = (a: RendererVideo, b: RendererVideo) =>
 const videoMatchName = (a: RendererVideo, name: string) => a.videoName === name;
 
 export {
-  getFormattedDuration,
-  getVideoResult,
-  getWoWClassColor,
-  getVideoResultText,
-  getInstanceDifficultyText,
-  getEncounterNameById,
+  areDatesWithinSeconds,
+  combatantNameSort,
+  convertDeathMarkersToNum,
+  convertNumToDeathMarkers,
+  countUniqueViewpoints,
+  dateToHumanReadable,
+  encoderFilter,
+  fileSelect,
+  getAllDeathMarkers,
+  getAudioSourceChoices,
+  getCategoryFromConfig,
+  getCategoryIndex,
   getDungeonName,
-  isMythicPlusUtil,
-  isRaidUtil,
-  isBattlegroundUtil,
-  isSoloShuffleUtil,
-  isArenaUtil,
-  isClip,
-  getResultColor,
+  getEncounterMarkers,
+  getEncounterNameById,
+  getFirstInCategory,
+  getFormattedDuration,
+  getInstanceDifficultyText,
+  getKeyByValue,
+  getKeyModifiersString,
+  getKeyPressEventString,
+  getManualRecordHotKeyFromConfig,
+  getNextKeyOrMouseEvent,
+  getOwnDeathMarkers,
+  getPlayerClass,
   getPlayerName,
-  getPlayerRealm,
   getPlayerSpecID,
   getPlayerTeamID,
-  getPlayerClass,
-  getVideoTime,
+  getPTTKeyPressEventFromConfig,
+  getPullNumber,
+  getResultColor,
+  getRoundMarkers,
+  getSpecClass,
+  getVideoCategoryFilter,
   getVideoDate,
-  standardizeAudioDeviceNames,
-  encoderFilter,
+  getVideoResult,
+  getVideoResultText,
+  getVideoStorageFilter,
+  getVideoTime,
+  getWoWClassColor,
+  imageSelect,
+  isArenaUtil,
+  isBattlegroundUtil,
+  isClip,
+  isHighRes,
+  isMythicPlusUtil,
+  isRaidUtil,
+  isSoloShuffleUtil,
   mapEncoderToString,
   mapStringToEncoder,
   pathSelect,
-  fileSelect,
-  imageSelect,
-  convertNumToDeathMarkers,
-  convertDeathMarkersToNum,
-  getAllDeathMarkers,
-  getOwnDeathMarkers,
-  getRoundMarkers,
-  getEncounterMarkers,
-  isHighRes,
-  getPTTKeyPressEventFromConfig,
-  getManualRecordHotKeyFromConfig,
-  getKeyByValue,
-  getKeyModifiersString,
-  getNextKeyOrMouseEvent,
-  secToMmSs,
-  getCategoryFromConfig,
-  getVideoCategoryFilter,
-  getCategoryIndex,
-  getFirstInCategory,
-  stopPropagation,
   povCloudFirstNameSort,
   povDiskFirstNameSort,
-  areDatesWithinSeconds,
-  toFixedDigits,
-  getPullNumber,
-  combatantNameSort,
-  countUniqueViewpoints,
-  videoToDate,
-  dateToHumanReadable,
-  getSpecClass,
   raidResultToPercent,
-  getVideoStorageFilter,
-  getAudioSourceChoices,
-  getKeyPressEventString,
+  secToMmSs,
+  standardizeAudioDeviceNames,
+  stopPropagation,
+  toFixedDigits,
   videoMatch,
   videoMatchName,
+  videoToDate,
 };

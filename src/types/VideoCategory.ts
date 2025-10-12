@@ -9,4 +9,7 @@ export enum VideoCategory {
   Battlegrounds = 'Battlegrounds',
   Clips = 'Clips',
   Manual = 'Manual',
+  Adventures = 'Adventures',
+  Dungeons = 'Dungeons',
+  Quickplays = 'Quickplays',
 }

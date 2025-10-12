@@ -1,4 +1,4 @@
-import { ConfigurationSchema, configSchema } from 'config/configSchema';
+import { configSchema, ConfigurationSchema } from 'config/configSchema';
 import React, { Dispatch, SetStateAction } from 'react';
 import { AppState, RecStatus } from 'main/types';
 import { Info } from 'lucide-react';
@@ -41,6 +41,8 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
       eraLogPath: config.eraLogPath,
       recordRetailPtr: config.recordRetailPtr,
       retailPtrLogPath: config.retailPtrLogPath,
+      recordFellowship: config.recordFellowship,
+      fellowshipLogPath: config.fellowshipLogPath,
     });
 
     ipc.reconfigureBase();
@@ -53,6 +55,8 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
     config.eraLogPath,
     config.recordRetailPtr,
     config.retailPtrLogPath,
+    config.recordFellowship,
+    config.fellowshipLogPath,
   ]);
 
   const isComponentDisabled = () => {
@@ -93,6 +97,15 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
     });
   };
 
+  const setRecordFellowship = (checked: boolean) => {
+    setConfig((prevState) => {
+      return {
+        ...prevState,
+        recordFellowship: checked,
+      };
+    });
+  };
+
   const setRecordClassic = (checked: boolean) => {
     setConfig((prevState) => {
       return {
@@ -119,6 +132,83 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
         retailLogPath: newPath,
       };
     });
+  };
+
+  const setFellowshipLogPath = async () => {
+    if (isComponentDisabled()) {
+      return;
+    }
+
+    const newPath = await pathSelect();
+
+    if (newPath === '') {
+      return;
+    }
+
+    setConfig((prevState) => {
+      return {
+        ...prevState,
+        fellowshipLogPath: newPath,
+      };
+    });
+  };
+
+  const getFellowshipSettings = () => {
+    if (isComponentDisabled()) {
+      return <></>;
+    }
+
+    return (
+      <div className="flex flex-row gap-x-6">
+        <div className="flex flex-col w-[140px]">
+          <Label htmlFor="recordFellowship" className="flex items-center">
+            {/* TODO: Add record fellowship label */}
+            Record Fellowship
+            <Tooltip
+              content={getLocalePhrase(
+                appState.language,
+                configSchema.recordFellowship.description,
+              )}
+              side="top"
+            >
+              <Info size={20} className="inline-flex ml-2" />
+            </Tooltip>
+          </Label>
+          <div className="flex h-10 items-center">
+            {getSwitch('recordFellowship', setRecordFellowship)}
+          </div>
+        </div>
+        {config.recordFellowship && (
+          <div className="flex flex-col w-1/2">
+            <Label htmlFor="fellowshipLogPath" className="flex items-center">
+              {/* TODO: Add fellowship log path label */}
+              Fellogship
+              <Tooltip
+                content={getLocalePhrase(
+                  appState.language,
+                  configSchema.fellowshipLogPath.description,
+                )}
+                side="top"
+              >
+                <Info size={20} className="inline-flex ml-2" />
+              </Tooltip>
+            </Label>
+            <Input
+              value={config.fellowshipLogPath}
+              onClick={setFellowshipLogPath}
+              readOnly
+              required
+            />
+            {config.fellowshipLogPath === '' && (
+              <span className="text-error text-sm">
+                {/* TODO: Add invalid fellowship log path text */}
+                Invalid fellowship log path
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const getRetailSettings = () => {
@@ -434,6 +524,7 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
   return (
     <div className="flex flex-col gap-y-2">
       {getDisabledText()}
+      {getFellowshipSettings()}
       {getRetailSettings()}
       {getClassicSettings()}
       {getEraSettings()}

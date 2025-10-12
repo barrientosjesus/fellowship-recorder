@@ -11,12 +11,12 @@ import {
   VideoQueueItem,
 } from './types';
 import {
-  writeMetadataFile,
-  getMetadataForVideo,
-  rendererVideoToMetadata,
-  getFileInfo,
   fixPathWhenPackaged,
+  getFileInfo,
+  getMetadataForVideo,
   logAxiosError,
+  rendererVideoToMetadata,
+  writeMetadataFile,
 } from './util';
 import CloudClient from '../storage/CloudClient';
 import { send } from './main';
@@ -32,6 +32,14 @@ ffmpeg.setFfmpegPath(ffmpegInstallerPath);
 
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+
+interface AtomicQueue {
+  write: (data: unknown) => void;
+  on: (event: string, handler: (...args: unknown[]) => void) => AtomicQueue;
+  pool: {
+    on: (event: string, handler: (...args: unknown[]) => void) => unknown;
+  };
+}
 
 /**
  * A queue for cutting videos to size.
@@ -53,19 +61,19 @@ export default class VideoProcessQueue {
   /**
    * Atomic queue object for queueing cutting of videos.
    */
-  private videoQueue: any;
+  private videoQueue: AtomicQueue;
 
   /**
    * Atomic queue object for queuing upload of videos, seperated from the
    * video queue as this can take a long time and we don't want to block further
    * video cuts behind uploads.
    */
-  private uploadQueue: any;
+  private uploadQueue: AtomicQueue;
 
   /**
    * Atomic queue object for queuing download of videos.
    */
-  private downloadQueue: any;
+  private downloadQueue: AtomicQueue;
 
   /**
    * Config service handle.
@@ -102,12 +110,18 @@ export default class VideoProcessQueue {
 
     /* eslint-disable prettier/prettier */
     queue
-      .on('error', VideoProcessQueue.errorProcessingVideo)
-      .on('idle', () => {this.videoQueueEmpty()});
-         
+      .on("error", VideoProcessQueue.errorProcessingVideo)
+      .on("idle", () => {
+        this.videoQueueEmpty();
+      });
+
     queue.pool
-      .on('start', (data: VideoQueueItem) => { this.startedProcessingVideo(data) })
-      .on('finish', (_: unknown, data: VideoQueueItem) => { this.finishProcessingVideo(data) });
+      .on("start", (data: VideoQueueItem) => {
+        this.startedProcessingVideo(data);
+      })
+      .on("finish", (_: unknown, data: VideoQueueItem) => {
+        this.finishProcessingVideo(data);
+      });
     /* eslint-enable prettier/prettier */
 
     return queue;
@@ -120,12 +134,18 @@ export default class VideoProcessQueue {
 
     /* eslint-disable prettier/prettier */
     queue
-      .on('error', VideoProcessQueue.errorUploadingVideo)
-      .on('idle', () => { this.uploadQueueEmpty() });
+      .on("error", VideoProcessQueue.errorUploadingVideo)
+      .on("idle", () => {
+        this.uploadQueueEmpty();
+      });
 
     queue.pool
-      .on('start', (item: UploadQueueItem) => { this.startedUploadingVideo(item) })
-      .on('finish', async (_: unknown, item: UploadQueueItem) => { await this.finishUploadingVideo(item) });
+      .on("start", (item: UploadQueueItem) => {
+        this.startedUploadingVideo(item);
+      })
+      .on("finish", async (_: unknown, item: UploadQueueItem) => {
+        await this.finishUploadingVideo(item);
+      });
     /* eslint-enable prettier/prettier */
 
     return queue;
@@ -138,12 +158,18 @@ export default class VideoProcessQueue {
 
     /* eslint-disable prettier/prettier */
     queue
-      .on('error', VideoProcessQueue.errorDownloadingVideo)
-      .on('idle', () => { this.downloadQueueEmpty() });
+      .on("error", VideoProcessQueue.errorDownloadingVideo)
+      .on("idle", () => {
+        this.downloadQueueEmpty();
+      });
 
     queue.pool
-      .on('start', (video: RendererVideo) => { this.startedDownloadingVideo(video) })
-      .on('finish', async (_: unknown, video: RendererVideo) => { await this.finishDownloadingVideo(video) });
+      .on("start", (video: RendererVideo) => {
+        this.startedDownloadingVideo(video);
+      })
+      .on("finish", async (_: unknown, video: RendererVideo) => {
+        await this.finishDownloadingVideo(video);
+      });
     /* eslint-enable prettier/prettier */
 
     return queue;
@@ -155,6 +181,7 @@ export default class VideoProcessQueue {
    */
   public queueVideo = async (item: VideoQueueItem) => {
     console.info('[VideoProcessQueue] Queuing video for processing', item);
+
     this.videoQueue.write(item);
   };
 

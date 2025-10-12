@@ -85,7 +85,7 @@ export default class CombatLogWatcher extends EventEmitter {
         return;
       }
 
-      if (!file.startsWith('WoWCombatLog')) {
+      if (!file.startsWith('CombatLog')) {
         return;
       }
 
@@ -122,11 +122,11 @@ export default class CombatLogWatcher extends EventEmitter {
   }
 
   /**
-   * We need this in-case WCR is launched mid activity where a partial log file
+   * We need this in-case Fellowsnip is launched mid activity where a partial log file
    * already exists.
    */
   private async getLogDirectoryState() {
-    const logs = await getSortedFiles(this.logDir, 'WoWCombatLog.*.txt');
+    const logs = await getSortedFiles(this.logDir, 'CombatLog.*.txt');
 
     if (logs.length < 1) {
       return;
