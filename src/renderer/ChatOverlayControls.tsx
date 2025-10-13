@@ -266,10 +266,10 @@ const ChatOverlayControls = (props: IProps) => {
     <div className="flex flex-col items-center content-center w-full flex-wrap gap-4">
       <div className="flex items-center content-center w-full gap-8">
         {getChatOverlayEnabledSwitch()}
-        {config.chatOverlayEnabled && getChatOverlayOwnImageSwitch()}
+        {/* {config.chatOverlayEnabled && getChatOverlayOwnImageSwitch()}
         {config.chatOverlayEnabled &&
           config.chatOverlayOwnImage &&
-          getOwnImagePathField()}
+          getOwnImagePathField()} */}
       </div>
       {showPathWarning && (
         <p className="flex w-full text-red-500 text-sm">

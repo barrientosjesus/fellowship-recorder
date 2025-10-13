@@ -35,7 +35,7 @@
     --card: 0 0% 23%;
     --card-foreground: 0 0% 69%;
 
-    --primary: 14 71% 43%;
+    --primary: 37 36% 52%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 28%;
@@ -106,7 +106,7 @@ div#root {
 }
 
 #title {
-  color: #bb4220;
+  color: #B08E58;
   line-height: 32px;
   font-size: 14px;
   text-align: center;
@@ -355,8 +355,8 @@ div#root {
   top: 325px;
   left: 9px;
   border-style: solid;
-  border-color: #bb4220;
-  background-color: #bb4220;
+  border-color: #B08E58;
+  background-color: #B08E58;
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
@@ -431,8 +431,8 @@ fieldset:disabled a.btn {
 
 .btn-primary {
   color: #fff;
-  background-color: #bb4220;
-  border-color: #bb4220;
+  background-color: #B08E58;
+  border-color: #B08E58;
 }
 
 .btn-primary:hover {
@@ -450,7 +450,7 @@ fieldset:disabled a.btn {
 .btn-primary.disabled,
 .btn-primary:disabled {
   color: #fff;
-  background-color: #bb4220;
+  background-color: #B08E58;
 }
 
 .btn-primary:not(:disabled):not(.disabled).active,

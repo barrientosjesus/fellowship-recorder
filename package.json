@@ -2,19 +2,18 @@
   "name": "Fellowsnip",
   "description": "Fellowsnip",
   "keywords": [
-    "world",
-    "of",
-    "warcraft",
+    "fellowship",
+    "fellowsnip",
     "screen",
     "recorder"
   ],
   "homepage": "https://www.fellowsnip.com/",
   "bugs": {
-    "url": "https://github.com/fellowsguide/fellowsnip/issues"
+    "url": "https://github.com/fellowsguide/fellowship-recorder/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fellowsguide/fellowsnip.git"
+    "url": "git+https://github.com/fellowsguide/fellowship-recorder.git"
   },
   "license": "Creative Commons Attribution-NonCommercial",
   "author": {
@@ -95,7 +94,7 @@
     "publish": {
       "provider": "github",
       "owner": "fellowsguide",
-      "repo": "fellowsnip"
+      "repo": "fellowship-recorder"
     }
   },
   "jest": {

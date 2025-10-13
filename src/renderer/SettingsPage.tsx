@@ -47,9 +47,9 @@ const SettingsPage: React.FC<IProps> = (props: IProps) => {
           <TabsTrigger value="game">
             {getLocalePhrase(appState.language, Phrase.SettingsPageGameHeader)}
           </TabsTrigger>
-          <TabsTrigger value="pro">
+          {/* <TabsTrigger value="pro">
             {getLocalePhrase(appState.language, Phrase.SettingsPageProHeader)}
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
         <ScrollArea
           withScrollIndicators={false}
@@ -135,7 +135,7 @@ const SettingsPage: React.FC<IProps> = (props: IProps) => {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="pro">
+          {/* <TabsContent value="pro">
             <div className="p-4 flex flex-col gap-y-8">
               <div>
                 <CategoryHeading>
@@ -152,7 +152,7 @@ const SettingsPage: React.FC<IProps> = (props: IProps) => {
                 />
               </div>
             </div>
-          </TabsContent>
+          </TabsContent> */}
         </ScrollArea>
       </Tabs>
     </div>

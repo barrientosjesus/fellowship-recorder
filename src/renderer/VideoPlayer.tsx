@@ -82,20 +82,20 @@ const sliderBaseSx = {
     width: '10px',
     height: '10px',
     '&:hover': {
-      color: '#bb4220',
+      color: '#B08E58',
       boxShadow: 'none',
     },
   },
   '& .MuiSlider-track': {
-    color: '#bb4220',
+    color: '#B08E58',
     height: '4px',
   },
   '& .MuiSlider-rail': {
-    color: '#bb4220',
+    color: '#B08E58',
     height: '4px',
   },
   '& .MuiSlider-active': {
-    color: '#bb4220',
+    color: '#B08E58',
   },
 };
 
@@ -336,7 +336,7 @@ export const VideoPlayer = (props: IProps) => {
    * and round (Solo Shuffle only) markers.
    */
   const getTrackGradient = () => {
-    const fillerColor = '#BB4420';
+    const fillerColor = '#B08E58';
     const activeMarkers = getActiveMarkers();
 
     // Lower the opacity of everything in the linear gradient otherwise it
@@ -401,7 +401,7 @@ export const VideoPlayer = (props: IProps) => {
             },
           },
           '&:hover': {
-            backgroundColor: '#bb4220',
+            backgroundColor: '#B08E58',
             boxShadow: 'none',
           },
         },
@@ -419,7 +419,7 @@ export const VideoPlayer = (props: IProps) => {
             },
           },
           '&:hover': {
-            backgroundColor: '#bb4220',
+            backgroundColor: '#B08E58',
             boxShadow: 'none',
           },
         },
@@ -436,7 +436,7 @@ export const VideoPlayer = (props: IProps) => {
             },
           },
           '&:hover': {
-            backgroundColor: '#bb4220',
+            backgroundColor: '#B08E58',
             boxShadow: 'none',
           },
         },
