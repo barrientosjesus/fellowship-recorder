@@ -625,6 +625,9 @@ const ENGLISH: Translations = {
     "If adventure recordings should be uploaded to the cloud.",
   [Phrase.RecordFellowshipDescription]:
     "Whether the application should record fellowship videos.",
+  [Phrase.MinimumDifficultyLevelLabel]: "Minimum Difficulty Level",
+  [Phrase.RecordQuickplaysLabel]: "Record Quickplays",
+  [Phrase.Failed]: "Failed",
 };
 
 export default ENGLISH;

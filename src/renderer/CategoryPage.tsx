@@ -69,6 +69,15 @@ const CategoryPage = (props: IProps) => {
     playerHeight,
   } = props;
 
+  if (!category) {
+    console.error('CategoryPage rendered without a valid category');
+    return (
+      <div className="flex items-center justify-center h-full w-full bg-background-higher pt-[32px]">
+        <p>Invalid category</p>
+      </div>
+    );
+  }
+
   const {
     selectedVideos,
     videoFilterTags,

@@ -1732,6 +1732,35 @@ const AdventuresByLevelID: NumberKeyToStringValueMapType = {
   25: "Godfall Quarry",
 };
 
+/**
+ * Fellowship Dungeons
+ */
+const DungeonsByLevelID: NumberKeyToStringValueMapType = {
+  5: "The Heart of Tuzari",
+  7: "Cithrel's Fall",
+  13: "Wraithtide Vault",
+  23: "Ransack of Drakheim",
+};
+
+const FellowshipEncounterById: NumberKeyToStringValueMapType = {
+  28: "Sinthara",
+  43: "Slavetrader Brull",
+  44: "Drazhul the Fleshbroker",
+  87: "Sin-Magir",
+  105: "Sinthara",
+  121: "Bael'Aurum",
+  124: "Deathless Katrine",
+  125: "First Mate Marrow",
+  133: "Warlord Brogg",
+  156: "Apostate Veras",
+  168: "Noor, The Betrayer",
+  169: "Ancient Koros",
+  170: "Cithrel",
+  198: "Moar'gore, Master of Sacrifice",
+  199: "Vun’Kahr, the Thorned Maw",
+  200: "Prophet Ez'rath",
+};
+
 const adventureTimersByLevelID: { [id: number]: number } = {
   6: 734,
   8: 780,
@@ -1741,16 +1770,6 @@ const adventureTimersByLevelID: { [id: number]: number } = {
   21: 780,
   24: 780,
   25: 720,
-};
-
-/**
- * Fellowship Dungeons
- */
-const DungeonsByLevelID: NumberKeyToStringValueMapType = {
-  5: "The Heart of Tuzari",
-  7: "Cithrel's Fall",
-  13: "Wraithtide Vault",
-  23: "Ransack of Drakheim",
 };
 
 const dungeonTimersByLevelID: { [id: number]: number } = {
@@ -1764,12 +1783,12 @@ const dungeonTimersByLevelID: { [id: number]: number } = {
  * Fellowship Leagues
  */
 const LeaguesByHighestDifficulty: League[] = [
-  { name: "Contender", baseDifficulty: 0, maxDifficulty: 7, color: "#21C00C" },
-  { name: "Adept", baseDifficulty: 9, maxDifficulty: 15, color: "#0070DD" },
-  { name: "Champion", baseDifficulty: 17, maxDifficulty: 23, color: "#A335EE" },
-  { name: "Paragon", baseDifficulty: 25, maxDifficulty: 31, color: "#930000" },
+  { name: "CONTENDER", baseDifficulty: 0, maxDifficulty: 7, color: "#21C00C" },
+  { name: "ADEPT", baseDifficulty: 9, maxDifficulty: 15, color: "#0070DD" },
+  { name: "CHAMPION", baseDifficulty: 17, maxDifficulty: 23, color: "#A335EE" },
+  { name: "PARAGON", baseDifficulty: 25, maxDifficulty: 31, color: "#930000" },
   {
-    name: "Endless",
+    name: "ENDLESS",
     baseDifficulty: 33,
     maxDifficulty: 9999,
     color: "#42CBB1",
@@ -1823,56 +1842,71 @@ type HeroObjectType = {
   type: HeroDamageType;
   role: HeroRoleType;
   name: HeroType;
+  color: string;
 };
 
 const heroById: { [id: number]: HeroObjectType } = {
+  0: {
+    type: "melee",
+    role: "damage",
+    name: "HELENA",
+    color: "#FFFFFF",
+  },
   22: {
     type: "melee",
     role: "tank",
     name: "HELENA",
+    color: "#B46932",
   },
   14: {
     type: "ranged",
     role: "healer",
     name: "SYLVIE",
+    color: "#EA4F84",
   },
   17: {
     type: "ranged",
     role: "damage",
     name: "RIME",
+    color: "#1EA3EE",
   },
   20: {
     type: "ranged",
     role: "healer",
     name: "VIGOUR",
+    color: "#DDDBC5",
   },
   10: {
     type: "melee",
     role: "damage",
     name: "TARIQ",
+    color: "#C27CD5",
   },
   13: {
     type: "melee",
     role: "tank",
     name: "MEIKO",
+    color: "#28E05C",
   },
   11: {
     type: "melee",
     role: "damage",
     name: "MARA",
+    color: "#6F2EF1",
   },
   2: {
     type: "ranged",
     role: "damage",
     name: "ELARION",
+    color: "#89FF00",
   },
   7: {
     type: "ranged",
     role: "damage",
     name: "ARDEOS",
+    color: "#EB6329",
   },
 };
-
 const AllDungeonAndAdventuresByLevelId = {
   ...DungeonsByLevelID,
   ...AdventuresByLevelID,
@@ -1884,6 +1918,7 @@ const AllDungeonAndAdventureTimersByLevelId = {
 };
 
 export {
+  HeroObjectType,
   AdventuresByLevelID,
   adventureTimersByLevelID,
   AllDungeonAndAdventuresByLevelId,
@@ -1903,6 +1938,10 @@ export {
   dungeonsByZoneId,
   dungeonTimersByLevelID,
   dungeonTimersByMapId,
+  FellowshipEncounterById,
+  heroById,
+  HeroColor,
+  HeroType,
   instanceDifficulty,
   InstanceDifficultyType,
   instanceEncountersById,

@@ -550,6 +550,9 @@ const CHINESE_SIMPLIFIED: Translations = {
     "If adventure recordings should be uploaded to the cloud.",
   [Phrase.RecordFellowshipDescription]:
     "Whether the application should record fellowship videos.",
+  [Phrase.MinimumDifficultyLevelLabel]: "最低难度",
+  [Phrase.RecordQuickplaysLabel]: "Quickplays",
+  [Phrase.Failed]: "失败",
 };
 
 export default CHINESE_SIMPLIFIED;

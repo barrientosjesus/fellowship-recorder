@@ -1,18 +1,18 @@
 import { Box } from '@mui/material';
 import { AppState, RawCombatant, RendererVideo } from 'main/types';
 import { X } from 'lucide-react';
-import { specializationById, WoWCharacterClassType } from 'main/constants';
+import { heroById, HeroObjectType } from 'main/constants';
 import { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import {
-  getWoWClassColor,
-  stopPropagation,
   combatantNameSort,
-  getPlayerClass,
+  getHeroColor,
   isArenaUtil,
   isSoloShuffleUtil,
   povDiskFirstNameSort,
+  stopPropagation,
+  getHeroForPlayer,
 } from '../../rendererutils';
-import { specImages } from '../../images';
+import { heroImages } from '../../images';
 import { getLocalePhrase } from 'localisation/translations';
 import { Phrase } from 'localisation/phrases';
 
@@ -39,15 +39,14 @@ export default function ViewpointSelection(props: IProps) {
     let cloudVideo: RendererVideo | null = null;
     let diskVideo: RendererVideo | null = null;
 
-    let unitClass: WoWCharacterClassType = 'UNKNOWN';
+    let unitClass: HeroObjectType | undefined;
     let currentlySelected = false;
 
     if (matches.length > 0) {
       // We only bother to get a class if we have a match. That way the
       // combatants we have a viewpoint for will be colored, else they will
       // be gray.
-      const v = matches[0];
-      unitClass = getPlayerClass(v);
+      unitClass = getHeroForPlayer(combatant);
     }
 
     matches.forEach((rv: RendererVideo) => {
@@ -71,14 +70,15 @@ export default function ViewpointSelection(props: IProps) {
 
     let specIcon: string | undefined;
 
-    if (combatant._specID !== undefined) {
-      const knownSpec = Object.prototype.hasOwnProperty.call(
-        specializationById,
-        combatant._specID,
+    if (combatant._heroID !== undefined) {
+      const knownHero = Object.prototype.hasOwnProperty.call(
+        heroById,
+        combatant._heroID,
       );
 
-      if (knownSpec) {
-        specIcon = specImages[combatant._specID as keyof typeof specImages];
+      if (knownHero) {
+        const hero = heroById[combatant._heroID];
+        specIcon = heroImages[hero.name as keyof typeof heroImages];
       }
     }
 
@@ -152,8 +152,7 @@ export default function ViewpointSelection(props: IProps) {
       });
     };
 
-    const classColor =
-      unitClass === 'UNKNOWN' ? 'gray' : getWoWClassColor(unitClass);
+    const classColor = unitClass === undefined ? 'gray' : getHeroColor(video);
 
     const cursor = cloudVideo || diskVideo ? 'cursor-pointer' : '';
     const selected = currentlySelected
@@ -225,8 +224,12 @@ export default function ViewpointSelection(props: IProps) {
       return <></>;
     }
 
-    const friendly = combatants.filter((c) => c._teamID === player._teamID);
-    const enemy = combatants.filter((c) => c._teamID !== player._teamID);
+    const friendly = combatants.filter(
+      (c) => (c._teamID || 0) === (player._teamID || 0),
+    );
+    const enemy = combatants.filter(
+      (c) => (c._teamID || 0) !== (player._teamID || 0),
+    );
     let gridClass = 'grid my-1 mx-1 ';
 
     // some tailwind shenanigans going on here when I try to do this more dynamically.

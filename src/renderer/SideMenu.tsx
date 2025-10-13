@@ -91,8 +91,20 @@ const SideMenu = (props: IProps) => {
       return <></>;
     }
 
+    if (
+      tabCategory === VideoCategory.Quickplays &&
+      !config.recordQuickplays &&
+      numCategoryVideos < 1
+    ) {
+      return <></>;
+    }
+
     return (
-      <Menu.Item value={tabCategory} className="py-1.5">
+      <Menu.Item
+        value={tabCategory}
+        className="py-1.5"
+        disabled={tabCategory === VideoCategory.Raids}
+      >
         <Menu.Item.Icon>
           {typeof tabIcon === 'string' ? (
             <img
@@ -162,22 +174,22 @@ const SideMenu = (props: IProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-background w-80 px-4 items-center pt-4 pb-2">
-      <ApplicationStatusCard
-        recorderStatus={recorderStatus}
-        error={error}
-        micStatus={micStatus}
-        errorReports={errorReports}
-        savingStatus={savingStatus}
-        config={config}
-        appState={appState}
-      />
-      <CloudStatusCard appState={appState} />
-      <Separator className="mb-4" />
-      <ScrollArea
-        className="w-full h-[calc(100%-80px)]"
-        withScrollIndicators={false}
-      >
+    <div className="flex flex-col h-full bg-background w-80 px-4 pt-4 pb-2">
+      <div className="flex flex-col items-center">
+        <ApplicationStatusCard
+          recorderStatus={recorderStatus}
+          error={error}
+          micStatus={micStatus}
+          errorReports={errorReports}
+          savingStatus={savingStatus}
+          config={config}
+          appState={appState}
+        />
+        {/* <CloudStatusCard appState={appState} /> */}
+        <Separator className="mb-4 w-full" />
+      </div>
+
+      <ScrollArea className="w-full flex-1" withScrollIndicators={false}>
         <Menu
           initialValue={appState.page === Pages.None ? category : false}
           onChange={handleChangeCategory}
@@ -198,6 +210,9 @@ const SideMenu = (props: IProps) => {
           {renderCategoryTab(VideoCategory.Manual, <HardHat />)}
           {renderCategoryTab(VideoCategory.Clips, <Clapperboard />)}
         </Menu>
+      </ScrollArea>
+
+      <div className="mt-auto w-full">
         <Separator className="my-5" />
         <Menu
           initialValue={appState.page !== Pages.None ? appState.page : false}
@@ -209,9 +224,7 @@ const SideMenu = (props: IProps) => {
           {renderSettingsTab()}
           {renderSceneTab()}
         </Menu>
-      </ScrollArea>
-      <div className="mt-auto w-full">
-        <Separator className="mb-4" />
+        <Separator className="my-4" />
         <div className="flex items-center justify-center gap-x-4">
           <UpdateNotifier
             updateAvailable={updateAvailable}

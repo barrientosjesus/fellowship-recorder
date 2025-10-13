@@ -479,6 +479,9 @@ enum Phrase {
   CloudUploadQuickplaysDescription,
   CloudUploadAdventuresDescription,
   RecordFellowshipDescription,
+  MinimumDifficultyLevelLabel,
+  RecordQuickplaysLabel,
+  Failed,
 }
 
 enum Language {

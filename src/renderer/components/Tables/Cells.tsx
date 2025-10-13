@@ -1,23 +1,22 @@
 import { CellContext } from '@tanstack/react-table';
 import { CloudStatus, RendererVideo } from 'main/types';
 import {
-  getVideoResultText,
-  getResultColor,
-  getFormattedDuration,
-  dateToHumanReadable,
-  stopPropagation,
   countUniqueViewpoints,
-  getPlayerClass,
-  getPlayerName,
-  getPlayerSpecID,
-  getWoWClassColor,
-  povDiskFirstNameSort,
-  isRaidUtil,
-  isMythicPlusUtil,
+  dateToHumanReadable,
   getDungeonName,
+  getFormattedDuration,
+  getPlayerHero,
+  getPlayerName,
+  getResultColor,
+  getVideoResultText,
+  isFellowshipDungeonUtil,
+  isMythicPlusUtil,
+  isRaidUtil,
+  povDiskFirstNameSort,
+  stopPropagation,
 } from 'renderer/rendererutils';
 import { Box, Checkbox } from '@mui/material';
-import { affixImages, specImages } from 'renderer/images';
+import { affixImages, heroImages, leagueImages } from 'renderer/images';
 import { Language, Phrase } from 'localisation/phrases';
 import { Button } from '../Button/Button';
 import { Tooltip } from '../Tooltip/Tooltip';
@@ -29,7 +28,7 @@ import {
   MessageSquareMore,
 } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
-import { dungeonAffixesById } from 'main/constants';
+import { dungeonAffixesById, LeaguesByHighestDifficulty } from 'main/constants';
 import TagDialog from 'renderer/TagDialog';
 
 export const populateResultCell = (
@@ -88,6 +87,9 @@ export const populateActivityCell = (
     if (dungeonName) activity = dungeonName;
   } else if (video.zoneName) {
     activity = video.zoneName;
+  } else if (isFellowshipDungeonUtil(video)) {
+    const dungeonName = getDungeonName(video);
+    if (dungeonName) activity = dungeonName;
   }
 
   return <div className="truncate">{activity}</div>;
@@ -222,7 +224,44 @@ export const populateLevelCell = (
   info: CellContext<RendererVideo, unknown>,
 ) => {
   const video = info.getValue() as RendererVideo;
-  return `+${video.keystoneLevel || video.level || 0}`;
+  let realLevel = video.keystoneLevel || 0;
+
+  const league = LeaguesByHighestDifficulty.find(
+    (l) => l.maxDifficulty >= (video.keystoneLevel || 0),
+  );
+
+  if (!league) {
+    return `-1`;
+  }
+
+  if (league?.baseDifficulty > 0) {
+    realLevel = realLevel - (league.baseDifficulty - 1);
+  }
+
+  const leagueColor = league.color;
+  const leagueImage = leagueImages[league.name as keyof typeof leagueImages];
+
+  return (
+    <Tooltip content={league.name} key={league.name}>
+      <span
+        className="text-white gap-2 flex flex-row items-center font-sans font-semibold text-sm text-shadow-instance text-center"
+        style={{ color: leagueColor }}
+      >
+        <Box
+          key={league.name}
+          component="img"
+          src={leagueImage}
+          sx={{
+            height: '25px',
+            width: '25px',
+            boxSizing: 'border-box',
+            objectFit: 'cover',
+          }}
+        />
+        {league.name} {realLevel}
+      </span>
+    </Tooltip>
+  );
 };
 
 export const populateAffixesCell = (
@@ -274,17 +313,16 @@ export const populateViewpointCell = (
   const first = povs[0];
   const { player } = first;
 
-  if (!player || !player._specID) {
+  if (!player || !player._heroID) {
     // We don't have enough to render a spec icon and name so
     // just return the viewpoint count.
     return <div>{count}</div>;
   }
 
   const playerName = getPlayerName(first);
-  const playerClass = getPlayerClass(first);
-  const playerClassColor = getWoWClassColor(playerClass);
-  const playerSpecID = getPlayerSpecID(first);
-  const specIcon = specImages[playerSpecID as keyof typeof specImages];
+  const playerHero = getPlayerHero(first);
+  const playerClassColor = playerHero.color;
+  const specIcon = heroImages[playerHero.name as keyof typeof heroImages];
 
   const renderSpecAndName = () => {
     return (

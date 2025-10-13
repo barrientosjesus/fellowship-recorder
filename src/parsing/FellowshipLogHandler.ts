@@ -59,11 +59,25 @@ export default class FellowshipLogHandler extends LogHandler {
       })
       .on("COMBATANT_INFO", (line: LogLine) => {
         this.handleCombatantInfoLine(line);
+      })
+      .on("ZONE_CHANGE", (line: LogLine) => {
+        this.handleZoneChangeLine(line);
       });
   }
 
   public setIsPtr() {
     this.isPtr = true;
+  }
+
+  private async handleZoneChangeLine(line: LogLine) {
+    console.debug("[FellowshipLogHandler] Handling ZONE_CHANGE line:", line);
+
+    if (!LogHandler.activity) {
+      console.error("[FellowshipLogHandler] No active activity on zone change");
+      return;
+    }
+
+    await LogHandler.forceEndActivity();
   }
 
   private async handleDungeonStartLine(line: LogLine) {
@@ -110,10 +124,19 @@ export default class FellowshipLogHandler extends LogHandler {
       "minKeystoneLevel",
     );
 
-    if (level < minLevelToRecord) {
+    if (!isQuickplay && level < minLevelToRecord) {
       console.info(
         "[FellowshipLogHandler] Ignoring difficulty below recording threshold",
       );
+      return;
+    }
+
+    const recordQuickplay = ConfigService.getInstance().get<boolean>(
+      "recordQuickplays",
+    );
+
+    if (isQuickplay && !recordQuickplay) {
+      console.info("[FellowshipLogHandler] Ignoring quickplay");
       return;
     }
 
@@ -256,12 +279,14 @@ export default class FellowshipLogHandler extends LogHandler {
 
     const activeFellowshipDungeon = LogHandler.activity as FellowshipDungeon;
     const eventDate = line.date();
+    const encounterNames = line.arg(2) as string[];
 
     const segment = new DungeonTimelineSegment(
       TimelineSegmentType.BossEncounter,
       eventDate,
       this.getRelativeTimestampForTimelineSegment(eventDate),
       encounterID,
+      encounterNames,
     );
 
     activeFellowshipDungeon.addTimelineSegment(segment, eventDate);

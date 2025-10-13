@@ -5,7 +5,6 @@ import { getLocalePhrase } from 'localisation/translations';
 import GeneralSettings from './GeneralSettings';
 import FlavourSettings from './FlavourSettings';
 import PVESettings from './PVESettings';
-import PVPSettings from './PVPSettings';
 import CloudSettings from './CloudSettings';
 import {
   Tabs,
@@ -123,13 +122,6 @@ const SettingsPage: React.FC<IProps> = (props: IProps) => {
                 </CategoryHeading>
                 <Separator className="mt-2 mb-4" />
                 <PVESettings appState={appState} />
-              </div>
-              <div>
-                <CategoryHeading>
-                  {getLocalePhrase(appState.language, Phrase.PVPSettingsLabel)}
-                </CategoryHeading>
-                <Separator className="mt-2 mb-4" />
-                <PVPSettings appState={appState} />
               </div>
               <div>
                 <CategoryHeading>

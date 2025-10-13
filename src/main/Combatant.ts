@@ -16,6 +16,8 @@ export default class Combatant {
 
   private _isPlayer?: boolean;
 
+  private _teamID?: number;
+
   /**
    * Constructs a new Combatant.
    *
@@ -27,6 +29,7 @@ export default class Combatant {
     name?: string,
     heroID?: number,
     isPlayer?: boolean,
+    teamID?: number,
   ) {
     this._GUID = GUID;
     this._name = name;
@@ -37,6 +40,10 @@ export default class Combatant {
 
     if (isPlayer !== undefined) {
       this._isPlayer = isPlayer;
+    }
+
+    if (teamID !== undefined) {
+      this._teamID = teamID;
     }
   }
 
@@ -107,11 +114,17 @@ export default class Combatant {
   }
 
   /**
-   * Sets the name.
-   * @apinote Name is in Name-Realm format
+   * Gets the team ID.
    */
-  set realm(value) {
-    this._realm = value;
+  get teamID() {
+    return this._teamID;
+  }
+
+  /**
+   * Sets the team ID.
+   */
+  set teamID(value) {
+    this._teamID = value;
   }
 
   /**
@@ -134,9 +147,10 @@ export default class Combatant {
     const hasRealm = this.realm !== undefined;
     const hasHeroID = this.heroID !== undefined;
     const hasIsPlayer = this.isPlayer !== undefined;
+    const hasTeamID = this.teamID !== undefined;
 
     // We do not check region here, because it may not exists in Classic / Era clients.
-    return hasGUID && hasName && hasRealm && hasHeroID && hasIsPlayer;
+    return hasGUID && hasName && hasRealm && hasHeroID && hasIsPlayer && hasTeamID;
   }
 
   getRaw(): RawCombatant {
@@ -146,6 +160,7 @@ export default class Combatant {
     if (this.name !== undefined) rawCombatant._name = this.name;
     if (this.region !== undefined) rawCombatant._region = this.region;
     if (this.isPlayer !== undefined) rawCombatant._isPlayer = this.isPlayer;
+    if (this.teamID !== undefined) rawCombatant._teamID = this.teamID;
 
     return rawCombatant;
   }

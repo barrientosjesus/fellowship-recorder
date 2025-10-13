@@ -1,9 +1,5 @@
 import { WoWCharacterClassType } from 'main/constants';
 
-import TankIcon from '../../assets/roles/tank.png';
-import HealerIcon from '../../assets/roles/healer.png';
-import DamageIcon from '../../assets/roles/damage.png';
-
 import spec0 from '../../assets/specs/0.png';
 import spec103 from '../../assets/specs/103.png';
 import spec105 from '../../assets/specs/105.png';
@@ -45,46 +41,6 @@ import spec66 from '../../assets/specs/66.png';
 import spec71 from '../../assets/specs/71.png';
 import spec73 from '../../assets/specs/73.png';
 
-import affix1 from '../../assets/affixes/1.jpg';
-import affix11 from '../../assets/affixes/11.jpg';
-import affix12 from '../../assets/affixes/12.jpg';
-import affix121 from '../../assets/affixes/121.jpg';
-import affix123 from '../../assets/affixes/123.jpg';
-import affix128 from '../../assets/affixes/128.jpg';
-import affix130 from '../../assets/affixes/130.jpg';
-import affix133 from '../../assets/affixes/133.jpg';
-import affix135 from '../../assets/affixes/135.jpg';
-import affix137 from '../../assets/affixes/137.jpg';
-import affix144 from '../../assets/affixes/144.jpg';
-import affix146 from '../../assets/affixes/146.jpg';
-import affix148 from '../../assets/affixes/148.jpg';
-import affix153 from '../../assets/affixes/153.jpg';
-import affix159 from '../../assets/affixes/159.jpg';
-import affix2 from '../../assets/affixes/2.jpg';
-import affix4 from '../../assets/affixes/4.jpg';
-import affix6 from '../../assets/affixes/6.jpg';
-import affix8 from '../../assets/affixes/8.jpg';
-import affix10 from '../../assets/affixes/10.jpg';
-import affix117 from '../../assets/affixes/117.jpg';
-import affix120 from '../../assets/affixes/120.jpg';
-import affix122 from '../../assets/affixes/122.jpg';
-import affix124 from '../../assets/affixes/124.jpg';
-import affix13 from '../../assets/affixes/13.jpg';
-import affix131 from '../../assets/affixes/131.jpg';
-import affix134 from '../../assets/affixes/134.jpg';
-import affix136 from '../../assets/affixes/136.jpg';
-import affix14 from '../../assets/affixes/14.jpg';
-import affix145 from '../../assets/affixes/145.jpg';
-import affix147 from '../../assets/affixes/147.jpg';
-import affix152 from '../../assets/affixes/152.jpg';
-import affix158 from '../../assets/affixes/158.jpg';
-import affix160 from '../../assets/affixes/160.jpg';
-import affix3 from '../../assets/affixes/3.jpg';
-import affix5 from '../../assets/affixes/5.jpg';
-import affix7 from '../../assets/affixes/7.jpg';
-import affix9 from '../../assets/affixes/9.jpg';
-import affix162 from '../../assets/affixes/162.jpg';
-
 import deathknight from '../../assets/class/deathknight.png';
 import druid from '../../assets/class/druid.png';
 import hunter from '../../assets/class/hunter.png';
@@ -98,6 +54,117 @@ import warlock from '../../assets/class/warlock.png';
 import warrior from '../../assets/class/warrior.png';
 import evoker from '../../assets/class/evoker.png';
 import demonhunter from '../../assets/class/demonhunter.png';
+
+import { HeroType } from 'main/constants';
+
+import TankIcon from '../../assets/roles/tank.png';
+import HealerIcon from '../../assets/roles/healer.png';
+import DamageIcon from '../../assets/roles/damage.png';
+
+import affix2 from '../../assets/affixes/2.png';
+import affix3 from '../../assets/affixes/3.png';
+import affix4 from '../../assets/affixes/4.png';
+import affix5 from '../../assets/affixes/5.png';
+import affix6 from '../../assets/affixes/6.png';
+import affix8 from '../../assets/affixes/8.png';
+import affix9 from '../../assets/affixes/9.png';
+import affix10 from '../../assets/affixes/10.png';
+import affix11 from '../../assets/affixes/11.png';
+import affix12 from '../../assets/affixes/12.png';
+import affix13 from '../../assets/affixes/13.png';
+import affix14 from '../../assets/affixes/14.png';
+import affix15 from '../../assets/affixes/15.png';
+import affix16 from '../../assets/affixes/16.png';
+import affix19 from '../../assets/affixes/19.png';
+
+import ardeos from '../../assets/heroes/7.jpg';
+import elarion from '../../assets/heroes/2.jpg';
+import gunde from '../../assets/heroes/9.jpg';
+import helena from '../../assets/heroes/22.jpg';
+import mara from '../../assets/heroes/11.jpg';
+import meiko from '../../assets/heroes/13.jpg';
+import rime from '../../assets/heroes/17.jpg';
+import sylvie from '../../assets/heroes/14.jpg';
+import tariq from '../../assets/heroes/10.jpg';
+import vigour from '../../assets/heroes/20.jpg';
+
+import demonicritual from '../../assets/dungeons/5.png';
+import desertdunes from '../../assets/dungeons/6.png';
+import frozenkingdom from '../../assets/dungeons/7.png';
+import icecave from '../../assets/dungeons/8.png';
+import mysticforest from '../../assets/dungeons/11.png';
+import nightpatrol from '../../assets/dungeons/12.png';
+import pirateraid from '../../assets/dungeons/13.png';
+import shipgraveyard from '../../assets/dungeons/15.png';
+import urrakmarkets from '../../assets/dungeons/21.png';
+import vikingvillage from '../../assets/dungeons/23.png';
+import spiderforest from '../../assets/dungeons/24.png';
+import crystalmines from '../../assets/dungeons/25.png';
+
+import contender from '../../assets/leagues/contender.png';
+import adept from '../../assets/leagues/adept.png';
+import champion from '../../assets/leagues/champion.png';
+import paragon from '../../assets/leagues/paragon.png';
+import eternal from '../../assets/leagues/eternal.png';
+
+const roleImages = {
+  tank: TankIcon,
+  healer: HealerIcon,
+  damage: DamageIcon,
+};
+
+const affixImages = {
+  2: affix2,
+  3: affix3,
+  4: affix4,
+  5: affix5,
+  6: affix6,
+  8: affix8,
+  9: affix9,
+  10: affix10,
+  11: affix11,
+  12: affix12,
+  13: affix13,
+  14: affix14,
+  15: affix15,
+  16: affix16,
+  19: affix19,
+};
+
+const dungeonImages = {
+  5: demonicritual,
+  6: desertdunes,
+  7: frozenkingdom,
+  8: icecave,
+  11: mysticforest,
+  12: nightpatrol,
+  13: pirateraid,
+  15: shipgraveyard,
+  21: urrakmarkets,
+  23: vikingvillage,
+  24: spiderforest,
+  25: crystalmines,
+};
+
+const leagueImages = {
+  CONTENDER: contender,
+  ADEPT: adept,
+  CHAMPION: champion,
+  PARAGON: paragon,
+  ETERNAL: eternal,
+}
+
+const heroImages: Record<HeroType, string> = {
+  ARDEOS: ardeos,
+  ELARION: elarion,
+  HELENA: helena,
+  MARA: mara,
+  MEIKO: meiko,
+  RIME: rime,
+  SYLVIE: sylvie,
+  TARIQ: tariq,
+  VIGOUR: vigour,
+};
 
 const specImages = {
   0: spec0,
@@ -142,54 +209,6 @@ const specImages = {
   73: spec73,
 };
 
-const roleImages = {
-  tank: TankIcon,
-  healer: HealerIcon,
-  damage: DamageIcon,
-};
-
-const affixImages = {
-  1: affix1,
-  11: affix11,
-  12: affix12,
-  121: affix121,
-  123: affix123,
-  128: affix128,
-  130: affix130,
-  133: affix133,
-  135: affix135,
-  137: affix137,
-  144: affix144,
-  146: affix146,
-  148: affix148,
-  153: affix153,
-  159: affix159,
-  2: affix2,
-  4: affix4,
-  6: affix6,
-  8: affix8,
-  10: affix10,
-  117: affix117,
-  120: affix120,
-  122: affix122,
-  124: affix124,
-  13: affix13,
-  131: affix131,
-  134: affix134,
-  136: affix136,
-  14: affix14,
-  145: affix145,
-  147: affix147,
-  152: affix152,
-  158: affix158,
-  160: affix160,
-  3: affix3,
-  5: affix5,
-  7: affix7,
-  9: affix9,
-  162: affix162,
-};
-
 const classImages: Record<WoWCharacterClassType, string> = {
   DEATHKNIGHT: deathknight,
   DRUID: druid,
@@ -207,4 +226,4 @@ const classImages: Record<WoWCharacterClassType, string> = {
   UNKNOWN: spec0,
 };
 
-export { roleImages, specImages, affixImages, classImages };
+export { roleImages, specImages, affixImages, classImages, heroImages, dungeonImages, leagueImages };

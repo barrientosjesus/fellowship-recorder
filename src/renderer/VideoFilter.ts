@@ -178,10 +178,6 @@ export default class VideoFilter {
       const localised = getLocalePhrase(language, Phrase.Retail);
       const tag = new VideoTag(103, localised, '<Swords>', '#bb4420');
       suggestions.push(tag);
-    } else if (video.flavour === Flavour.Classic) {
-      const localised = getLocalePhrase(language, Phrase.Classic);
-      const tag = new VideoTag(103, localised, '<Shield>', '#bb4420');
-      suggestions.push(tag);
     }
 
     if (playerName) {
@@ -220,7 +216,7 @@ export default class VideoFilter {
     suggestions: VideoTag[],
   ) {
     const combatantName = combatant._name;
-    const combatantSpec = combatant._specID;
+    const combatantSpec = combatant._heroID;
 
     if (!combatantName || !combatantSpec) {
       return;

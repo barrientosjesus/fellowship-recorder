@@ -33,31 +33,12 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
     }
 
     setConfigValues({
-      recordRetail: config.recordRetail,
-      retailLogPath: config.retailLogPath,
-      recordClassic: config.recordClassic,
-      classicLogPath: config.classicLogPath,
-      recordEra: config.recordEra,
-      eraLogPath: config.eraLogPath,
-      recordRetailPtr: config.recordRetailPtr,
-      retailPtrLogPath: config.retailPtrLogPath,
       recordFellowship: config.recordFellowship,
       fellowshipLogPath: config.fellowshipLogPath,
     });
 
     ipc.reconfigureBase();
-  }, [
-    config.recordRetail,
-    config.recordClassic,
-    config.retailLogPath,
-    config.classicLogPath,
-    config.recordEra,
-    config.eraLogPath,
-    config.recordRetailPtr,
-    config.retailPtrLogPath,
-    config.recordFellowship,
-    config.fellowshipLogPath,
-  ]);
+  }, [config.recordFellowship, config.fellowshipLogPath]);
 
   const isComponentDisabled = () => {
     const isRecording = recorderStatus === RecStatus.Recording;
@@ -525,10 +506,10 @@ const FlavourSettings: React.FC<IProps> = (props: IProps) => {
     <div className="flex flex-col gap-y-2">
       {getDisabledText()}
       {getFellowshipSettings()}
-      {getRetailSettings()}
+      {/* {getRetailSettings()}
       {getClassicSettings()}
       {getEraSettings()}
-      {getRetailPtrSettings()}
+      {getRetailPtrSettings()} */}
     </div>
   );
 };

@@ -270,6 +270,59 @@ const useTable = (
   );
 
   /**
+   * The quickplay table columns, the data access, sorting functions
+   * and any display transformations.
+   */
+  const quickplayColumns = useMemo<ColumnDef<RendererVideo>[]>(
+    () => [
+      {
+        id: 'Details',
+        size: 80,
+        accessorFn: (v) => v,
+        sortingFn: (a, b) => detailSort(a, b),
+        header: DetailsHeader,
+        cell: (ctx) =>
+          populateDetailsCell(ctx, language, cloudStatus, setVideoState),
+      },
+      {
+        id: 'Map',
+        size: 300,
+        accessorFn: getDungeonName,
+        header: () => MapHeader(language),
+        cell: populateMapCell,
+      },
+      {
+        id: 'Result',
+        accessorFn: (v) => v,
+        sortingFn: (a, b) => resultSort(a, b, language),
+        header: () => ResultHeader(language),
+        cell: (c) => populateResultCell(c, language),
+      },
+      {
+        id: 'Duration',
+        accessorFn: (v) => v,
+        sortingFn: durationSort,
+        header: () => DurationHeader(language),
+        cell: populateDurationCell,
+      },
+      {
+        id: 'Date',
+        accessorFn: (v) => videoToDate(v),
+        header: () => DateHeader(language),
+        cell: populateDateCell,
+      },
+      {
+        id: 'Viewpoints',
+        accessorFn: (v) => v,
+        header: () => ViewpointsHeader(language),
+        cell: populateViewpointCell,
+        sortingFn: viewPointCountSort,
+      },
+    ],
+    [appState, setVideoState],
+  );
+
+  /**
    * The battleground table columns, the data access, sorting functions
    * and any display transformations.
    */
@@ -417,9 +470,11 @@ const useTable = (
     case VideoCategory.Raids:
       columns = raidColumns;
       break;
+    case VideoCategory.Quickplays:
+      columns = quickplayColumns;
+      break;
     case VideoCategory.MythicPlus:
     case VideoCategory.Adventures:
-    case VideoCategory.Quickplays:
     case VideoCategory.Dungeons:
       columns = dungeonColumns;
       break;
@@ -440,6 +495,7 @@ const useTable = (
       columns = manualColumns;
       break;
     default:
+      console.log(category);
       throw new Error('Unrecognized category');
   }
 

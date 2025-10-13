@@ -50,9 +50,12 @@ const PVESettings = (props: IProps) => {
       raidOverrun: config.raidOverrun,
       dungeonOverrun: config.dungeonOverrun,
       recordCurrentRaidEncountersOnly: config.recordCurrentRaidEncountersOnly,
+      minDifficultyLevel: config.minDifficultyLevel,
+      recordQuickplays: config.recordQuickplays,
     });
   }, [
     config.dungeonOverrun,
+    config.minDifficultyLevel,
     config.minEncounterDuration,
     config.minKeystoneLevel,
     config.minRaidDifficulty,
@@ -61,6 +64,7 @@ const PVESettings = (props: IProps) => {
     config.recordChallengeModes,
     config.recordRaids,
     config.recordCurrentRaidEncountersOnly,
+    config.recordQuickplays,
   ]);
 
   const getSwitch = (
@@ -73,6 +77,37 @@ const PVESettings = (props: IProps) => {
       onCheckedChange={changeFn}
     />
   );
+
+  const setRecordQuickplays = (checked: boolean) => {
+    setConfig((prevState) => {
+      return {
+        ...prevState,
+        recordQuickplays: checked,
+      };
+    });
+  };
+
+  const getRecordQuickplaysSwitch = () => {
+    return (
+      <div className="flex flex-col w-[140px]">
+        <Label htmlFor="recordQuickplays" className="flex items-center">
+          {getLocalePhrase(appState.language, Phrase.RecordQuickplaysLabel)}
+          <Tooltip
+            content={getLocalePhrase(
+              appState.language,
+              configSchema.recordQuickplays.description,
+            )}
+            side="top"
+          >
+            <Info size={20} className="inline-flex ml-2" />
+          </Tooltip>
+        </Label>
+        <div className="flex h-10 items-center">
+          {getSwitch('recordQuickplays', setRecordQuickplays)}
+        </div>
+      </div>
+    );
+  };
 
   const setRecordRaids = (checked: boolean) => {
     setConfig((prevState) => {
@@ -386,6 +421,56 @@ const PVESettings = (props: IProps) => {
     );
   };
 
+  const setMinDifficultyLevel = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const minDifficultyLevel = parseInt(event.target.value, 10);
+
+    if (Number.isNaN(minDifficultyLevel)) {
+      return;
+    }
+
+    setConfig((prevState) => {
+      return {
+        ...prevState,
+        minDifficultyLevel,
+      };
+    });
+  };
+
+  const getMinDifficultyLevelField = () => {
+    if (!config.recordDungeons) {
+      return <></>;
+    }
+
+    return (
+      <div className="flex flex-col w-1/4 min-w-40 max-w-60">
+        <Label htmlFor="minDifficultyLevel" className="flex items-center">
+          {getLocalePhrase(
+            appState.language,
+            Phrase.MinimumDifficultyLevelLabel,
+          )}
+          <Tooltip
+            content={getLocalePhrase(
+              appState.language,
+              configSchema.minDifficultyLevel.description,
+            )}
+            side="top"
+          >
+            <Info size={20} className="inline-flex ml-2" />
+          </Tooltip>
+        </Label>
+        <Input
+          value={config.minDifficultyLevel}
+          name="minDifficultyLevel"
+          disabled={!config.recordDungeons}
+          onChange={setMinDifficultyLevel}
+          type="numeric"
+        />
+      </div>
+    );
+  };
+
   const setMinKeystoneLevel = (event: React.ChangeEvent<HTMLInputElement>) => {
     const minKeystoneLevel = parseInt(event.target.value, 10);
 
@@ -461,19 +546,21 @@ const PVESettings = (props: IProps) => {
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex flex-row gap-x-6">
-        {getRecordRaidSwitch()}
+        {getRecordQuickplaysSwitch()}
+        {/* {getRecordRaidSwitch()}
         {getRecordCurrentEncountersOnlySwitch()}
         {getMinEncounterDurationField()}
         {getRaidOverrunField()}
-        {getMinRaidDifficultySelect()}
+        {getMinRaidDifficultySelect()} */}
       </div>
 
       <div className="flex flex-col gap-y-2">
         <div className="flex flex-row gap-x-6">
-          {getRecordDungeonSwitch()}
+          {getMinDifficultyLevelField()}
+          {/* {getRecordDungeonSwitch()}
           {getChallengeModeField()}
           {getMinKeystoneLevelField()}
-          {getDungeonOverrunField()}
+          {getDungeonOverrunField()} */}
         </div>
       </div>
     </div>

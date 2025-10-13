@@ -8,8 +8,13 @@
  * did was bad, because the render process will show its "Red Screen of Death".
  */
 import {
+  AllDungeonAndAdventuresByLevelId,
+  AllDungeonAndAdventuresByLevelId,
+  AllDungeonAndAdventureTimersByLevelId,
   dungeonEncounters,
   dungeonsByMapId,
+  FellowshipEncounterById,
+  heroById,
   instanceDifficulty,
   instanceEncountersById,
   months,
@@ -47,6 +52,7 @@ import {
 import { ConfigurationSchema } from "config/configSchema";
 import { getLocalePhrase, Language } from "localisation/translations";
 import { Phrase } from "localisation/phrases";
+import { RawDungeonSegment } from "main/dungeon";
 
 const getVideoResult = (video: RendererVideo): boolean => {
   return video.result;
@@ -226,7 +232,7 @@ const getEncounterMarkers = (video: RendererVideo) => {
   }
 
   video.challengeModeTimeline.forEach(
-    (segment: RawChallengeModeTimelineSegment) => {
+    (segment: RawDungeonSegment) => {
       if (
         segment.logEnd === undefined ||
         segment.logStart === undefined ||
@@ -247,7 +253,7 @@ const getEncounterMarkers = (video: RendererVideo) => {
       let markerText = "";
 
       if (segment.encounterId !== undefined) {
-        markerText = dungeonEncounters[segment.encounterId];
+        markerText = FellowshipEncounterById[segment.encounterId];
       }
 
       videoMarkers.push({
@@ -264,6 +270,18 @@ const getEncounterMarkers = (video: RendererVideo) => {
 
 const getWoWClassColor = (unitClass: WoWCharacterClassType) => {
   return WoWClassColor[unitClass];
+};
+
+const getHeroColor = (video: RendererVideo) => {
+  const { player } = video;
+
+  if (player === undefined || player._heroID === undefined) {
+    return "#000000";
+  }
+
+  const hero = heroById[player._heroID];
+
+  return hero.color;
 };
 
 const getInstanceDifficultyText = (video: RendererVideo, lang: Language) => {
@@ -308,15 +326,30 @@ const getEncounterNameById = (encounterId: number): string => {
  * Get the dungeon name if possible, else an empty string.
  */
 const getDungeonName = (video: RendererVideo) => {
-  const { mapID } = video;
+  const { zoneID } = video;
 
-  if (mapID === undefined) {
+  if (zoneID === undefined) {
     return "";
   }
 
   if (video.flavour === Flavour.Retail) {
-    return dungeonsByMapId[mapID];
+    return AllDungeonAndAdventuresByLevelId[zoneID];
   }
+
+  return "";
+};
+
+const isFellowshipDungeonUtil = (video: RendererVideo) => {
+  const { category, parentCategory } = video;
+
+  return (
+    category === VideoCategory.Dungeons ||
+    parentCategory === VideoCategory.Dungeons ||
+    category === VideoCategory.Adventures ||
+    parentCategory === VideoCategory.Adventures ||
+    category === VideoCategory.Quickplays ||
+    parentCategory === VideoCategory.Quickplays
+  );
 };
 
 const isMythicPlusUtil = (video: RendererVideo) => {
@@ -356,7 +389,7 @@ const isSoloShuffleUtil = (video: RendererVideo) => {
 
 const isArenaUtil = (video: RendererVideo) => {
   return (
-    !isMythicPlusUtil(video) && !isRaidUtil(video) && !isBattlegroundUtil(video)
+    !isMythicPlusUtil(video) && !isRaidUtil(video) && !isBattlegroundUtil(video) && !isFellowshipDungeonUtil(video)
   );
 };
 
@@ -476,11 +509,7 @@ const getPlayerTeamID = (video: RendererVideo) => {
     return 0;
   }
 
-  if (player._teamID === undefined) {
-    return 0;
-  }
-
-  return player._teamID;
+  return 0;
 };
 
 const getSpecClass = (specId: number | undefined): WoWCharacterClassType => {
@@ -493,6 +522,50 @@ const getSpecClass = (specId: number | undefined): WoWCharacterClassType => {
   }
 
   return specializationById[specId].class;
+};
+
+const getPlayerHero = (video: RendererVideo) => {
+  const { player } = video;
+
+  if (player === undefined) {
+    return heroById[0];
+  }
+
+  if (player._heroID === undefined) {
+    return heroById[0];
+  }
+
+  const knownHero = Object.prototype.hasOwnProperty.call(
+    heroById,
+    player._heroID,
+  );
+
+  if (!knownHero) {
+    return heroById[0];
+  }
+
+  return heroById[player._heroID];
+};
+
+const getHeroForPlayer = (player: RawCombatant) => {
+  if (player === undefined) {
+    return heroById[0];
+  }
+
+  if (player._heroID === undefined) {
+    return heroById[0];
+  }
+
+  const knownHero = Object.prototype.hasOwnProperty.call(
+    heroById,
+    player._heroID,
+  );
+
+  if (!knownHero) {
+    return heroById[0];
+  }
+
+  return heroById[player._heroID];
 };
 
 const getPlayerClass = (video: RendererVideo): WoWCharacterClassType => {
@@ -804,6 +877,14 @@ const getVideoResultText = (
     soloShuffleRoundsPlayed,
   } = video;
 
+  if (isFellowshipDungeonUtil(video)) {
+    if (!result) {
+      return getLocalePhrase(language, Phrase.Failed);
+    }
+
+    return getLocalePhrase(language, Phrase.Timed);
+  }
+
   if (isMythicPlusUtil(video)) {
     if (!result) {
       return getLocalePhrase(language, Phrase.Abandoned);
@@ -1097,6 +1178,8 @@ export {
   getEncounterNameById,
   getFirstInCategory,
   getFormattedDuration,
+  getHeroColor,
+  getHeroForPlayer,
   getInstanceDifficultyText,
   getKeyByValue,
   getKeyModifiersString,
@@ -1105,6 +1188,7 @@ export {
   getNextKeyOrMouseEvent,
   getOwnDeathMarkers,
   getPlayerClass,
+  getPlayerHero,
   getPlayerName,
   getPlayerSpecID,
   getPlayerTeamID,
@@ -1124,6 +1208,7 @@ export {
   isArenaUtil,
   isBattlegroundUtil,
   isClip,
+  isFellowshipDungeonUtil,
   isHighRes,
   isMythicPlusUtil,
   isRaidUtil,

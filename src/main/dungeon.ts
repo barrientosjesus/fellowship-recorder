@@ -10,6 +10,7 @@ type RawDungeonSegment = {
   encounterId?: number;
   logEnd?: string;
   result?: string;
+  encounterNames?: string[];
 };
 
 class DungeonTimelineSegment {
@@ -22,6 +23,7 @@ class DungeonTimelineSegment {
     public logStart: Date,
     public timestamp: number,
     public encounterId?: number,
+    public encounterNames?: string[],
   ) {
     // Initially, let's set this to log start date to avoid logEnd
     // potentially being undefined.
@@ -42,6 +44,10 @@ class DungeonTimelineSegment {
 
     if (this.encounterId !== undefined) {
       rawSegment.encounterId = this.encounterId;
+    }
+
+    if (this.encounterNames !== undefined) {
+      rawSegment.encounterNames = this.encounterNames;
     }
 
     return rawSegment;

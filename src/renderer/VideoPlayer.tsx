@@ -40,6 +40,7 @@ import {
   getOwnDeathMarkers,
   getRoundMarkers,
   isClip,
+  isFellowshipDungeonUtil,
   isMythicPlusUtil,
   isSoloShuffleUtil,
   secToMmSs,
@@ -247,6 +248,10 @@ export const VideoPlayer = (props: IProps) => {
    */
   const getActiveMarkers = () => {
     const activeMarkers: VideoMarker[] = [];
+
+    if (isFellowshipDungeonUtil(videos[0]) && config.encounterMarkers) {
+      getEncounterMarkers(videos[0]).forEach((m) => activeMarkers.push(m));
+    }
 
     if (isMythicPlusUtil(videos[0]) && config.encounterMarkers) {
       getEncounterMarkers(videos[0]).forEach((m) => activeMarkers.push(m));
@@ -622,11 +627,15 @@ export const VideoPlayer = (props: IProps) => {
    */
   const getClipLabelFormat = (value: number, index: number) => {
     if (clipMode) {
-      if (index === 0)
-        return `${getLocalePhrase(language, Phrase.Start)} (${secToMmSs(value)})`;
+      if (index === 0) {
+        return `${getLocalePhrase(language, Phrase.Start)} (${secToMmSs(
+          value,
+        )})`;
+      }
       if (index === 1) return secToMmSs(value);
-      if (index === 2)
+      if (index === 2) {
         return `${getLocalePhrase(language, Phrase.End)} (${secToMmSs(value)})`;
+      }
     }
 
     return secToMmSs(value);

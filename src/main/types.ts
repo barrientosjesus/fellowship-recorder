@@ -237,6 +237,7 @@ type RawCombatant = {
   _name?: string;
   _region?: string;
   _isPlayer?: boolean;
+  _teamID?: number;
 };
 
 /**

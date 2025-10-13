@@ -7,29 +7,41 @@ type MenuItemProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   className?: string;
+  disabled?: boolean;
 };
 
 const Root = ({
   value,
   className,
   children,
+  disabled = false,
 }: PropsWithChildren<MenuItemProps>) => {
   const { currentValue, onValueChange } = useMenuContext();
+
+  const handleClick = () => {
+    if (!disabled) {
+      onValueChange(value);
+    }
+  };
+
   return (
     <div
       className={cn(
         'w-full flex flex-row bg-transparent rounded-md px-4 py-3 items-center transition-all',
         'text-foreground font-semibold text-sm font-sans border-t border-t-transparent',
         '[text-shadow:_0px_1px_1px_rgba(0,0,0,66)]',
-        { 'hover:bg-card/60': currentValue !== value },
+        { 'hover:bg-card/60': currentValue !== value && !disabled },
         {
           'bg-card text-card-foreground border-t border-t-[rgba(255,255,255,0.2)] shadow-[0_1px_2px_rgba(0,0,0,0.5)]':
             currentValue === value,
+          'opacity-50 cursor-not-allowed': disabled,
+          'cursor-pointer': !disabled,
         },
         className,
       )}
-      onClick={() => onValueChange(value)}
+      onClick={handleClick}
       role="button"
+      aria-disabled={disabled}
     >
       {children}
     </div>
