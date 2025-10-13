@@ -9,7 +9,7 @@ const CHINESE_SIMPLIFIED: Translations = {
   [Phrase.ClipsDisplayedHere]: "你剪辑的视频将显示在这里。",
   [Phrase.NoClipsSaved]: "你还没有保存任何剪辑",
   [Phrase.StoragePathDescription]:
-    "用于存储录制文件的位置。Warcraft Recorder 将对该目录进行管理，初始设置时应为空，请勿在其中直接修改内容。",
+    "用于存储录制文件的位置。Fellowsnip 将对该目录进行管理，初始设置时应为空，请勿在其中直接修改内容。",
   [Phrase.SeparateBufferPathDescription]:
     "启用在另一个位置存储临时录制文件。此位置应始终是本地目录。该功能主要给那些想把最终录制文件存放到网络存储（NFS）但又不想一直通过网络写入的人使用。",
   [Phrase.BufferStoragePathDescription]:
@@ -98,8 +98,8 @@ const CHINESE_SIMPLIFIED: Translations = {
   [Phrase.CloudUploadRateLimitDescription]:
     "是否对上传云端进行速率限制。如果上传导致游戏延迟，可以考虑启用。",
   [Phrase.CloudUploadRateLimitMbpsDescription]: "上传速率限制（MB/s）",
-  [Phrase.CloudAccountNameDescription]: "你的 Warcraft Recorder 账号用户名。",
-  [Phrase.CloudAccountPasswordDescription]: "你的 Warcraft Recorder 账号密码。",
+  [Phrase.CloudAccountNameDescription]: "你的 Fellowsnip 账号用户名。",
+  [Phrase.CloudAccountPasswordDescription]: "你的 Fellowsnip 账号密码。",
   [Phrase.CloudGuildNameDescription]: "你的账号所属的公会或团队名称。",
   [Phrase.CloudUpload2v2Description]: "是否将 2v2 的录制文件自动上传至云端。",
   [Phrase.CloudUpload3v3Description]: "是否将 3v3 的录制文件自动上传至云端。",
@@ -277,27 +277,26 @@ const CHINESE_SIMPLIFIED: Translations = {
   [Phrase.StatusTitleFatalError]: "错误",
   [Phrase.StatusTitleOverrunning]: "额外录制中",
   [Phrase.StatusTitleReconfiguring]: "重新配置中",
-  [Phrase.StatusDescriptionRecording]: "Warcraft Recorder 当前正在录制",
+  [Phrase.StatusDescriptionRecording]: "Fellowsnip 当前正在录制",
   [Phrase.StatusDescriptionForceEnd]:
     "你可以强制结束录制。通常无需这样做，但在某些情况下可用于结束无法正常完成的大秘境录制。",
   [Phrase.StatusDescriptionWaiting]: "正在等待魔兽世界启动",
-  [Phrase.StatusDescriptionConfiguredToRecord]:
-    "Warcraft Recorder 已配置好录制",
-  [Phrase.StatusDescriptionMisconfigured]: "Warcraft Recorder 配置错误",
+  [Phrase.StatusDescriptionConfiguredToRecord]: "Fellowsnip 已配置好录制",
+  [Phrase.StatusDescriptionMisconfigured]: "Fellowsnip 配置错误",
   [Phrase.StatusDescriptionResolveError]: "请解决以下错误",
   [Phrase.StatusDescriptionDetectedRunning]: "检测到魔兽世界正在运行",
   [Phrase.StatusDescriptionWatchingLogs]:
-    "Warcraft Recorder 正在等待可录制的战斗日志事件。监控的日志路径如下",
+    "Fellowsnip 正在等待可录制的战斗日志事件。监控的日志路径如下",
   [Phrase.StatusDescriptionTip]: "提示",
   [Phrase.StatusDescriptionIfNoRecording]:
     "如果没有开始录制，请检查游戏内的日志设置，并确认你配置的日志路径正确。",
-  [Phrase.StatusDescriptionFatalError]: "Warcraft Recorder 遇到致命错误",
+  [Phrase.StatusDescriptionFatalError]: "Fellowsnip 遇到致命错误",
   [Phrase.StatusDescriptionPleaseResolve]:
     "请尝试解决以下错误，然后重启应用程序。",
   [Phrase.StatusDescriptionIfRecurring]:
     "如果此问题一直发生，请在 Discord 中寻求帮助。查看 #help 频道顶部的固定帖子了解如何获取帮助。",
   [Phrase.StatusDescriptionOverrunning]:
-    "Warcraft Recorder 检测到活动已完成，正在额外录制几秒钟以捕捉收尾。",
+    "Fellowsnip 检测到活动已完成，正在额外录制几秒钟以捕捉收尾。",
   [Phrase.StatusDescriptionNothing]:
     "无。你可能需要在游戏设置中启用一些游戏模式。",
   [Phrase.StatusHeading]: "状态",

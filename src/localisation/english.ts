@@ -9,7 +9,7 @@ const ENGLISH: Translations = {
   [Phrase.ClipsDisplayedHere]: "Videos you clip will be displayed here.",
   [Phrase.NoClipsSaved]: "You have no clips saved",
   [Phrase.StoragePathDescription]:
-    "Location to store the recordings. Warcraft Recorder takes ownership of this directory, it should be empty on initial setup and you should not modify the contents in-place.",
+    "Location to store the recordings. Fellowsnip takes ownership of this directory, it should be empty on initial setup and you should not modify the contents in-place.",
   [Phrase.SeparateBufferPathDescription]:
     "Enable storing temporary recordings in a seperate location. This should always be a local location. This feature is intended for people who want their final recordings to be on an NFS drive but not incur the network traffic of constantly recording to it.",
   [Phrase.BufferStoragePathDescription]:
@@ -129,10 +129,8 @@ const ENGLISH: Translations = {
     "If upload to the cloud should be rate limited. Useful if you are finding uploading is causing you to lag.",
   [Phrase.CloudUploadRateLimitMbpsDescription]:
     "The upload rate limit in MB/s ",
-  [Phrase.CloudAccountNameDescription]:
-    "Your Warcraft Recorder account username.",
-  [Phrase.CloudAccountPasswordDescription]:
-    "Your Warcraft Recorder account password.",
+  [Phrase.CloudAccountNameDescription]: "Your Fellowsnip account username.",
+  [Phrase.CloudAccountPasswordDescription]: "Your Fellowsnip account password.",
   [Phrase.CloudGuildNameDescription]:
     "The guild or group your account is affiliated with.",
   [Phrase.CloudUpload2v2Description]:
@@ -173,7 +171,7 @@ const ENGLISH: Translations = {
   [Phrase.LogsButtonLabel]: "Logs",
   [Phrase.DiscordButtonLabel]: "Discord",
   [Phrase.TestButtonUnable]:
-    "Unable to run a test right now. To run a test, World of Warcraft must be running, your settings must be valid, and you must not currently be in an activity.",
+    "Unable to run a test right now. To run a test, Fellowship must be running, your settings must be valid, and you must not currently be in an activity.",
   [Phrase.GeneralSettingsLabel]: "General Settings",
   [Phrase.DiskStorageFolderLabel]: "Disk Storage Folder",
   [Phrase.SeparateBufferFolderLabel]: "Separate Buffer Folder",
@@ -320,30 +318,27 @@ const ENGLISH: Translations = {
   [Phrase.StatusTitleFatalError]: "Error",
   [Phrase.StatusTitleOverrunning]: "Overrunning",
   [Phrase.StatusTitleReconfiguring]: "Reconfiguring",
-  [Phrase.StatusDescriptionRecording]:
-    "Warcraft Recorder is currently recording",
+  [Phrase.StatusDescriptionRecording]: "Fellowsnip is currently recording",
   [Phrase.StatusDescriptionForceEnd]:
     "You can force the recording to end. Normally this should not be required. This can help end a failed Mythic+ run that would otherwise need a few minutes to wrap up.",
-  [Phrase.StatusDescriptionWaiting]: "Waiting for World of Warcraft to start",
+  [Phrase.StatusDescriptionWaiting]: "Waiting for Fellowship to start",
   [Phrase.StatusDescriptionConfiguredToRecord]:
-    "Warcraft Recorder is configured to record",
-  [Phrase.StatusDescriptionMisconfigured]: "Warcraft Recorder is misconfigured",
+    "Fellowsnip is configured to record",
+  [Phrase.StatusDescriptionMisconfigured]: "Fellowsnip is misconfigured",
   [Phrase.StatusDescriptionResolveError]: "Please resolve the error below",
-  [Phrase.StatusDescriptionDetectedRunning]:
-    "Detected World of Warcraft is running",
+  [Phrase.StatusDescriptionDetectedRunning]: "Detected Fellowship is running",
   [Phrase.StatusDescriptionWatchingLogs]:
-    "Warcraft Recorder is waiting for a recordable event to appear in the combat log. Watching log paths",
+    "Fellowsnip is waiting for a recordable event to appear in the combat log. Watching log paths",
   [Phrase.StatusDescriptionTip]: "Tip",
   [Phrase.StatusDescriptionIfNoRecording]:
     "If recordings do not start, check your logging settings in-game and confirm your log path configuration is correct.",
-  [Phrase.StatusDescriptionFatalError]:
-    "Warcraft Recorder has hit a fatal error",
+  [Phrase.StatusDescriptionFatalError]: "Fellowsnip has hit a fatal error",
   [Phrase.StatusDescriptionPleaseResolve]:
     "Please try to resolve the error below, then restart the application.",
   [Phrase.StatusDescriptionIfRecurring]:
     "If this problem is recurring, please ask for help in Discord. See the pins in the #help channel for advice on getting help.",
   [Phrase.StatusDescriptionOverrunning]:
-    "Warcraft Recorder has detected an activity has completed successfuly and is recording a few seconds extra to catch the aftermath.",
+    "Fellowsnip has detected an activity has completed successfuly and is recording a few seconds extra to catch the aftermath.",
   [Phrase.StatusDescriptionNothing]:
     "nothing. You likely want to enable some game modes in the game settings tab.",
   [Phrase.StatusHeading]: "Status",
@@ -450,7 +445,7 @@ const ENGLISH: Translations = {
   [Phrase.CloudUploadClipsDescription]:
     "If clipped recordings should be uploaded to the cloud.",
   [Phrase.RetailPtrLogPathDescription]:
-    'Location of the World of Warcraft logs folder for your retail PTR installation, e.g. "C:\\Program Files\\World of Warcraft\\_xptr_\\Logs". ',
+    'Location of the Fellowship logs folder for your retail PTR installation, e.g. "C:\\Program Files\\Fellowship\\_xptr_\\Logs". ',
   [Phrase.RecordRetailPtrDescription]:
     "Whether the application should record retail PTR. This feature is provided on a best-effort basis and depends on Blizzard maintaining compatibility with the PTR combat log. As a result, functionality may be unpredictable.",
   [Phrase.RetailPtr]: "Retail PTR",

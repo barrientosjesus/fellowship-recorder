@@ -10,7 +10,7 @@ const GERMAN: Translations = {
   [Phrase.ClipsDisplayedHere]: "Videos, die du clipst werden hier angezeigt.",
   [Phrase.NoClipsSaved]: "Du hast keine gespeicherten Videoclips",
   [Phrase.StoragePathDescription]:
-    "Speicherort der Aufnahmen. Warcraft Recorder nimmt Besitz von dem Ordner. Er sollte beim installieren leer sein und du solltest keine Dateien in dem Ordner manuell verändern.",
+    "Speicherort der Aufnahmen. Fellowsnip nimmt Besitz von dem Ordner. Er sollte beim installieren leer sein und du solltest keine Dateien in dem Ordner manuell verändern.",
   [Phrase.SeparateBufferPathDescription]:
     "Anschalten der Option temporär Videos an einem Puffer-Ort zu speichern. Dieser sollte immer lokal sein. Dieses Feature ist für Leute gedacht, die ihr abgeschlossenes Video auf einem NFS speichern wollen, aber nicht ihr Netzwerk konstant beim aufnehmen belasten wollen.",
   [Phrase.BufferStoragePathDescription]:
@@ -126,10 +126,8 @@ const GERMAN: Translations = {
   [Phrase.CloudUploadRateLimitDescription]:
     "Ob das Hochladen in die Cloud limitiert werden soll. Sinnvoll, wenn das Hochladen für Lags sorgt",
   [Phrase.CloudUploadRateLimitMbpsDescription]: "Das Hochladen-Limit in MB/s ",
-  [Phrase.CloudAccountNameDescription]:
-    "Dein Warcraft Recorder Account Benutzername.",
-  [Phrase.CloudAccountPasswordDescription]:
-    "Dein Warcraft Recorder Account Password.",
+  [Phrase.CloudAccountNameDescription]: "Dein Fellowsnip Account Benutzername.",
+  [Phrase.CloudAccountPasswordDescription]: "Dein Fellowsnip Account Password.",
   [Phrase.CloudGuildNameDescription]:
     "Die Gilde oder Gruppe, die  dein Account zugehörig ist.",
   [Phrase.CloudUpload2v2Description]:
@@ -170,7 +168,7 @@ const GERMAN: Translations = {
   [Phrase.LogsButtonLabel]: "Logs",
   [Phrase.DiscordButtonLabel]: "Discord",
   [Phrase.TestButtonUnable]:
-    "Es ist nicht möglich einen Test-Durchlauf gerade durchzuführen. Um einen Testdurchlauf durchzuführen, musst dein World of Warcraft gestartet sein, deine Einstellungen müssen gültig sein und du darfst aktuell noch in keiner Aktivität sein.",
+    "Es ist nicht möglich einen Test-Durchlauf gerade durchzuführen. Um einen Testdurchlauf durchzuführen, musst dein Fellowship gestartet sein, deine Einstellungen müssen gültig sein und du darfst aktuell noch in keiner Aktivität sein.",
   [Phrase.GeneralSettingsLabel]: "Allgemeine Einstellungen",
   [Phrase.DiskStorageFolderLabel]: "Speicherordner",
   [Phrase.SeparateBufferFolderLabel]: "Separater Buffer Ordner",
@@ -320,32 +318,31 @@ const GERMAN: Translations = {
   [Phrase.StatusTitleFatalError]: "Fehler",
   [Phrase.StatusTitleOverrunning]: "Überlaufen",
   [Phrase.StatusTitleReconfiguring]: "Neukonfigurieren",
-  [Phrase.StatusDescriptionRecording]: "Warcraft Recorder nimmt aktuell auf",
+  [Phrase.StatusDescriptionRecording]: "Fellowsnip nimmt aktuell auf",
   [Phrase.StatusDescriptionForceEnd]:
     "Du kannst eine Aufnahme eigenständig beenden. Normalerweise sollte dies nicht nötig sein. Es kann aber helfen einen abgebrochenen Mythisch+ Lauf abzubrechen, der sonst erst nach ein paar Minuten abbrechen würde.",
-  [Phrase.StatusDescriptionWaiting]:
-    "Warte auf den Start von World of Warcraft",
+  [Phrase.StatusDescriptionWaiting]: "Warte auf den Start von Fellowship",
   [Phrase.StatusDescriptionConfiguredToRecord]:
-    "Warcraft Recorder ist darauf eingestellt aufzunehmen",
+    "Fellowsnip ist darauf eingestellt aufzunehmen",
   [Phrase.StatusDescriptionMisconfigured]:
-    "Warcraft Recorder ist ungültig eingestellt",
+    "Fellowsnip ist ungültig eingestellt",
   [Phrase.StatusDescriptionResolveError]:
     "Bitte lies den untenstehenden Fehler",
   [Phrase.StatusDescriptionDetectedRunning]:
-    "Es wurde erkannt, dass World of Warcraft läuft",
+    "Es wurde erkannt, dass Fellowship läuft",
   [Phrase.StatusDescriptionWatchingLogs]:
-    "Warcraft Recorder wartet auf ein Event, dass im Combat Log steht, zum auslösen einer Aufnahme. Liest Log Pfäde",
+    "Fellowsnip wartet auf ein Event, dass im Combat Log steht, zum auslösen einer Aufnahme. Liest Log Pfäde",
   [Phrase.StatusDescriptionTip]: "Hinweis",
   [Phrase.StatusDescriptionIfNoRecording]:
     "Wenn die Aufnahme nicht gestartet ist, überprüfe deine Log-Einstellungen im Spiel und gehe sicher, dass dein Log Pfad richtig ist.",
   [Phrase.StatusDescriptionFatalError]:
-    "Warcraft Recorder hatte einen kritischen Fehler",
+    "Fellowsnip hatte einen kritischen Fehler",
   [Phrase.StatusDescriptionPleaseResolve]:
-    "Bitte versuch den untenstehenden Fehler zu beheben und starte Warcraft Recorder neu.",
+    "Bitte versuch den untenstehenden Fehler zu beheben und starte Fellowsnip neu.",
   [Phrase.StatusDescriptionIfRecurring]:
     "Wenn das Problem mehrfach auftrifft, bitte frag im Discord nach Hilfe. Siehe die angehefteten Nachrichten im #help Kanal, um schnell möglichst Hilfe zu bekommen.",
   [Phrase.StatusDescriptionOverrunning]:
-    "Warcraft Recorder hat eine abgeschlossene Aktivität erkannt und nimmt noch für ein paar Sekunden auf, um die Reaktionen einzufangen.",
+    "Fellowsnip hat eine abgeschlossene Aktivität erkannt und nimmt noch für ein paar Sekunden auf, um die Reaktionen einzufangen.",
   [Phrase.StatusDescriptionNothing]:
     "Nichts. Du solltest einen Spiel-Modus in den Allgemeinen Einstellungen -> Spiel auswählen.",
   [Phrase.StatusHeading]: "Status",
@@ -356,7 +353,7 @@ const GERMAN: Translations = {
   [Phrase.MicListeningTooltip]: "Hört zu",
   [Phrase.MicMutedTooltip]: "Stummgeschaltet",
   [Phrase.CrashHappenedText]:
-    "Ein OBS Absturz ist aufgetreten und wurde sich von erholt. Dies sollte im Normalfall nicht passieren. Vielleicht möchtest du Hilfe suchen, in dem du deine Warcraft Recorder und OBS Logs im Discord teilst.",
+    "Ein OBS Absturz ist aufgetreten und wurde sich von erholt. Dies sollte im Normalfall nicht passieren. Vielleicht möchtest du Hilfe suchen, in dem du deine Fellowsnip und OBS Logs im Discord teilst.",
   [Phrase.SettingsPageApplicationHeader]: "Anwendung",
   [Phrase.SettingsPageGameHeader]: "Spiel",
   [Phrase.SettingsPageProHeader]: "Pro",
