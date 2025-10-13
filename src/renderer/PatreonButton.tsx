@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDiscord } from '@fortawesome/free-brands-svg-icons';
+import { faPatreon } from '@fortawesome/free-brands-svg-icons';
 import { AppState } from 'main/types';
 import { getLocalePhrase } from 'localisation/translations';
 import { Button } from './components/Button/Button';
@@ -12,25 +12,25 @@ interface IProps {
   appState: AppState;
 }
 
-export default function DiscordButton(props: IProps) {
+export default function PatreonButton(props: IProps) {
   const { appState } = props;
-  const openDiscordURL = () => {
-    ipc.sendMessage('openURL', ['https://discord.gg/SfqzdHrht2']);
+  const openPatreonURL = () => {
+    ipc.sendMessage('openURL', ['https://www.patreon.com/Fellowsguide']);
   };
 
   return (
     <Tooltip
-      content={getLocalePhrase(appState.language, Phrase.DiscordButtonLabel)}
+      content={getLocalePhrase(appState.language, Phrase.PatreonButtonLabel)}
       side="top"
     >
       <Button
-        id="discord-button"
+        id="patreon-button"
         type="button"
-        onClick={openDiscordURL}
+        onClick={openPatreonURL}
         variant="ghost"
         size="icon"
       >
-        <FontAwesomeIcon icon={faDiscord} size="lg" />
+        <FontAwesomeIcon icon={faPatreon} size="lg" />
       </Button>
     </Tooltip>
   );

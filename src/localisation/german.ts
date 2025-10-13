@@ -631,6 +631,7 @@ const GERMAN: Translations = {
   [Phrase.MinimumDifficultyLevelLabel]: "Minimum Difficulty Level",
   [Phrase.RecordQuickplaysLabel]: "Record Quickplays",
   [Phrase.Failed]: "Failed",
+  [Phrase.PatreonButtonLabel]: "Patreon",
 };
 
 export default GERMAN;

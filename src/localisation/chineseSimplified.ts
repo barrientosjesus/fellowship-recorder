@@ -553,6 +553,7 @@ const CHINESE_SIMPLIFIED: Translations = {
   [Phrase.MinimumDifficultyLevelLabel]: "最低难度",
   [Phrase.RecordQuickplaysLabel]: "Quickplays",
   [Phrase.Failed]: "失败",
+  [Phrase.PatreonButtonLabel]: "Patreon",
 };
 
 export default CHINESE_SIMPLIFIED;

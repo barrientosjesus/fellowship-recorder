@@ -1,8 +1,8 @@
 # Fellowsnip
 
-![GitHub all releases](https://img.shields.io/github/downloads/aza547/wow-recorder/total)
-![Version](https://img.shields.io/github/package-json/v/aza547/wow-recorder?filename=release%2Fapp%2Fpackage.json)
-![Discord](https://img.shields.io/discord/1004860808737591326)
+![GitHub all releases](https://img.shields.io/github/downloads/fellowsguide/fellowship-recorder/total)
+![Version](https://img.shields.io/github/package-json/v/fellowsguide/fellowship-recorder?filename=release%2Fapp%2Fpackage.json)
+![Discord](https://img.shields.io/discord/1273707023569125478)
 
 Fellowsnip is a desktop screen recorder. It watches the Fellowship combat log
 file for interesting events, records them, and presents a user interface in
@@ -13,7 +13,7 @@ which the recordings can be viewed.
 # How to Use
 
 1. Download and run the most recent
-   [Fellowsnip installer](https://github.com/fellowsguide/fellowsnip/releases/latest).
+   [Fellowsnip installer](https://github.com/fellowsguide/fellowship-recorder/releases/latest).
 2. Launch the application and click the Settings button.
    - Create a folder on your PC to store the recordings.
    - Set the Storage Path to the folder you just created.
@@ -50,13 +50,13 @@ this is a hobby for me, so it may take me some time to comment. If you think you
 can improve something, feel free to submit a PR.
 
 I've created a dedicated discord for this project, feel free to join
-[here](https://discord.gg/NPha7KdjVk).
+[here](https://discord.gg/SfqzdHrht2).
 
 # Contributing
 
 If you're interested in getting involved please drop me a message on discord and
 I can give you access to our development channel. Also see
-[contributing](https://github.com/aza547/wow-recorder/blob/main/docs/CONTRIBUTING.md)
+[contributing](https://github.com/fellowsguide/fellowship-recorder/blob/main/docs/CONTRIBUTING.md)
 docs.
 
 # Mentions
@@ -71,3 +71,5 @@ The app is built with [Electron](https://www.electronjs.org/) and
 
 Drawing overlay created using
 [Excalidraw](https://github.com/excalidraw/excalidraw).
+
+# Most importantly, thanks to [Aza](https://github.com/aza547) for developing Warcraft Recorder! Go show him some love when you get a chance.

@@ -482,6 +482,7 @@ enum Phrase {
   MinimumDifficultyLevelLabel,
   RecordQuickplaysLabel,
   Failed,
+  PatreonButtonLabel,
 }
 
 enum Language {
