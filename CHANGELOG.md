@@ -14,7 +14,7 @@ and this project adheres to
 
 ### Fixed
 
-## [1.0.1] - 2025-10-13
+## [1.0.2] - 2025-10-14
 
 ### Added
 
