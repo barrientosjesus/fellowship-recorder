@@ -8,7 +8,7 @@ Fellowsnip is a desktop screen recorder. It watches the Fellowship combat log
 file for interesting events, records them, and presents a user interface in
 which the recordings can be viewed.
 
-![](https://i.imgur.com/uuGGG25.png)
+![](https://kobefjwggjgeiaojcccf.supabase.co/storage/v1/object/public/fellowsnip/fellowsnip_preview.png)
 
 # How to Use
 
