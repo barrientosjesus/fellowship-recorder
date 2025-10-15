@@ -14,6 +14,12 @@ and this project adheres to
 
 ### Fixed
 
+## [1.0.3] - 2025-10-15
+
+### Fixed
+
+- Overlay image was too big
+
 ## [1.0.2] - 2025-10-14
 
 ### Added
