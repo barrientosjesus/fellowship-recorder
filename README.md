@@ -19,11 +19,15 @@ which the recordings can be viewed.
    - Set the Storage Path to the folder you just created.
    - Enable recording and set the location of your Fellowship logs folder.
    - Modify any other settings as desired.
-3. Click the Scene button and configure the OBS scene and recording settings.
+3. Click the Scene button and configure the Scene and Recording settings.
    - Select your desired output resolution.
    - Add your speakers and/or microphone if you want to include audio.
    - Recommend selecting a hardware encoder, if available.
    - Modify any other settings as desired.
+4. Enable advance combat logging in Fellowship.
+   - Open the settings menu in Fellowship.
+   - Scroll down and find the "Advanced Combat Logging" option.
+   - Enable it.
 
 # Supported Platforms
 

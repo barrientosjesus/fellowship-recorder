@@ -14,6 +14,21 @@ and this project adheres to
 
 ### Fixed
 
+## [1.0.4] - 2025-10-19
+
+### Added
+
+- Feature: There is now a Screenshot button in the preview window! Clicking it
+  will allow you to save the current frame as a PNG file.
+
+### Fixed
+
+- Some dungeons were showing Timed when they weren't
+- Some Timed dungeons were showing red text and some Failed were showing green.
+- Abandonded dungeons were occassionally showing as Timed.
+- Icons in the search window now correctly show the players hero icon, not the
+  wow icon.
+
 ## [1.0.3] - 2025-10-15
 
 ### Fixed
