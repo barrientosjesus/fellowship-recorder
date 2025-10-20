@@ -8,9 +8,9 @@ import {
   InputRendererProps,
   OptionRendererProps,
   ReactTags,
+  ReactTagsAPI,
   Tag,
   TagRendererProps,
-  ReactTagsAPI,
 } from 'react-tag-autocomplete';
 import { Box } from '@mui/material';
 import {

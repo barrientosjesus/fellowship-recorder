@@ -36,9 +36,12 @@ import { ExcalidrawElement } from '@excalidraw/excalidraw/dist/types/excalidraw/
 import {
   convertNumToDeathMarkers,
   getAllDeathMarkers,
+  getDungeonName,
   getEncounterMarkers,
   getOwnDeathMarkers,
   getRoundMarkers,
+  getVideoResult,
+  getVideoResultText,
   isClip,
   isFellowshipDungeonUtil,
   isMythicPlusUtil,
@@ -49,6 +52,7 @@ import { Button } from './components/Button/Button';
 import { Tooltip } from './components/Tooltip/Tooltip';
 import { DrawingOverlay } from './components/DrawingOverlay/DrawingOverlay';
 import {
+  Camera,
   CloudDownload,
   CloudUpload,
   FolderOpen,
@@ -470,6 +474,43 @@ export const VideoPlayer = (props: IProps) => {
     }
   };
 
+  const handleScreenshot = () => {
+    const [primaryPlayer] = players;
+    if (!primaryPlayer.current) return;
+
+    const videoElement =
+      primaryPlayer.current.getInternalPlayer() as HTMLVideoElement;
+    if (!videoElement) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = videoElement.videoWidth;
+    canvas.height = videoElement.videoHeight;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const currentVideo = videos[0];
+    const { keystoneLevel } = currentVideo;
+    const dungeonName = getDungeonName(currentVideo);
+    const resultText = getVideoResultText(currentVideo, language);
+
+    ipc.sendMessage('screenshot:save', [
+      dataUrl,
+      resultText,
+      dungeonName,
+      keystoneLevel,
+      Math.round(progress),
+    ]);
+
+    toast({
+      title: getLocalePhrase(language, Phrase.ScreenshotDialogTitle),
+      description: getLocalePhrase(language, Phrase.ScreenshotDialogText),
+      duration: 300,
+    });
+  };
+
   // By default the window hijacks media keys even when
   // the window isn't focused or it is minimized
   // so we override the action handlers
@@ -676,6 +717,26 @@ export const VideoPlayer = (props: IProps) => {
       />
     );
   };
+
+  /**
+   * Returns the screenshot button for the video controls.
+   */
+  const renderScreenshotButton = () => (
+    <Tooltip
+      content={getLocalePhrase(language, Phrase.ScreenshotButtonTooltip)}
+    >
+      <div>
+        <Button
+          variant="ghost"
+          size="xs"
+          onClick={handleScreenshot}
+          disabled={multiPlayerMode} // Screenshots are only supported for the primary video
+        >
+          <Camera size={20} color="white" />
+        </Button>
+      </div>
+    </Tooltip>
+  );
 
   /**
    * Returns the video player itself, passing through all necessary callbacks
@@ -1199,6 +1260,7 @@ export const VideoPlayer = (props: IProps) => {
         {renderVolumeSlider()}
         {renderProgressSlider()}
         {renderProgressText()}
+        {!multiPlayerMode && renderScreenshotButton()}
         {!multiPlayerMode && !clipMode && (
           <Separator className="mx-2" orientation="vertical" />
         )}
