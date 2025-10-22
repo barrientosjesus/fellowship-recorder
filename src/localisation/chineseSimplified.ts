@@ -553,6 +553,9 @@ const CHINESE_SIMPLIFIED: Translations = {
   [Phrase.RecordQuickplaysLabel]: "Quickplays",
   [Phrase.Failed]: "失败",
   [Phrase.PatreonButtonLabel]: "Patreon",
+  [Phrase.ScreenshotButtonTooltip]: "Take a screenshot",
+  [Phrase.ScreenshotDialogTitle]: "Screenshot",
+  [Phrase.ScreenshotDialogText]: "Take a screenshot of the current place in the video.",
 };
 
 export default CHINESE_SIMPLIFIED;

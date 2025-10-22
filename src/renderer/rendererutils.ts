@@ -9,7 +9,6 @@
  */
 import {
   AllDungeonAndAdventuresByLevelId,
-  AllDungeonAndAdventuresByLevelId,
   AllDungeonAndAdventureTimersByLevelId,
   dungeonEncounters,
   dungeonsByMapId,
@@ -352,6 +351,18 @@ const isFellowshipDungeonUtil = (video: RendererVideo) => {
   );
 };
 
+const checkResultByDungeonId = (video: RendererVideo) => {
+  const { zoneID, duration } = video;
+
+  if (zoneID === undefined) {
+    return false;
+  }
+
+  const isInTime = duration < AllDungeonAndAdventureTimersByLevelId[zoneID];
+
+  return isInTime;
+};
+
 const isMythicPlusUtil = (video: RendererVideo) => {
   const { category, parentCategory } = video;
 
@@ -389,7 +400,8 @@ const isSoloShuffleUtil = (video: RendererVideo) => {
 
 const isArenaUtil = (video: RendererVideo) => {
   return (
-    !isMythicPlusUtil(video) && !isRaidUtil(video) && !isBattlegroundUtil(video) && !isFellowshipDungeonUtil(video)
+    !isMythicPlusUtil(video) && !isRaidUtil(video) &&
+    !isBattlegroundUtil(video) && !isFellowshipDungeonUtil(video)
   );
 };
 
@@ -398,8 +410,9 @@ const isClip = (video: RendererVideo) => {
   return category === VideoCategory.Clips;
 };
 
-const getResultColor = (video: RendererVideo) => {
+const getResultColor = (video: RendererVideo, language: Language) => {
   const { result, soloShuffleRoundsWon, upgradeLevel } = video;
+  const resultText = getVideoResultText(video, language);
 
   if (isSoloShuffleUtil(video)) {
     if (
@@ -434,7 +447,7 @@ const getResultColor = (video: RendererVideo) => {
     return "hsl(var(--warning))";
   }
 
-  if (result) {
+  if (resultText === getLocalePhrase(language, Phrase.Timed)) {
     return "hsl(var(--success))";
   }
 
@@ -545,6 +558,27 @@ const getPlayerHero = (video: RendererVideo) => {
   }
 
   return heroById[player._heroID];
+};
+
+const getPlayerHeroFromCombatant = (combatant: RawCombatant) => {
+  if (combatant === undefined) {
+    return heroById[0];
+  }
+
+  if (combatant._heroID === undefined) {
+    return heroById[0];
+  }
+
+  const knownHero = Object.prototype.hasOwnProperty.call(
+    heroById,
+    combatant._heroID,
+  );
+
+  if (!knownHero) {
+    return heroById[0];
+  }
+
+  return heroById[combatant._heroID];
 };
 
 const getHeroForPlayer = (player: RawCombatant) => {
@@ -872,6 +906,7 @@ const getVideoResultText = (
 ): string => {
   const {
     result,
+    duration,
     upgradeLevel,
     soloShuffleRoundsWon,
     soloShuffleRoundsPlayed,
@@ -879,10 +914,18 @@ const getVideoResultText = (
 
   if (isFellowshipDungeonUtil(video)) {
     if (!result) {
-      return getLocalePhrase(language, Phrase.Failed);
+      return getLocalePhrase(language, Phrase.Abandoned);
     }
 
-    return getLocalePhrase(language, Phrase.Timed);
+    if (duration) {
+      const checkResult = checkResultByDungeonId(video);
+
+      if (checkResult) {
+        return getLocalePhrase(language, Phrase.Timed);
+      }
+    }
+
+    return getLocalePhrase(language, Phrase.Failed);
   }
 
   if (isMythicPlusUtil(video)) {
@@ -1189,6 +1232,7 @@ export {
   getOwnDeathMarkers,
   getPlayerClass,
   getPlayerHero,
+  getPlayerHeroFromCombatant,
   getPlayerName,
   getPlayerSpecID,
   getPlayerTeamID,

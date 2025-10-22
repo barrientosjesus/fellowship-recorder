@@ -483,6 +483,9 @@ enum Phrase {
   RecordQuickplaysLabel,
   Failed,
   PatreonButtonLabel,
+  ScreenshotButtonTooltip,
+  ScreenshotDialogTitle,
+  ScreenshotDialogText,
 }
 
 enum Language {

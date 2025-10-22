@@ -37,7 +37,7 @@ export const populateResultCell = (
 ) => {
   const video = info.getValue() as RendererVideo;
   const resultText = getVideoResultText(video, language);
-  const resultColor = getResultColor(video);
+  const resultColor = getResultColor(video, language);
 
   return (
     <span

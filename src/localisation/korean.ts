@@ -571,6 +571,9 @@ const KOREAN: Translations = {
   [Phrase.RecordQuickplaysLabel]: "Record Quickplays",
   [Phrase.Failed]: "Failed",
   [Phrase.PatreonButtonLabel]: "Patreon",
+  [Phrase.ScreenshotButtonTooltip]: "Take a screenshot",
+  [Phrase.ScreenshotDialogTitle]: "Screenshot",
+  [Phrase.ScreenshotDialogText]: "Take a screenshot of the current place in the video.",
 };
 
 export default KOREAN;

@@ -39,6 +39,7 @@ export type Channels =
   | 'getSourcePosition'
   | 'setSourcePosition'
   | 'resetSourcePosition'
+  | 'screenshot:save'
   | 'setForceMono'
   | 'setAudioSuppression'
   | 'setCaptureCursor'

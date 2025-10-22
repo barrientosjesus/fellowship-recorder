@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs";
 import {
   app,
   BrowserWindow,
@@ -419,6 +420,53 @@ ipcMain.on("videoPlayerSettings", (event, args) => {
     const settings = args[1] as VideoPlayerSettings;
     videoPlayerSettings.muted = settings.muted;
     videoPlayerSettings.volume = settings.volume;
+  }
+});
+
+/**
+ * Save a screenshot of the current video frame.
+ */
+ipcMain.on("screenshot:save", async (_event, args) => {
+  const [dataUrl, dungeonName, playerName, difficulty, progressInSeconds] =
+    args;
+
+  // get current date time
+  const date = new Date();
+  const minutes = Math.floor(progressInSeconds / 60);
+  const seconds = progressInSeconds % 60;
+  const timestamp = `${String(minutes).padStart(2, "0")}m${
+    String(seconds).padStart(2, "0")
+  }s`;
+  const defaultFilename =
+    `${date.toISOString()}-Fellowsnip-${difficulty}-${dungeonName}-${playerName}-${timestamp}.png`;
+
+  const { canceled, filePath } = await dialog.showSaveDialog({
+    title: getLocalePhrase(
+      cfg.get<Language>("language"),
+      Phrase.ScreenshotDialogTitle,
+    ),
+    defaultPath: path.join(app.getPath("pictures"), defaultFilename),
+    filters: [{ name: "PNG Image", extensions: ["png"] }],
+  });
+
+  if (canceled || !filePath) {
+    console.log("[Main] Screenshot canceled or no file path");
+    _event.sender.send("screenshot:failed", {
+      error: "Screenshot canceled or no file path",
+    });
+    return;
+  }
+
+  try {
+    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+    const imageBuffer = Buffer.from(base64Data, "base64");
+    fs.writeFileSync(filePath, imageBuffer);
+
+    _event.sender.send("screenshot:success", { filePath });
+    console.log("[Main] Screenshot saved to:", filePath);
+  } catch (error) {
+    console.error("[Main] Failed to save screenshot:", error);
+    _event.sender.send("screenshot:failed", { error });
   }
 });
 

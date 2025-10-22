@@ -1203,11 +1203,11 @@ input[type='submit'].btn-block {
 
 .react-tags__listbox-option:hover {
   cursor: pointer;
-  background: #bb4420;
+  background: #B08E58;
 }
 
 .react-tags__listbox-option:not([aria-disabled='true']).is-active {
-  background: #bb4420;
+  background: #B08E58;
   color: #ffffff;
 }
 
