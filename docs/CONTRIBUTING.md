@@ -21,7 +21,8 @@ saving new changes.
 
 1. Install the latest version of Node.js version (latest at time of writing is
    20.4.0) from [here](https://nodejs.org/en/).
-1. Clone a copy of the [fellowsnip](https://github.com/fellowsguide/fellowsnip)
+1. Clone a copy of the
+   [fellowship-recorder](https://github.com/fellowsguide/fellowship-recorder)
    codebase.
 1. Change into the checkout directory.
 1. Run `npm install` on the command line to install required node packages.
@@ -48,7 +49,7 @@ saving new changes.
    1. Tag a release on GitHub and attach the built files:
    - `./release/build/Fellowsnip-Setup-X.Y.Z.exe` to enable installation.
    - `./release/build/latest.yml` to allow the auto updater to function.
-   - `./release/build/Fellowsnip-Setup-6.8.0.exe.blockmap` to allow the auto
+   - `./release/build/Fellowsnip-Setup-X.Y.Z.exe.blockmap` to allow the auto
      updater to function.
 
 ## Tests
@@ -107,7 +108,7 @@ Below are various additional OSN resources:
 If we just build a .exe and release it Windows will warn it may be dangerous.
 Could resolve this buy purchasing a certificate from a CA, but it costs a
 fortune. Read more about it in this
-[issue](https://github.com/aza547/wow-recorder/issues/11).
+[issue](https://github.com/fellowsguide/fellowship-recorder/issues/).
 
 1. Submit it for analysis
    [here](https://www.microsoft.com/en-us/wdsi/filesubmission) after releasing
@@ -119,7 +120,7 @@ fortune. Read more about it in this
    1. Select & upload the .exe.
    1. "What do you believe this file is?" - Incorrectly detected as
       malware/malicious
-   1. Detection name - "Fellowsnip.Setup.2.0.1.exe"
+   1. Detection name - "Fellowsnip.Setup.X.Y.Z.exe"
    1. "Additional information" - whatever, I'm sure no one will read it.
 1. This isn't instant but seems to get resolved within 24 hours, that seems good
    enough.

@@ -2,7 +2,7 @@
 
 ![GitHub all releases](https://img.shields.io/github/downloads/fellowsguide/fellowship-recorder/total)
 ![Version](https://img.shields.io/github/package-json/v/fellowsguide/fellowship-recorder?filename=release%2Fapp%2Fpackage.json)
-![Discord](https://img.shields.io/discord/1273707023569125478)
+[![](https://dcbadge.limes.pink/api/server/SfqzdHrht2)](https://discord.gg/SfqzdHrht2)
 
 Fellowsnip is a desktop screen recorder. It watches the Fellowship combat log
 file for interesting events, records them, and presents a user interface in
