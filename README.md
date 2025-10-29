@@ -53,13 +53,12 @@ Please create an issue, I will get to it eventually. Bear in mind maintaining
 this is a hobby for me, so it may take me some time to comment. If you think you
 can improve something, feel free to submit a PR.
 
-I've created a dedicated discord for this project, feel free to join
+I'm using my Fellowsguide discord for support, feel free to join
 [here](https://discord.gg/SfqzdHrht2).
 
 # Contributing
 
-If you're interested in getting involved please drop me a message on discord and
-I can give you access to our development channel. Also see
+If you're interested in getting involved please see
 [contributing](https://github.com/fellowsguide/fellowship-recorder/blob/main/docs/CONTRIBUTING.md)
 docs.
 
