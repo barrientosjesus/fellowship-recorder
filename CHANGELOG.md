@@ -14,6 +14,12 @@ and this project adheres to
 
 ### Fixed
 
+## [1.0.5] - 2025-10-29
+
+### Fixed
+
+- Dungeon timing was not accounting properly for overrun (ty. SuperTouch)
+
 ## [1.0.4] - 2025-10-19
 
 ### Added

@@ -22,16 +22,16 @@ export default class LogLine {
 
   // Timestamp in ISO 8601 format from the log
   // Example: '2025-10-10T10:28:56.455-07:00'
-  public timestamp: string = '';
+  public timestamp: string = "";
 
   constructor(public original: string) {
     this._lineLength = this.original.length;
 
     // Fellowship log format: <ISO timestamp>|<event>|...
-    const firstPipeIndex = this.original.indexOf('|');
+    const firstPipeIndex = this.original.indexOf("|");
     if (firstPipeIndex === -1) {
       throw new Error(
-        `Invalid Fellowship log line format: missing pipe delimiter`,
+        `Invalid Fellowship log line format. Missing pipe delimiter. Error at line: ${this.original}`,
       );
     }
 
@@ -74,7 +74,7 @@ export default class LogLine {
    * @param maxSplits Maximum number of elements to parse
    */
   private parseLogArg(maxSplits?: number): void {
-    let value = '';
+    let value = "";
     let inQuotedString = false;
     let bracketDepth = 0;
     let parenDepth = 0;
@@ -86,7 +86,7 @@ export default class LogLine {
     ) {
       const char = this.original.charAt(this._linePosition);
 
-      if (char === '\n') {
+      if (char === "\n") {
         break;
       }
 
@@ -101,16 +101,16 @@ export default class LogLine {
       }
 
       if (!inQuotedString) {
-        if (char === '|' && bracketDepth === 0 && parenDepth === 0) {
+        if (char === "|" && bracketDepth === 0 && parenDepth === 0) {
           this.addArg(this.parseValue(value));
-          value = '';
+          value = "";
           continue;
         }
 
-        if (char === '[') bracketDepth++;
-        else if (char === ']') bracketDepth--;
-        else if (char === '(') parenDepth++;
-        else if (char === ')') parenDepth--;
+        if (char === "[") bracketDepth++;
+        else if (char === "]") bracketDepth--;
+        else if (char === "(") parenDepth++;
+        else if (char === ")") parenDepth--;
       }
 
       value += char;
@@ -139,27 +139,27 @@ export default class LogLine {
     value = value.trim();
 
     if (value.length === 0) {
-      return '';
+      return "";
     }
     if (value.startsWith('"') && value.endsWith('"')) {
       return value.substring(1, value.length - 1);
     }
 
-    if (value.startsWith('[') && value.endsWith(']')) {
+    if (value.startsWith("[") && value.endsWith("]")) {
       const content = value.substring(1, value.length - 1).trim();
 
       if (content.length === 0) {
         return [];
       }
 
-      if (content.includes('(') && content.includes(')')) {
+      if (content.includes("(") && content.includes(")")) {
         return this.parseNestedTuples(content);
       }
       return this.parseSimpleArray(content);
     }
 
     const num = Number(value);
-    if (!isNaN(num) && value !== '') {
+    if (!isNaN(num) && value !== "") {
       return num;
     }
     return value;
@@ -171,23 +171,23 @@ export default class LogLine {
    */
   private parseNestedTuples(content: string): unknown[][] {
     const tuples: unknown[][] = [];
-    let currentTuple = '';
+    let currentTuple = "";
     let depth = 0;
 
     for (let i = 0; i < content.length; i++) {
       const char = content.charAt(i);
 
-      if (char === '(') {
+      if (char === "(") {
         depth++;
         if (depth === 1) continue;
-      } else if (char === ')') {
+      } else if (char === ")") {
         depth--;
         if (depth === 0) {
           tuples.push(this.parseTupleValues(currentTuple));
-          currentTuple = '';
+          currentTuple = "";
           continue;
         }
-      } else if (char === ',' && depth === 0) {
+      } else if (char === "," && depth === 0) {
         continue;
       }
 
@@ -204,7 +204,7 @@ export default class LogLine {
    * Examples: "1,2,3" -> [1, 2, 3]
    */
   private parseTupleValues(tupleStr: string): unknown[] {
-    return tupleStr.split(',').map((s) => {
+    return tupleStr.split(",").map((s) => {
       const trimmed = s.trim();
 
       if (trimmed.startsWith('"') && trimmed.endsWith('"')) {
@@ -220,7 +220,7 @@ export default class LogLine {
    * Example: "1,2,3" or "a,b,c"
    */
   private parseSimpleArray(content: string): unknown[] {
-    return content.split(',').map((s) => {
+    return content.split(",").map((s) => {
       const trimmed = s.trim();
 
       if (trimmed.startsWith('"') && trimmed.endsWith('"')) {

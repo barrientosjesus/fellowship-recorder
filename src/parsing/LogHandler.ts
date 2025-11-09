@@ -151,15 +151,19 @@ export default abstract class LogHandler {
     let combatant = LogHandler.activity.getCombatant(playerGUID);
 
     if (!combatant) {
-      console.warn("[LogHandler] No combatant found for GUID", playerGUID);
+      if (!playerGUID?.includes("npc")) {
+        console.warn("[LogHandler] No combatant found for GUID", playerGUID);
+      }
 
       combatant = LogHandler.activity.findCombatantByName(playerName);
     }
 
     if (!combatant) {
-      console.warn(
-        `[LogHandler] Unit died, combatant not found by name: ${playerName}`,
-      );
+      if (!playerGUID?.includes("npc")) {
+        console.warn(
+          `[LogHandler] Unit died, combatant not found by name: ${playerName}`,
+        );
+      }
       return;
     }
 

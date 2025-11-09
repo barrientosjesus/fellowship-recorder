@@ -959,14 +959,14 @@
       "updated": 1701528460327,
       "link": null,
       "locked": false,
-      "text": "The job of the Poller class is to \npoll the running processes on Windows \nperiodically and monitor if WoW is \nrunning or not.",
+      "text": "The job of the Poller class is to \npoll the running processes on Windows \nperiodically and monitor if Fellowship is \nrunning or not.",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "baseline": 93,
       "containerId": null,
-      "originalText": "The job of the Poller class is to \npoll the running processes on Windows \nperiodically and monitor if WoW is \nrunning or not.",
+      "originalText": "The job of the Poller class is to \npoll the running processes on Windows \nperiodically and monitor if Fellowship is \nrunning or not.",
       "lineHeight": 1.25
     },
     {
@@ -1119,14 +1119,14 @@
       "updated": 1701528460327,
       "link": null,
       "locked": false,
-      "text": "The CombatLogWatcher monitors the Log directory and\nemits events on writes to WoWCombatLog files. Those \nevents are processed by the appropriate LogHandler.",
+      "text": "The CombatLogWatcher monitors the Log directory and\nemits events on writes to FellowshipCombatLog files. Those \nevents are processed by the appropriate LogHandler.",
       "fontSize": 20,
       "fontFamily": 1,
       "textAlign": "left",
       "verticalAlign": "top",
       "baseline": 68,
       "containerId": null,
-      "originalText": "The CombatLogWatcher monitors the Log directory and\nemits events on writes to WoWCombatLog files. Those \nevents are processed by the appropriate LogHandler.",
+      "originalText": "The CombatLogWatcher monitors the Log directory and\nemits events on writes to FellowshipCombatLog files. Those \nevents are processed by the appropriate LogHandler.",
       "lineHeight": 1.25
     },
     {
