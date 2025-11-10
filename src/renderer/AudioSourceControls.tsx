@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 import { getLocalePhrase } from 'localisation/translations';
-import { useSettings, setConfigValues } from './useSettings';
+import { setConfigValues, useSettings } from './useSettings';
 import {
   getAudioSourceChoices,
   getKeyByValue,
@@ -305,9 +305,10 @@ const AudioSourceControls = (props: IProps) => {
       if (key !== undefined) keys.push(key);
     } else if (mouseButton > 0) {
       keys.push(
-        `${getLocalePhrase(appState.language, Phrase.Mouse)} ${
-          event.mouseButton
-        }`,
+        `${getLocalePhrase(
+          appState.language,
+          Phrase.Mouse,
+        )} ${event.mouseButton}`,
       );
     }
 

@@ -1,14 +1,14 @@
 import Combatant from "../main/Combatant";
 
 import {
+  AdventuresByLevelID,
   AllDungeonAndAdventuresByLevelId,
   AllDungeonAndAdventureTimersByLevelId,
   currentRetailEncounters,
   dungeonEncounters,
+  DungeonsByLevelID,
   dungeonTimersByMapId,
   instanceDifficulty,
-  AdventuresByLevelID,
-  DungeonsByLevelID,
 } from "../main/constants";
 
 import LogHandler from "./LogHandler";
@@ -144,7 +144,7 @@ export default class FellowshipLogHandler extends LogHandler {
       AdventuresByLevelID,
       zoneID,
     );
-    
+
     const isDungeon = Object.prototype.hasOwnProperty.call(
       DungeonsByLevelID,
       zoneID,
@@ -272,7 +272,7 @@ export default class FellowshipLogHandler extends LogHandler {
 
     if (!isFellowshipDungeon) {
       console.error(
-        "[FellowshipLogHandler] Encounter is already in progress and not a ChallengeMode",
+        "[FellowshipLogHandler] Encounter is already in progress and not a Fellowship Dungeon",
       );
       return;
     }

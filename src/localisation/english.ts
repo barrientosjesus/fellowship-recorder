@@ -36,7 +36,7 @@ const ENGLISH: Translations = {
     "Automatically start the application when Windows starts.",
   [Phrase.StartMinimizedDescription]: "Open to the Windows system tray.",
   [Phrase.ObsOutputResolutionDescription]:
-    "Resolution of videos as saved on disk. Set this to the size of your WoW monitor, or less if you want to scale down.",
+    "Resolution of videos as saved on disk. Set this to the size of your Fellowship monitor, or less if you want to scale down.",
   [Phrase.ObsFPSDescription]:
     "The number of frames per second to record the video at. Lower FPS gives smaller video size, but also more choppy playback.",
   [Phrase.ObsForceMonoDescription]:
@@ -626,7 +626,8 @@ const ENGLISH: Translations = {
   [Phrase.PatreonButtonLabel]: "Patreon",
   [Phrase.ScreenshotButtonTooltip]: "Take a screenshot",
   [Phrase.ScreenshotDialogTitle]: "Screenshot",
-  [Phrase.ScreenshotDialogText]: "Take a screenshot of the current place in the video.",
+  [Phrase.ScreenshotDialogText]:
+    "Take a screenshot of the current place in the video.",
 };
 
 export default ENGLISH;

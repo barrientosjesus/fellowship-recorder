@@ -352,13 +352,14 @@ const isFellowshipDungeonUtil = (video: RendererVideo) => {
 };
 
 const checkResultByDungeonId = (video: RendererVideo) => {
-  const { zoneID, duration } = video;
+  const { zoneID, duration, overrun } = video;
 
   if (zoneID === undefined) {
     return false;
   }
 
-  const isInTime = duration < AllDungeonAndAdventureTimersByLevelId[zoneID];
+  const isInTime =
+    duration - overrun < AllDungeonAndAdventureTimersByLevelId[zoneID];
 
   return isInTime;
 };

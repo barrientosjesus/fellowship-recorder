@@ -1786,12 +1786,12 @@ const LeaguesByHighestDifficulty: League[] = [
   { name: "CONTENDER", baseDifficulty: 0, maxDifficulty: 7, color: "#21C00C" },
   { name: "ADEPT", baseDifficulty: 9, maxDifficulty: 15, color: "#0070DD" },
   { name: "CHAMPION", baseDifficulty: 17, maxDifficulty: 23, color: "#A335EE" },
-  { name: "PARAGON", baseDifficulty: 25, maxDifficulty: 31, color: "#930000" },
+  { name: "PARAGON", baseDifficulty: 25, maxDifficulty: 31, color: "#FFE36C" },
   {
-    name: "ENDLESS",
+    name: "ETERNAL",
     baseDifficulty: 33,
     maxDifficulty: 9999,
-    color: "#42CBB1",
+    color: "#930000",
   },
 ];
 
@@ -1918,7 +1918,6 @@ const AllDungeonAndAdventureTimersByLevelId = {
 };
 
 export {
-  HeroObjectType,
   AdventuresByLevelID,
   adventureTimersByLevelID,
   AllDungeonAndAdventuresByLevelId,
@@ -1941,6 +1940,7 @@ export {
   FellowshipEncounterById,
   heroById,
   HeroColor,
+  HeroObjectType,
   HeroType,
   instanceDifficulty,
   InstanceDifficultyType,
