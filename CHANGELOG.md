@@ -14,6 +14,12 @@ and this project adheres to
 
 ### Fixed
 
+## [1.0.6] - 2025-11-09
+
+### Fixed
+
+- Auto updater that I didn't send with 1.0.5
+
 ## [1.0.5] - 2025-11-09
 
 ### Added
