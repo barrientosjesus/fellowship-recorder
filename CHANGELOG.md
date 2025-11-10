@@ -14,11 +14,19 @@ and this project adheres to
 
 ### Fixed
 
-## [1.0.5] - 2025-10-29
+## [1.0.5] - 2025-11-09
+
+### Added
+
+- Additional error tracking for log lines
 
 ### Fixed
 
 - Dungeon timing was not accounting properly for overrun (ty. SuperTouch)
+
+### Removed
+
+- Some left over wow tooltips
 
 ## [1.0.4] - 2025-10-19
 

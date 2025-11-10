@@ -1,57 +1,57 @@
-import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-import { ObsProperty, SceneItemPosition, SourceDimensions } from 'noobs';
-import { AudioSourceType, SceneItem } from './types';
+import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron";
+import { ObsProperty, SceneItemPosition, SourceDimensions } from "noobs";
+import { AudioSourceType, SceneItem } from "./types";
 
 export type Channels =
-  | 'window'
-  | 'videoButton'
-  | 'logPath'
-  | 'openURL'
-  | 'test'
-  | 'getAllDisplays'
-  | 'videoPlayerSettings'
-  | 'recorder'
-  | 'config'
-  | 'getEncoders'
-  | 'selectPath'
-  | 'selectImage'
-  | 'selectFile'
-  | 'getNextKeyPress'
-  | 'clip'
-  | 'deleteVideos'
-  | 'writeClipboard'
-  | 'getShareableLink'
-  | 'doAppUpdate'
-  | 'volmeter'
-  | 'audioSettingsOpen'
-  | 'audioSettingsClosed'
-  | 'updateSourcePos'
-  | 'createAudioSource'
-  | 'getAudioSourceProperties'
-  | 'deleteAudioSource'
-  | 'setAudioSourceDevice'
-  | 'setAudioSourceWindow'
-  | 'getDisplayInfo'
-  | 'configurePreview'
-  | 'showPreview'
-  | 'hidePreview'
-  | 'disablePreview'
-  | 'getSourcePosition'
-  | 'setSourcePosition'
-  | 'resetSourcePosition'
-  | 'screenshot:save'
-  | 'setForceMono'
-  | 'setAudioSuppression'
-  | 'setCaptureCursor'
-  | 'reconfigureBase'
-  | 'reconfigureVideo'
-  | 'reconfigureAudio'
-  | 'reconfigureOverlay'
-  | 'reconfigureCloud'
-  | 'getSensibleEncoderDefault'
-  | 'refreshCloudGuilds';
+  | "window"
+  | "videoButton"
+  | "logPath"
+  | "openURL"
+  | "test"
+  | "getAllDisplays"
+  | "videoPlayerSettings"
+  | "recorder"
+  | "config"
+  | "getEncoders"
+  | "selectPath"
+  | "selectImage"
+  | "selectFile"
+  | "getNextKeyPress"
+  | "clip"
+  | "deleteVideos"
+  | "writeClipboard"
+  | "getShareableLink"
+  | "doAppUpdate"
+  | "volmeter"
+  | "audioSettingsOpen"
+  | "audioSettingsClosed"
+  | "updateSourcePos"
+  | "createAudioSource"
+  | "getAudioSourceProperties"
+  | "deleteAudioSource"
+  | "setAudioSourceDevice"
+  | "setAudioSourceWindow"
+  | "getDisplayInfo"
+  | "configurePreview"
+  | "showPreview"
+  | "hidePreview"
+  | "disablePreview"
+  | "getSourcePosition"
+  | "setSourcePosition"
+  | "resetSourcePosition"
+  | "screenshot:save"
+  | "setForceMono"
+  | "setAudioSuppression"
+  | "setCaptureCursor"
+  | "reconfigureBase"
+  | "reconfigureVideo"
+  | "reconfigureAudio"
+  | "reconfigureOverlay"
+  | "reconfigureCloud"
+  | "getSensibleEncoderDefault"
+  | "refreshCloudGuilds";
 
-contextBridge.exposeInMainWorld('electron', {
+contextBridge.exposeInMainWorld("electron", {
   ipcRenderer: {
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);
@@ -87,31 +87,31 @@ contextBridge.exposeInMainWorld('electron', {
       previewWidth: number;
       previewHeight: number;
     }> {
-      return ipcRenderer.invoke('getDisplayInfo');
+      return ipcRenderer.invoke("getDisplayInfo");
     },
 
     // This is async as it's useful to wait for the configuration to complete
     // before triggering frontend updates.
     configurePreview(x: number, y: number, width: number, height: number) {
-      ipcRenderer.send('configurePreview', x, y, width, height);
+      ipcRenderer.send("configurePreview", x, y, width, height);
     },
 
     showPreview() {
-      ipcRenderer.send('showPreview');
+      ipcRenderer.send("showPreview");
     },
 
     hidePreview() {
-      ipcRenderer.send('hidePreview');
+      ipcRenderer.send("hidePreview");
     },
 
     disablePreview() {
-      ipcRenderer.send('disablePreview');
+      ipcRenderer.send("disablePreview");
     },
 
     getSourcePosition(
       src: SceneItem,
     ): Promise<SourceDimensions & SceneItemPosition> {
-      return ipcRenderer.invoke('getSourcePosition', src);
+      return ipcRenderer.invoke("getSourcePosition", src);
     },
 
     setSourcePosition(
@@ -127,80 +127,80 @@ contextBridge.exposeInMainWorld('electron', {
         cropBottom: number;
       },
     ) {
-      ipcRenderer.send('setSourcePosition', src, target);
+      ipcRenderer.send("setSourcePosition", src, target);
     },
 
     resetSourcePosition(src: SceneItem) {
-      ipcRenderer.send('resetSourcePosition', src);
+      ipcRenderer.send("resetSourcePosition", src);
     },
 
     audioSettingsOpen(): Promise<void> {
-      return ipcRenderer.invoke('audioSettingsOpen');
+      return ipcRenderer.invoke("audioSettingsOpen");
     },
 
     audioSettingsClosed(): Promise<void> {
-      return ipcRenderer.invoke('audioSettingsClosed');
+      return ipcRenderer.invoke("audioSettingsClosed");
     },
 
     // Also returns the properties.
     createAudioSource(id: string, type: AudioSourceType): Promise<string> {
-      return ipcRenderer.invoke('createAudioSource', id, type);
+      return ipcRenderer.invoke("createAudioSource", id, type);
     },
 
     getAudioSourceProperties(id: string): Promise<ObsProperty[]> {
-      return ipcRenderer.invoke('getAudioSourceProperties', id);
+      return ipcRenderer.invoke("getAudioSourceProperties", id);
     },
 
     deleteAudioSource(id: string): void {
-      ipcRenderer.send('deleteAudioSource', id);
+      ipcRenderer.send("deleteAudioSource", id);
     },
 
     setAudioSourceDevice(id: string, device: string): void {
-      ipcRenderer.send('setAudioSourceDevice', id, device);
+      ipcRenderer.send("setAudioSourceDevice", id, device);
     },
 
     setAudioSourceWindow(id: string, window: string): void {
-      ipcRenderer.send('setAudioSourceWindow', id, window);
+      ipcRenderer.send("setAudioSourceWindow", id, window);
     },
 
     setAudioSourceVolume(id: string, volume: number): void {
-      ipcRenderer.send('setAudioSourceVolume', id, volume);
+      ipcRenderer.send("setAudioSourceVolume", id, volume);
     },
 
     setForceMono(enabled: boolean) {
-      ipcRenderer.send('setForceMono', enabled);
+      ipcRenderer.send("setForceMono", enabled);
     },
 
     setAudioSuppression(enabled: boolean) {
-      ipcRenderer.send('setAudioSuppression', enabled);
+      ipcRenderer.send("setAudioSuppression", enabled);
     },
 
     reconfigureBase() {
-      ipcRenderer.send('reconfigureBase');
+      ipcRenderer.send("reconfigureBase");
     },
 
     reconfigureVideo() {
-      ipcRenderer.send('reconfigureVideo');
+      ipcRenderer.send("reconfigureVideo");
     },
 
     reconfigureAudio() {
-      ipcRenderer.send('reconfigureAudio');
+      ipcRenderer.send("reconfigureAudio");
     },
 
     reconfigureOverlay() {
-      ipcRenderer.send('reconfigureOverlay');
+      ipcRenderer.send("reconfigureOverlay");
     },
 
     reconfigureCloud() {
-      ipcRenderer.send('reconfigureCloud');
+      ipcRenderer.send("reconfigureCloud");
     },
 
     getSensibleEncoderDefault(): Promise<string> {
-      return ipcRenderer.invoke('getSensibleEncoderDefault');
+      return ipcRenderer.invoke("getSensibleEncoderDefault");
     },
 
     refreshCloudGuilds() {
-      ipcRenderer.send('refreshCloudGuilds');
+      ipcRenderer.send("refreshCloudGuilds");
     },
   },
 });

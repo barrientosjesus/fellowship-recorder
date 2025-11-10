@@ -1,33 +1,33 @@
-import path from 'path';
-import fs from 'fs';
-import WaitQueue from 'wait-queue';
+import path from "path";
+import fs from "fs";
+import WaitQueue from "wait-queue";
 import {
+  EventType,
+  uIOhook,
   UiohookKeyboardEvent,
   UiohookMouseEvent,
-  uIOhook,
-  EventType,
-} from 'uiohook-napi';
-import { EventEmitter } from 'stream';
+} from "uiohook-napi";
+import { EventEmitter } from "stream";
 import {
   CaptureMode,
   EOBSOutputSignal,
   ERecordingState,
   ESupportedEncoders,
   QualityPresets,
-} from './obsEnums';
+} from "./obsEnums";
 import {
+  convertUioHookEvent,
   deferredPromiseHelper,
+  emitErrorReport,
+  exists,
   fixPathWhenPackaged,
   getAssetPath,
+  getPromiseBomb,
   getSortedVideos,
   isPushToTalkHotkey,
-  convertUioHookEvent,
-  tryUnlink,
-  getPromiseBomb,
   takeOwnershipBufferDir,
-  exists,
-  emitErrorReport,
-} from './util';
+  tryUnlink,
+} from "./util";
 import {
   AudioSource,
   AudioSourceType,
@@ -36,30 +36,30 @@ import {
   ObsAudioConfig,
   ObsOverlayConfig,
   ObsVideoConfig,
-  VideoSourceName,
   SceneItem,
-} from './types';
-import ConfigService from '../config/ConfigService';
-import { obsResolutions } from './constants';
+  VideoSourceName,
+} from "./types";
+import ConfigService from "../config/ConfigService";
+import { obsResolutions } from "./constants";
 import {
   getObsAudioConfig,
   getObsVideoConfig,
   getOverlayConfig,
-} from '../utils/configUtils';
+} from "../utils/configUtils";
 import noobs, {
   ObsData,
   SceneItemPosition,
   Signal,
   SourceDimensions,
-} from 'noobs';
-import { getNativeWindowHandle, send } from './main';
-import { ipcMain } from 'electron';
-import Poller from 'utils/Poller';
-import AsyncQueue from 'utils/AsyncQueue';
-import assert from 'assert';
-import { isHighRes } from 'renderer/rendererutils';
+} from "noobs";
+import { getNativeWindowHandle, send } from "./main";
+import { ipcMain } from "electron";
+import Poller from "utils/Poller";
+import AsyncQueue from "utils/AsyncQueue";
+import assert from "assert";
+import { isHighRes } from "renderer/rendererutils";
 
-const devMode = process.env.NODE_ENV === 'development';
+const devMode = process.env.NODE_ENV === "development";
 
 /**
  * Class for handing the interface between Fellowsnip and OBS.
@@ -119,7 +119,7 @@ export default class Recorder extends EventEmitter {
    * Resolution selected by the user in settings.
    */
   private resolution: keyof typeof obsResolutions = this.cfg.get<string>(
-    'obsOutputResolution',
+    "obsOutputResolution",
   ) as keyof typeof obsResolutions;
 
   /**
@@ -194,7 +194,7 @@ export default class Recorder extends EventEmitter {
 
   private overlaySource?: string;
 
-  private chatOverlayDefaultImage = getAssetPath('poster', 'chat-overlay.png');
+  private chatOverlayDefaultImage = getAssetPath("poster", "chat-overlay.png");
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private pushToTalkKeyListener = (e: UiohookKeyboardEvent) => {};
@@ -206,26 +206,26 @@ export default class Recorder extends EventEmitter {
    * Constructor.
    */
   private constructor() {
-    console.info('[Recorder] Constructing recorder');
+    console.info("[Recorder] Constructing recorder");
     super();
     this.setupListeners();
   }
 
   private setupListeners() {
-    ipcMain.on('reconfigureVideo', () => {
-      console.info('[Recorder] Video source reconfigure');
+    ipcMain.on("reconfigureVideo", () => {
+      console.info("[Recorder] Video source reconfigure");
       const cfg = getObsVideoConfig(this.cfg);
       this.configureVideoSources(cfg);
     });
 
-    ipcMain.on('reconfigureAudio', () => {
-      console.info('[Recorder] Audio source reconfigure');
+    ipcMain.on("reconfigureAudio", () => {
+      console.info("[Recorder] Audio source reconfigure");
       const cfg = getObsAudioConfig(this.cfg);
       this.configureAudioSources(cfg);
     });
 
-    ipcMain.on('reconfigureOverlay', () => {
-      console.info('[Recorder] Overlay source reconfigure');
+    ipcMain.on("reconfigureOverlay", () => {
+      console.info("[Recorder] Overlay source reconfigure");
       const overlayCfg = getOverlayConfig(this.cfg);
       this.configureOverlayImageSource(overlayCfg);
     });
@@ -234,13 +234,13 @@ export default class Recorder extends EventEmitter {
      * Callback to attach the audio devices. This is called when the user
      * opens the audio settings so that the volmeter bars can be populated.
      */
-    ipcMain.handle('audioSettingsOpen', () => {
-      console.info('[Manager] Audio settings were opened');
+    ipcMain.handle("audioSettingsOpen", () => {
+      console.info("[Manager] Audio settings were opened");
       noobs.SetVolmeterEnabled(true);
 
       if (Poller.getInstance().isFellowshipRunning()) {
         console.info(
-          '[Manager] Wont touch audio sources as Fellowship is running',
+          "[Manager] Wont touch audio sources as Fellowship is running",
         );
         return;
       }
@@ -249,13 +249,13 @@ export default class Recorder extends EventEmitter {
       this.configureAudioSources(config);
     });
 
-    ipcMain.handle('audioSettingsClosed', () => {
-      console.info('[Manager] Audio settings were closed');
+    ipcMain.handle("audioSettingsClosed", () => {
+      console.info("[Manager] Audio settings were closed");
       noobs.SetVolmeterEnabled(false);
 
       if (Poller.getInstance().isFellowshipRunning()) {
         console.info(
-          '[Manager] Wont touch audio sources as Fellowship is running',
+          "[Manager] Wont touch audio sources as Fellowship is running",
         );
         return;
       }
@@ -263,16 +263,16 @@ export default class Recorder extends EventEmitter {
       this.removeAudioSources();
     });
 
-    ipcMain.handle('getDisplayInfo', () => {
+    ipcMain.handle("getDisplayInfo", () => {
       return this.getDisplayInfo();
     });
 
-    ipcMain.handle('getSourcePosition', (_event, item: SceneItem) => {
+    ipcMain.handle("getSourcePosition", (_event, item: SceneItem) => {
       return this.getSourcePosition(item);
     });
 
     ipcMain.on(
-      'setSourcePosition',
+      "setSourcePosition",
       (
         event,
         item: SceneItem,
@@ -287,118 +287,120 @@ export default class Recorder extends EventEmitter {
           cropBottom: number;
         },
       ) => {
-        const src =
-          item === SceneItem.OVERLAY ? this.overlaySource : this.captureSource;
+        const src = item === SceneItem.OVERLAY
+          ? this.overlaySource
+          : this.captureSource;
         if (!src) return;
         this.setSourcePosition(src, target);
         // Don't need to redraw here, frontend handles this for us.
       },
     );
 
-    ipcMain.on('resetSourcePosition', (_event, item: SceneItem) => {
-      const src =
-        item === SceneItem.OVERLAY ? this.overlaySource : this.captureSource;
+    ipcMain.on("resetSourcePosition", (_event, item: SceneItem) => {
+      const src = item === SceneItem.OVERLAY
+        ? this.overlaySource
+        : this.captureSource;
       if (!src) return;
       this.resetSourcePosition(src);
-      setTimeout(() => send('redrawPreview'), 100);
+      setTimeout(() => send("redrawPreview"), 100);
     });
 
     ipcMain.handle(
-      'createAudioSource',
+      "createAudioSource",
       (event, id: string, type: AudioSourceType) => {
-        console.info('[Manager] Creating audio source', id, 'of type', type);
+        console.info("[Manager] Creating audio source", id, "of type", type);
         const name = noobs.CreateSource(id, type);
-        console.info('[Manager] Created audio source', name);
+        console.info("[Manager] Created audio source", name);
         noobs.AddSourceToScene(name);
         return name;
       },
     );
 
-    ipcMain.handle('getAudioSourceProperties', (_event, id: string) => {
-      console.info('[Manager] Getting audio source properties for', id);
+    ipcMain.handle("getAudioSourceProperties", (_event, id: string) => {
+      console.info("[Manager] Getting audio source properties for", id);
       return noobs.GetSourceProperties(id);
     });
 
-    ipcMain.on('deleteAudioSource', (_event, id: string) => {
-      console.info('[Manager] Deleting audio source', id);
+    ipcMain.on("deleteAudioSource", (_event, id: string) => {
+      console.info("[Manager] Deleting audio source", id);
       noobs.DeleteSource(id);
     });
 
-    ipcMain.on('setAudioSourceDevice', (_event, id: string, value: string) => {
+    ipcMain.on("setAudioSourceDevice", (_event, id: string, value: string) => {
       console.info(
-        '[Manager] Setting audio device for source',
+        "[Manager] Setting audio device for source",
         id,
-        'to',
+        "to",
         value,
       );
       const settings = noobs.GetSourceSettings(id);
-      settings['device_id'] = value;
+      settings["device_id"] = value;
       noobs.SetSourceSettings(id, settings);
     });
 
-    ipcMain.on('setAudioSourceWindow', (_event, id: string, value: string) => {
+    ipcMain.on("setAudioSourceWindow", (_event, id: string, value: string) => {
       console.info(
-        '[Manager] Setting audio window for source',
+        "[Manager] Setting audio window for source",
         id,
-        'to',
+        "to",
         value,
       );
       const settings = noobs.GetSourceSettings(id);
-      settings['window'] = value;
-      settings['priority'] = 2; // Executable matching
+      settings["window"] = value;
+      settings["priority"] = 2; // Executable matching
       noobs.SetSourceSettings(id, settings);
     });
 
-    ipcMain.on('setAudioSourceVolume', (_event, id: string, value: number) => {
+    ipcMain.on("setAudioSourceVolume", (_event, id: string, value: number) => {
       console.info(
-        '[Manager] Setting audio volume for source',
+        "[Manager] Setting audio volume for source",
         id,
-        'to',
+        "to",
         value,
       );
       noobs.SetSourceVolume(id, value);
     });
 
-    ipcMain.on('setForceMono', (_event, enabled: boolean) => {
-      console.info('[Manager] Setting force mono to', enabled);
+    ipcMain.on("setForceMono", (_event, enabled: boolean) => {
+      console.info("[Manager] Setting force mono to", enabled);
       noobs.SetForceMono(enabled);
     });
 
-    ipcMain.on('setAudioSuppression', (_event, enabled: boolean) => {
-      console.info('[Manager] Setting audio suppression to', enabled);
+    ipcMain.on("setAudioSuppression", (_event, enabled: boolean) => {
+      console.info("[Manager] Setting audio suppression to", enabled);
       noobs.SetAudioSuppression(enabled);
     });
 
     ipcMain.on(
-      'configurePreview',
+      "configurePreview",
       (_event, x: number, y: number, width: number, height: number) => {
         this.configurePreview(x, y, width, height);
-        setTimeout(() => send('redrawPreview'), 100);
+        setTimeout(() => send("redrawPreview"), 100);
       },
     );
 
-    ipcMain.on('showPreview', () => {
+    ipcMain.on("showPreview", () => {
       this.showPreview();
     });
 
-    ipcMain.on('hidePreview', () => {
+    ipcMain.on("hidePreview", () => {
       this.hidePreview();
     });
 
-    ipcMain.on('disablePreview', () => {
+    ipcMain.on("disablePreview", () => {
       this.disablePreview();
     });
 
     // Encoder listener, to populate settings on the frontend.
-    ipcMain.handle('getEncoders', (): string[] => {
+    ipcMain.handle("getEncoders", (): string[] => {
       const obsEncoders = this.getAvailableEncoders().filter(
-        (encoder) => encoder !== 'none',
+        (encoder) => encoder !== "none",
       );
 
       return obsEncoders;
     });
 
-    ipcMain.handle('getSensibleEncoderDefault', (): string => {
+    ipcMain.handle("getSensibleEncoderDefault", (): string => {
       return this.getSensibleEncoderDefault();
     });
   }
@@ -409,7 +411,7 @@ export default class Recorder extends EventEmitter {
    * misbehaves.
    */
   public async startBuffer() {
-    console.info('[Recorder] Queued start buffer');
+    console.info("[Recorder] Queued start buffer");
     const { resolveHelper, rejectHelper, promise } = deferredPromiseHelper();
 
     const task = async () => {
@@ -417,7 +419,7 @@ export default class Recorder extends EventEmitter {
         await this.startObsBuffer();
         resolveHelper(null);
       } catch (error) {
-        console.error('[Recorder] Error on starting buffer', String(error));
+        console.error("[Recorder] Error on starting buffer", String(error));
         emitErrorReport(error);
         rejectHelper(error);
       }
@@ -433,7 +435,7 @@ export default class Recorder extends EventEmitter {
    * misbehaves.
    */
   public async startRecording(offset: number) {
-    console.info('[Recorder] Queued start recording');
+    console.info("[Recorder] Queued start recording");
     const { resolveHelper, rejectHelper, promise } = deferredPromiseHelper();
 
     const task = async () => {
@@ -441,7 +443,7 @@ export default class Recorder extends EventEmitter {
         await this.convertObsBuffer(offset);
         resolveHelper(null);
       } catch (error) {
-        console.error('[Recorder] Error on starting recording', String(error));
+        console.error("[Recorder] Error on starting recording", String(error));
         emitErrorReport(error);
         rejectHelper(error);
       }
@@ -457,7 +459,7 @@ export default class Recorder extends EventEmitter {
    * misbehaves.
    */
   public async stop() {
-    console.info('[Recorder] Queued stop');
+    console.info("[Recorder] Queued stop");
     const { resolveHelper, rejectHelper, promise } = deferredPromiseHelper();
 
     const task = async () => {
@@ -465,7 +467,7 @@ export default class Recorder extends EventEmitter {
         await this.stopObsRecording();
         resolveHelper(null);
       } catch (error) {
-        console.error('[Recorder] Error on stop', String(error));
+        console.error("[Recorder] Error on stop", String(error));
         emitErrorReport(error);
         rejectHelper(error);
       }
@@ -481,7 +483,7 @@ export default class Recorder extends EventEmitter {
    * misbehaves.
    */
   public async forceStop() {
-    console.info('[Recorder] Queued force stop');
+    console.info("[Recorder] Queued force stop");
     const { resolveHelper, rejectHelper, promise } = deferredPromiseHelper();
 
     const task = async () => {
@@ -489,7 +491,7 @@ export default class Recorder extends EventEmitter {
         await this.forceStopOBS();
         resolveHelper(null);
       } catch (error) {
-        console.error('[Recorder] Error on force stop', String(error));
+        console.error("[Recorder] Error on force stop", String(error));
         emitErrorReport(error);
         rejectHelper(error);
       }
@@ -508,13 +510,13 @@ export default class Recorder extends EventEmitter {
       config;
 
     if (this.obsState !== ERecordingState.Offline) {
-      console.error('[Recorder] OBS must be offline to reconfigure base');
-      throw new Error('[Recorder] OBS must be offline to reconfigure base');
+      console.error("[Recorder] OBS must be offline to reconfigure base");
+      throw new Error("[Recorder] OBS must be offline to reconfigure base");
     }
 
     this.resolution = obsOutputResolution as keyof typeof obsResolutions;
     const { height, width } = obsResolutions[this.resolution];
-    console.info('[Recorder] Configure OBS video context');
+    console.info("[Recorder] Configure OBS video context");
 
     const canvas = noobs.GetPreviewInfo();
     noobs.ResetVideoContext(obsFPS, width, height);
@@ -528,7 +530,7 @@ export default class Recorder extends EventEmitter {
       // the existing sources. So reconfigure the video sources if the resolution
       // has changed to undo that. We avoid this branch on startup as we will
       // reconfigure the video sources anyway.
-      console.info('[Recorder] Resolution changed, reconfig video sources');
+      console.info("[Recorder] Resolution changed, reconfig video sources");
       const cfg = getObsVideoConfig(this.cfg);
       this.configureVideoSources(cfg);
     }
@@ -537,7 +539,7 @@ export default class Recorder extends EventEmitter {
     await Recorder.createRecordingDirs(outputPath);
     await this.cleanup(outputPath);
 
-    console.info('[Recorder] Set recording directory', outputPath);
+    console.info("[Recorder] Set recording directory", outputPath);
     noobs.SetRecordingDir(outputPath);
 
     const settings = Recorder.getEncoderSettings(obsRecEncoder, obsQuality);
@@ -559,7 +561,7 @@ export default class Recorder extends EventEmitter {
       case ESupportedEncoders.OBS_X264:
         // CRF and CPQ are so similar in configuration that we can just treat
         // the CRF configuration the same as CQP configuration.
-        settings.rate_control = 'CRF';
+        settings.rate_control = "CRF";
         settings.crf = Recorder.getCqpFromQuality(encoder, quality);
         break;
 
@@ -569,13 +571,13 @@ export default class Recorder extends EventEmitter {
       case ESupportedEncoders.NVENC_AV1:
       case ESupportedEncoders.QSV_H264:
       case ESupportedEncoders.QSV_AV1:
-        settings.rate_control = 'CQP';
+        settings.rate_control = "CQP";
         settings.cqp = Recorder.getCqpFromQuality(encoder, quality);
         break;
 
       default:
-        console.error('[Recorder] Unrecognised encoder type', encoder);
-        throw new Error('Unrecognised encoder type');
+        console.error("[Recorder] Unrecognised encoder type", encoder);
+        throw new Error("Unrecognised encoder type");
     }
 
     return settings;
@@ -590,7 +592,7 @@ export default class Recorder extends EventEmitter {
 
     if (this.captureSource) {
       console.info(
-        '[Recorder] Removing existing capture source',
+        "[Recorder] Removing existing capture source",
         this.captureSource,
       );
 
@@ -600,20 +602,20 @@ export default class Recorder extends EventEmitter {
       this.captureMode = CaptureMode.NONE;
     }
 
-    if (obsCaptureMode === 'monitor_capture') {
+    if (obsCaptureMode === "monitor_capture") {
       this.configureMonitorCaptureSource(config);
-    } else if (obsCaptureMode === 'game_capture') {
+    } else if (obsCaptureMode === "game_capture") {
       this.configureGameCaptureSource(config);
-    } else if (obsCaptureMode === 'window_capture') {
+    } else if (obsCaptureMode === "window_capture") {
       this.configureWindowCaptureSource(config);
     } else {
-      console.error('[Recorder] Unrecognised capture mode', obsCaptureMode);
-      throw new Error('Unrecognised capture mode');
+      console.error("[Recorder] Unrecognised capture mode", obsCaptureMode);
+      throw new Error("Unrecognised capture mode");
     }
 
     const fellowshipRunning = Poller.getInstance().isFellowshipRunning();
 
-    if (fellowshipRunning && obsCaptureMode !== 'monitor_capture') {
+    if (fellowshipRunning && obsCaptureMode !== "monitor_capture") {
       this.attachCaptureSource();
     }
 
@@ -625,11 +627,11 @@ export default class Recorder extends EventEmitter {
    * Configure and add the chat overlay to the scene.
    */
   private async configureOwnOverlay(config: ObsOverlayConfig) {
-    console.info('[Recorder] Configure own image as chat overlay');
+    console.info("[Recorder] Configure own image as chat overlay");
 
     if (!this.overlaySource) {
-      console.error('[Recorder] No existing overlay source');
-      throw new Error('No existing overlay source');
+      console.error("[Recorder] No existing overlay source");
+      throw new Error("No existing overlay source");
     }
 
     const {
@@ -664,11 +666,11 @@ export default class Recorder extends EventEmitter {
    * Configure and add the default chat overlay to the scene.
    */
   private configureDefaultOverlay(config: ObsOverlayConfig) {
-    console.info('[Recorder] Configure default image as chat overlay');
+    console.info("[Recorder] Configure default image as chat overlay");
 
     if (!this.overlaySource) {
-      console.error('[Recorder] No existing overlay source');
-      throw new Error('No existing overlay source');
+      console.error("[Recorder] No existing overlay source");
+      throw new Error("No existing overlay source");
     }
 
     const { chatOverlayXPosition, chatOverlayYPosition, chatOverlayScale } =
@@ -701,31 +703,31 @@ export default class Recorder extends EventEmitter {
    */
   public configureAudioSources(config: ObsAudioConfig) {
     this.removeAudioSources();
-    console.info('[Recorder] Configure audio sources');
+    console.info("[Recorder] Configure audio sources");
 
     // Can't release all the listeners here as we now use
     // uIOhook for triggering manual recording too.
-    uIOhook.off('keydown', this.pushToTalkKeyListener);
-    uIOhook.off('keyup', this.pushToTalkKeyListener);
-    uIOhook.off('mousedown', this.pushToTalkMouseListener);
-    uIOhook.off('mouseup', this.pushToTalkMouseListener);
+    uIOhook.off("keydown", this.pushToTalkKeyListener);
+    uIOhook.off("keyup", this.pushToTalkKeyListener);
+    uIOhook.off("mousedown", this.pushToTalkMouseListener);
+    uIOhook.off("mouseup", this.pushToTalkMouseListener);
 
     noobs.SetForceMono(config.obsForceMono);
     noobs.SetAudioSuppression(config.obsAudioSuppression);
 
     config.audioSources.forEach((src) => {
-      console.info('[Recorder] Create audio source', src.id);
+      console.info("[Recorder] Create audio source", src.id);
       const name = noobs.CreateSource(src.id, src.type);
       const settings = noobs.GetSourceSettings(name);
 
       if (src.type === AudioSourceType.PROCESS && src.device) {
-        settings['window'] = src.device;
-        settings['priority'] = 2; // Executable matching
+        settings["window"] = src.device;
+        settings["priority"] = 2; // Executable matching
         noobs.SetSourceSettings(name, settings);
       } else if (src.type !== AudioSourceType.PROCESS) {
         const properties = noobs.GetSourceProperties(name);
-        const available = properties.find((prop) => prop.name === 'device_id');
-        assert(available && available.type === 'list'); // To help the compiler out.
+        const available = properties.find((prop) => prop.name === "device_id");
+        assert(available && available.type === "list"); // To help the compiler out.
 
         // Try to match by device ID.
         let match = available.items.find((d) => d.value === src.device);
@@ -733,14 +735,14 @@ export default class Recorder extends EventEmitter {
         if (!match) {
           // Fallback to matching by name if we didn't find an ID match.
           // Suspect this can happen on replugging devices.
-          console.info('[Recorder] Fallback to matching audio device by name');
+          console.info("[Recorder] Fallback to matching audio device by name");
           match = available.items.find((d) => d.name === src.friendly);
 
           if (!match) {
             // Still no match after looking at both ID and friendly name,
             // so give up trying to configure this source.
             console.warn(
-              '[Recorder] Failed to configure audio device',
+              "[Recorder] Failed to configure audio device",
               src,
               available.items,
             );
@@ -749,23 +751,23 @@ export default class Recorder extends EventEmitter {
 
           // Correct the device ID in the config.
           console.info(
-            '[Recorder] Fix up audio device ID from',
+            "[Recorder] Fix up audio device ID from",
             src.device,
-            'to',
+            "to",
             match.value,
           );
 
           src.device = match.value;
-          this.cfg.set('audioSources', config.audioSources);
+          this.cfg.set("audioSources", config.audioSources);
         }
 
         // Finish configuring the source.
-        settings['device_id'] = match.value;
+        settings["device_id"] = match.value;
         noobs.SetSourceSettings(name, settings);
         noobs.SetSourceVolume(name, src.volume);
       } else {
         // Can happen if a user adds an app source but never selects a window.
-        console.warn('[Recorder] Unable to configure audio source', src);
+        console.warn("[Recorder] Unable to configure audio source", src);
       }
 
       noobs.AddSourceToScene(name);
@@ -778,10 +780,10 @@ export default class Recorder extends EventEmitter {
 
     if (mics.length !== 0 && config.pushToTalk) {
       this.obsMicState = MicStatus.MUTED;
-      this.emit('state-change');
+      this.emit("state-change");
     } else if (mics.length !== 0) {
       this.obsMicState = MicStatus.LISTENING;
-      this.emit('state-change');
+      this.emit("state-change");
     }
 
     if (config.pushToTalk) {
@@ -793,10 +795,10 @@ export default class Recorder extends EventEmitter {
       this.pushToTalkMouseListener = (e: UiohookMouseEvent) =>
         this.pushToTalkHandler(e, config);
 
-      uIOhook.on('keydown', this.pushToTalkKeyListener);
-      uIOhook.on('keyup', this.pushToTalkKeyListener);
-      uIOhook.on('mousedown', this.pushToTalkMouseListener);
-      uIOhook.on('mouseup', this.pushToTalkMouseListener);
+      uIOhook.on("keydown", this.pushToTalkKeyListener);
+      uIOhook.on("keyup", this.pushToTalkKeyListener);
+      uIOhook.on("mousedown", this.pushToTalkMouseListener);
+      uIOhook.on("mouseup", this.pushToTalkMouseListener);
     }
   }
 
@@ -805,13 +807,13 @@ export default class Recorder extends EventEmitter {
    * so it can be called externally when WoW is closed.
    */
   public removeAudioSources() {
-    console.info('[Recorder] Remove all audio sources');
+    console.info("[Recorder] Remove all audio sources");
 
     this.obsMicState = MicStatus.NONE;
-    this.emit('state-change');
+    this.emit("state-change");
 
     this.audioSources.forEach((src) => {
-      console.info('[Recorder] Remove audio source', src.id);
+      console.info("[Recorder] Remove audio source", src.id);
       noobs.RemoveSourceFromScene(src.id);
       noobs.DeleteSource(src.id);
     });
@@ -836,30 +838,30 @@ export default class Recorder extends EventEmitter {
    * Release all OBS resources and shut it down.
    */
   public shutdownOBS() {
-    console.info('[Recorder] OBS shutting down');
+    console.info("[Recorder] OBS shutting down");
 
     if (!this.obsInitialized) {
-      console.info('[Recorder] OBS not initialized so not attempting shutdown');
+      console.info("[Recorder] OBS not initialized so not attempting shutdown");
       return;
     }
 
     noobs.Shutdown();
     this.obsInitialized = false;
-    console.info('[Recorder] OBS shut down successfully');
+    console.info("[Recorder] OBS shut down successfully");
   }
 
   /**
    * Return an array of all the encoders available to OBS.
    */
   public getAvailableEncoders(): string[] {
-    console.info('[Recorder] Getting available encoders');
+    console.info("[Recorder] Getting available encoders");
 
     if (!this.obsInitialized) {
-      throw new Error('[Recorder] OBS not initialized');
+      throw new Error("[Recorder] OBS not initialized");
     }
 
     const encoders = noobs.ListVideoEncoders();
-    console.info('[Recorder] Encoders:', encoders);
+    console.info("[Recorder] Encoders:", encoders);
     return encoders;
   }
 
@@ -867,7 +869,7 @@ export default class Recorder extends EventEmitter {
    * Set the size and position of the scene preview.
    */
   public configurePreview(x: number, y: number, width: number, height: number) {
-    console.info('[Recorder] Configure preview with', x, y, width, height);
+    console.info("[Recorder] Configure preview with", x, y, width, height);
     noobs.ConfigurePreview(x, y, width, height);
   }
 
@@ -875,7 +877,7 @@ export default class Recorder extends EventEmitter {
    * Show the scene preview.
    */
   public showPreview() {
-    console.info('[Recorder] Show preview');
+    console.info("[Recorder] Show preview");
     noobs.ShowPreview();
   }
 
@@ -883,7 +885,7 @@ export default class Recorder extends EventEmitter {
    * Hide the scene preview.
    */
   public hidePreview() {
-    console.info('[Recorder] Hide preview');
+    console.info("[Recorder] Hide preview");
     noobs.HidePreview();
   }
 
@@ -891,7 +893,7 @@ export default class Recorder extends EventEmitter {
    * Disable the scene preview.
    */
   public disablePreview() {
-    console.info('[Recorder] Disable preview');
+    console.info("[Recorder] Disable preview");
     noobs.DisablePreview();
   }
 
@@ -900,7 +902,7 @@ export default class Recorder extends EventEmitter {
    * @params Number of files to leave.
    */
   public async cleanup(obsPath: string) {
-    console.info('[Recorder] Clean out buffer');
+    console.info("[Recorder] Clean out buffer");
     const videos = await getSortedVideos(obsPath); // This sorting is redundant.
     const files = videos.map((f) => f.name);
     const promises = files.map(tryUnlink);
@@ -911,15 +913,15 @@ export default class Recorder extends EventEmitter {
    * Start OBS, no-op if already started.
    */
   private async startObsBuffer() {
-    console.info('[Recorder] Start');
+    console.info("[Recorder] Start");
 
     if (!this.obsInitialized) {
-      console.error('[Recorder] OBS not initialized');
-      throw new Error('OBS not initialized');
+      console.error("[Recorder] OBS not initialized");
+      throw new Error("OBS not initialized");
     }
 
     if (this.obsState === ERecordingState.Recording) {
-      console.info('[Recorder] Already started');
+      console.info("[Recorder] Already started");
       return;
     }
 
@@ -931,7 +933,7 @@ export default class Recorder extends EventEmitter {
 
     await Promise.race([
       this.startQueue.shift(),
-      getPromiseBomb(30, 'Failed to start'),
+      getPromiseBomb(30, "Failed to start"),
     ]);
 
     this.startQueue.empty();
@@ -941,16 +943,16 @@ export default class Recorder extends EventEmitter {
    * Conver the buffer recording to a a real recording.
    */
   private async convertObsBuffer(offset: number) {
-    console.info('[Recorder] Convert buffer with offset:', offset);
+    console.info("[Recorder] Convert buffer with offset:", offset);
 
     if (!this.obsInitialized) {
-      console.error('[Recorder] OBS not initialized');
-      throw new Error('OBS not initialized');
+      console.error("[Recorder] OBS not initialized");
+      throw new Error("OBS not initialized");
     }
 
     if (this.obsState !== ERecordingState.Recording) {
-      console.error('[Recorder] Buffer not started');
-      throw new Error('Buffer not started');
+      console.error("[Recorder] Buffer not started");
+      throw new Error("Buffer not started");
     }
 
     // The native code expects an integer.
@@ -963,15 +965,15 @@ export default class Recorder extends EventEmitter {
    * recovery by force stopping. Will set lastFile if successful.
    */
   private async stopObsRecording() {
-    console.info('[Recorder] Stop recording');
+    console.info("[Recorder] Stop recording");
 
     if (!this.obsInitialized) {
-      console.error('[Recorder] OBS not initialized');
-      throw new Error('OBS not initialized');
+      console.error("[Recorder] OBS not initialized");
+      throw new Error("OBS not initialized");
     }
 
     if (this.obsState === ERecordingState.Offline) {
-      console.info('[Recorder] Already stopped');
+      console.info("[Recorder] Already stopped");
       return;
     }
 
@@ -982,23 +984,23 @@ export default class Recorder extends EventEmitter {
     let success = false;
 
     try {
-      await Promise.race([wrote, getPromiseBomb(60, 'Failed to stop')]);
+      await Promise.race([wrote, getPromiseBomb(60, "Failed to stop")]);
       success = true;
     } catch (error) {
-      console.error('[Recorder]', error, 'will force stop');
+      console.error("[Recorder]", error, "will force stop");
       noobs.ForceStopRecording();
 
       await Promise.race([
         wrote,
-        getPromiseBomb(3, 'Failed to recover by force stopping'),
+        getPromiseBomb(3, "Failed to recover by force stopping"),
       ]);
     }
 
     if (success) {
-      console.info('[Recorder] Stopped successfully');
+      console.info("[Recorder] Stopped successfully");
       this.lastFile = noobs.GetLastRecording();
     } else {
-      console.info('[Recorder] Failed to stop, but force stop succeeded');
+      console.info("[Recorder] Failed to stop, but force stop succeeded");
       this.lastFile = null;
     }
   }
@@ -1009,15 +1011,15 @@ export default class Recorder extends EventEmitter {
    * useful in the case we've failed to stop and are now force stopping.
    */
   private async forceStopOBS() {
-    console.info('[Recorder] Force stop');
+    console.info("[Recorder] Force stop");
 
     if (!this.obsInitialized) {
-      console.error('[Recorder] OBS not initialized');
-      throw new Error('OBS not initialized');
+      console.error("[Recorder] OBS not initialized");
+      throw new Error("OBS not initialized");
     }
 
     if (this.obsState === ERecordingState.Offline) {
-      console.info('[Recorder] Already stopped');
+      console.info("[Recorder] Already stopped");
       return;
     }
 
@@ -1027,7 +1029,7 @@ export default class Recorder extends EventEmitter {
     // If we were passed a wrote promise, use that instead of shifting from
     // the queue as a previously created promise will get the result first.
     const wrote = this.wroteQueue.shift();
-    const bomb = getPromiseBomb(3, 'Failed to force stop');
+    const bomb = getPromiseBomb(3, "Failed to force stop");
     await Promise.race([wrote, bomb]);
     this.lastFile = null;
   }
@@ -1040,7 +1042,7 @@ export default class Recorder extends EventEmitter {
     const dirExists = await exists(obsPath);
 
     if (!dirExists) {
-      console.info('[Recorder] Creating dir:', obsPath);
+      console.info("[Recorder] Creating dir:", obsPath);
       await fs.promises.mkdir(obsPath);
       await takeOwnershipBufferDir(obsPath);
     }
@@ -1050,22 +1052,22 @@ export default class Recorder extends EventEmitter {
    * Initialize OBS, should be called once only.
    */
   public initializeObs() {
-    console.info('[Recorder] Initializing OBS');
+    console.info("[Recorder] Initializing OBS");
     const cb = this.handleSignal.bind(this);
 
     let logPath = devMode
-      ? path.resolve(__dirname, './logs')
-      : path.resolve(__dirname, '../../dist/main/logs');
+      ? path.resolve(__dirname, "./logs")
+      : path.resolve(__dirname, "../../dist/main/logs");
 
     let noobsPath = devMode
-      ? path.resolve(__dirname, '../../release/app/node_modules/noobs/dist')
-      : path.resolve(__dirname, '../../node_modules/noobs/dist');
+      ? path.resolve(__dirname, "../../release/app/node_modules/noobs/dist")
+      : path.resolve(__dirname, "../../node_modules/noobs/dist");
 
     logPath = fixPathWhenPackaged(logPath);
     noobsPath = fixPathWhenPackaged(noobsPath);
 
-    console.info('[Recorder] Noobs path:', noobsPath);
-    console.info('[Recorder] Log path:', logPath);
+    console.info("[Recorder] Noobs path:", noobsPath);
+    console.info("[Recorder] Log path:", logPath);
     noobs.Init(noobsPath, logPath, cb);
     noobs.SetBuffering(true);
 
@@ -1075,34 +1077,34 @@ export default class Recorder extends EventEmitter {
 
     this.overlaySource = noobs.CreateSource(
       VideoSourceName.OVERLAY,
-      'image_source',
+      "image_source",
     );
 
     this.obsInitialized = true;
-    console.info('[Recorder] OBS initialized successfully');
+    console.info("[Recorder] OBS initialized successfully");
   }
 
   /**
    * Handle a signal from OBS.
    */
   private handleSignal(signal: Signal) {
-    if (signal.type === 'volmeter' && signal.value !== undefined) {
+    if (signal.type === "volmeter" && signal.value !== undefined) {
       // A volmeter callback was fired. This happens very often while there
       // are audio sources attached and the audio settings are open.
-      send('volmeter', signal.id, signal.value);
+      send("volmeter", signal.id, signal.value);
       return;
     }
 
     // The rest of the signals here are not as frequent as volmeter signals
     // so just log them all.
-    console.info('[Recorder] Got signal', signal);
+    console.info("[Recorder] Got signal", signal);
 
-    if (signal.type === 'source') {
+    if (signal.type === "source") {
       // A source has sporadically changed dimensions. This typically happens
       // when a game or window capture source is initialized or resized. To be
       // clear this is the dimensions NOT the scale. Users cannot trigger this.
-      send('redrawPreview');
-      send('initCropSliders');
+      send("redrawPreview");
+      send("initCropSliders");
       return;
     }
 
@@ -1110,19 +1112,19 @@ export default class Recorder extends EventEmitter {
       case EOBSOutputSignal.Start:
         this.startQueue.push(signal);
         this.obsState = ERecordingState.Recording;
-        this.emit('state-change');
-        console.info('[Recorder] State is now:', this.obsState);
+        this.emit("state-change");
+        console.info("[Recorder] State is now:", this.obsState);
         break;
 
       case EOBSOutputSignal.Stop:
         this.wroteQueue.push(signal);
         this.obsState = ERecordingState.Offline;
-        this.emit('state-change');
-        console.info('[Recorder] State is now:', this.obsState);
+        this.emit("state-change");
+        console.info("[Recorder] State is now:", this.obsState);
         break;
 
       default:
-        console.info('[Recorder] No action needed on this signal');
+        console.info("[Recorder] No action needed on this signal");
         break;
     }
   }
@@ -1133,7 +1135,7 @@ export default class Recorder extends EventEmitter {
    * search for it in the OSN sources API.
    */
   private configureWindowCaptureSource(config: ObsVideoConfig) {
-    console.info('[Recorder] Configuring OBS for Window Capture');
+    console.info("[Recorder] Configuring OBS for Window Capture");
     const {
       forceSdr,
       captureCursor,
@@ -1145,14 +1147,14 @@ export default class Recorder extends EventEmitter {
     this.captureMode = CaptureMode.WINDOW;
     this.captureSource = noobs.CreateSource(
       VideoSourceName.WINDOW,
-      'window_capture',
+      "window_capture",
     );
 
     const settings = noobs.GetSourceSettings(this.captureSource);
 
     noobs.SetSourceSettings(this.captureSource, {
       ...settings,
-      capture_mode: 'window',
+      capture_mode: "window",
       force_sdr: forceSdr,
       cursor: captureCursor, // For some reason is named differently here.
       method: 2,
@@ -1177,7 +1179,7 @@ export default class Recorder extends EventEmitter {
    * Configures the game capture source.
    */
   private configureGameCaptureSource(config: ObsVideoConfig) {
-    console.info('[Recorder] Configuring OBS for Game Capture');
+    console.info("[Recorder] Configuring OBS for Game Capture");
 
     const {
       forceSdr,
@@ -1190,14 +1192,14 @@ export default class Recorder extends EventEmitter {
     this.captureMode = CaptureMode.GAME;
     this.captureSource = noobs.CreateSource(
       VideoSourceName.GAME,
-      'game_capture',
+      "game_capture",
     );
 
     const defaults = noobs.GetSourceSettings(this.captureSource);
 
     const settings = {
       ...defaults,
-      capture_mode: 'window',
+      capture_mode: "window",
       force_sdr: forceSdr,
       capture_cursor: captureCursor,
       priority: 2,
@@ -1223,7 +1225,7 @@ export default class Recorder extends EventEmitter {
    * Creates a monitor capture source.
    */
   private configureMonitorCaptureSource(config: ObsVideoConfig) {
-    console.info('[Recorder] Configuring OBS for Monitor Capture');
+    console.info("[Recorder] Configuring OBS for Monitor Capture");
 
     const {
       forceSdr,
@@ -1237,37 +1239,37 @@ export default class Recorder extends EventEmitter {
     this.captureMode = CaptureMode.MONITOR;
     this.captureSource = noobs.CreateSource(
       VideoSourceName.MONITOR,
-      'monitor_capture',
+      "monitor_capture",
     );
 
     const defaults = noobs.GetSourceSettings(this.captureSource);
     const properties = noobs.GetSourceProperties(this.captureSource);
 
-    const monitors = properties.find((p) => p.name === 'monitor_id');
+    const monitors = properties.find((p) => p.name === "monitor_id");
 
     if (!monitors) {
-      console.error('[Recorder] No monitors found');
-      throw new Error('[Recorder] No monitors found');
+      console.error("[Recorder] No monitors found");
+      throw new Error("[Recorder] No monitors found");
     }
 
-    if (monitors.type !== 'list') {
-      console.error('[Recorder] Window setting is not a list');
-      throw new Error('Window setting is not a list');
+    if (monitors.type !== "list") {
+      console.error("[Recorder] Window setting is not a list");
+      throw new Error("Window setting is not a list");
     }
 
-    const opts = monitors.items.filter((item) => item.value !== 'DUMMY');
+    const opts = monitors.items.filter((item) => item.value !== "DUMMY");
     const monitorId = opts[monitorIndex];
 
     if (!monitorId) {
       console.error(
-        '[Recorder] Monitor with index was not found for index',
+        "[Recorder] Monitor with index was not found for index",
         monitorIndex,
         opts,
       );
-      throw new Error('[Recorder] Monitor index was not found');
+      throw new Error("[Recorder] Monitor index was not found");
     }
 
-    console.info('[Recorder] Selected monitor:', monitorId);
+    console.info("[Recorder] Selected monitor:", monitorId);
 
     const settings = {
       ...defaults,
@@ -1298,7 +1300,7 @@ export default class Recorder extends EventEmitter {
    */
   public async configureOverlayImageSource(config: ObsOverlayConfig) {
     const { chatOverlayEnabled } = config;
-    console.info('[Recorder] Configure image source for chat overlay');
+    console.info("[Recorder] Configure image source for chat overlay");
 
     if (this.overlaySource) {
       // Might be a no-op, we never actually delete this source.
@@ -1306,17 +1308,17 @@ export default class Recorder extends EventEmitter {
     }
 
     if (!chatOverlayEnabled) {
-      console.info('[Recorder] Chat overlay is disabled, not configuring');
+      console.info("[Recorder] Chat overlay is disabled, not configuring");
       return;
     }
 
     const useDefaultOverlay = await this.useDefaultOverlayImage(config);
 
     if (useDefaultOverlay) {
-      console.info('[Recorder] Using default overlay');
+      console.info("[Recorder] Using default overlay");
       this.configureDefaultOverlay(config);
     } else {
-      console.info('[Recorder] Using custom overlay');
+      console.info("[Recorder] Using custom overlay");
       this.configureOwnOverlay(config);
     }
   }
@@ -1333,7 +1335,7 @@ export default class Recorder extends EventEmitter {
 
     this.inputDevicesMuted = true;
     this.obsMicState = MicStatus.MUTED;
-    this.emit('state-change');
+    this.emit("state-change");
   }
 
   /**
@@ -1348,7 +1350,7 @@ export default class Recorder extends EventEmitter {
 
     this.inputDevicesMuted = false;
     this.obsMicState = MicStatus.LISTENING;
-    this.emit('state-change');
+    this.emit("state-change");
   }
 
   private pushToTalkHandler(
@@ -1362,8 +1364,7 @@ export default class Recorder extends EventEmitter {
       return;
     }
 
-    const isPress =
-      event.type === EventType.EVENT_KEY_PRESSED ||
+    const isPress = event.type === EventType.EVENT_KEY_PRESSED ||
       event.type === EventType.EVENT_MOUSE_PRESSED;
 
     if (isPress) {
@@ -1376,7 +1377,7 @@ export default class Recorder extends EventEmitter {
       return;
     }
 
-    const delay = this.cfg.get<number>('pushToTalkReleaseDelay');
+    const delay = this.cfg.get<number>("pushToTalkReleaseDelay");
 
     this.pttReleaseDelayTimer = setTimeout(() => {
       this.muteInputDevices();
@@ -1403,8 +1404,8 @@ export default class Recorder extends EventEmitter {
         case QualityPresets.LOW:
           return 32;
         default:
-          console.error('[Recorder] Unrecognised quality', quality);
-          throw new Error('Unrecognised quality');
+          console.error("[Recorder] Unrecognised quality", quality);
+          throw new Error("Unrecognised quality");
       }
     }
 
@@ -1419,8 +1420,8 @@ export default class Recorder extends EventEmitter {
       case QualityPresets.LOW:
         return 34;
       default:
-        console.error('[Recorder] Unrecognised quality', quality);
-        throw new Error('Unrecognised quality');
+        console.error("[Recorder] Unrecognised quality", quality);
+        throw new Error("Unrecognised quality");
     }
   }
 
@@ -1429,13 +1430,13 @@ export default class Recorder extends EventEmitter {
    */
   private static windowMatch(item: { name: string; value: string | number }) {
     return (
-      item.name.startsWith('[Fellowship.exe]: ') ||
-      item.name.startsWith('[fellowship-Win64-Shipping.exe]: ') ||
-      item.name.startsWith('fellowship') ||
-      ((item.name.includes('fellowship') || item.name.includes('Fellowship')) &&
-        !item.name.toLowerCase().includes('discord') &&
-        !item.name.toLowerCase().includes('-') &&
-        !item.name.toLowerCase().includes('|'))
+      item.name.startsWith("[Fellowship.exe]: ") ||
+      item.name.startsWith("[fellowship-Win64-Shipping.exe]: ") ||
+      item.name.startsWith("fellowship") ||
+      ((item.name.includes("fellowship") || item.name.includes("Fellowship")) &&
+        !item.name.toLowerCase().includes("discord") &&
+        !item.name.toLowerCase().includes("-") &&
+        !item.name.toLowerCase().includes("|"))
     );
   }
 
@@ -1443,40 +1444,40 @@ export default class Recorder extends EventEmitter {
    * Attach the current game_capture or window_capture source to the WoW client.
    */
   public attachCaptureSource() {
-    console.info('[Recorder] Attaching capture source', this.captureSource);
+    console.info("[Recorder] Attaching capture source", this.captureSource);
 
     if (
       this.captureMode !== CaptureMode.WINDOW &&
       this.captureMode !== CaptureMode.GAME
     ) {
-      console.info('[Recorder] Nothing to attach for', this.captureMode);
+      console.info("[Recorder] Nothing to attach for", this.captureMode);
       return;
     }
 
     if (!this.captureSource) {
       // This should never happen.
-      console.error('[Recorder] No capture source available');
+      console.error("[Recorder] No capture source available");
       return;
     }
 
     const properties = noobs.GetSourceProperties(this.captureSource);
-    const windows = properties.find((item) => item.name === 'window');
+    const windows = properties.find((item) => item.name === "window");
 
     if (!windows) {
-      console.error('[Recorder] Failed to find window setting');
-      throw new Error('Failed to find window setting');
+      console.error("[Recorder] Failed to find window setting");
+      throw new Error("Failed to find window setting");
     }
 
-    if (windows.type !== 'list') {
-      console.error('[Recorder] Window setting is not a list');
-      throw new Error('Window setting is not a list');
+    if (windows.type !== "list") {
+      console.error("[Recorder] Window setting is not a list");
+      throw new Error("Window setting is not a list");
     }
 
     const opts = windows.items;
     const match = opts.find(Recorder.windowMatch);
 
     if (match) {
-      console.info('[Recorder] Found matching window for game capture:', match);
+      console.info("[Recorder] Found matching window for game capture:", match);
       const settings = noobs.GetSourceSettings(this.captureSource);
       const updated = { ...settings, window: match.value };
       noobs.SetSourceSettings(this.captureSource, updated);
@@ -1484,7 +1485,7 @@ export default class Recorder extends EventEmitter {
     }
 
     if (this.findWindowAttempts < this.findWindowAttemptLimit) {
-      console.info('[Recorder] No matching window yet');
+      console.info("[Recorder] No matching window yet");
       this.findWindowAttempts++;
 
       this.findWindowTimer = setTimeout(
@@ -1496,9 +1497,9 @@ export default class Recorder extends EventEmitter {
     }
 
     console.warn(
-      '[Recorder] Failed to find WoW window after',
+      "[Recorder] Failed to find WoW window after",
       this.findWindowAttempts,
-      'attempts. Giving up.',
+      "attempts. Giving up.",
     );
   }
 
@@ -1526,12 +1527,13 @@ export default class Recorder extends EventEmitter {
     const sfy = previewInfo.previewHeight / previewInfo.canvasHeight;
     const sf = Math.min(sfx, sfy);
 
-    const src =
-      item === SceneItem.OVERLAY ? this.overlaySource : this.captureSource;
+    const src = item === SceneItem.OVERLAY
+      ? this.overlaySource
+      : this.captureSource;
 
     if (!src) {
       console.warn(
-        '[Recorder] getSourcePosition: No source found for item:',
+        "[Recorder] getSourcePosition: No source found for item:",
         item,
       );
       return;
@@ -1603,14 +1605,13 @@ export default class Recorder extends EventEmitter {
 
     noobs.SetSourcePos(src, updated);
 
-    const item = src.startsWith('FS Chat Overlay')
+    const item = src.startsWith("FS Chat Overlay")
       ? SceneItem.OVERLAY
       : SceneItem.GAME;
 
-    const timer =
-      item === SceneItem.OVERLAY
-        ? this.overlayPosDebounceTimer
-        : this.gamePosDebounceTimer;
+    const timer = item === SceneItem.OVERLAY
+      ? this.overlayPosDebounceTimer
+      : this.gamePosDebounceTimer;
 
     if (timer) {
       clearTimeout(timer);
@@ -1640,7 +1641,7 @@ export default class Recorder extends EventEmitter {
    * Reset the source position to 0, 0 and unscaled.
    */
   public resetSourcePosition(src: string) {
-    console.info('[Recorder] Reset source position', src);
+    console.info("[Recorder] Reset source position", src);
 
     const updated: SceneItemPosition = {
       x: 0,
@@ -1653,12 +1654,12 @@ export default class Recorder extends EventEmitter {
       cropBottom: 0,
     };
 
-    const item = src.startsWith('FS Chat Overlay')
+    const item = src.startsWith("FS Chat Overlay")
       ? SceneItem.OVERLAY
       : SceneItem.GAME;
 
     if (item === SceneItem.GAME) {
-      console.info('[Recorder] Resetting game source so fit to window');
+      console.info("[Recorder] Resetting game source so fit to window");
 
       const { height, width } = noobs.GetSourcePos(src);
       const { canvasHeight, canvasWidth } = noobs.GetPreviewInfo();
@@ -1695,7 +1696,7 @@ export default class Recorder extends EventEmitter {
     cropX: number = 0,
     cropY: number = 0,
   ) {
-    console.info('[Recorder] Saving', item, 'position', {
+    console.info("[Recorder] Saving", item, "position", {
       x,
       y,
       scale,
@@ -1704,15 +1705,15 @@ export default class Recorder extends EventEmitter {
     });
 
     if (item === SceneItem.OVERLAY) {
-      this.cfg.set('chatOverlayXPosition', x);
-      this.cfg.set('chatOverlayYPosition', y);
-      this.cfg.set('chatOverlayScale', scale);
-      this.cfg.set('chatOverlayCropX', cropX);
-      this.cfg.set('chatOverlayCropY', cropY);
+      this.cfg.set("chatOverlayXPosition", x);
+      this.cfg.set("chatOverlayYPosition", y);
+      this.cfg.set("chatOverlayScale", scale);
+      this.cfg.set("chatOverlayCropX", cropX);
+      this.cfg.set("chatOverlayCropY", cropY);
     } else {
-      this.cfg.set('videoSourceXPosition', x);
-      this.cfg.set('videoSourceYPosition', y);
-      this.cfg.set('videoSourceScale', scale);
+      this.cfg.set("videoSourceXPosition", x);
+      this.cfg.set("videoSourceYPosition", y);
+      this.cfg.set("videoSourceScale", scale);
     }
   }
 
@@ -1754,12 +1755,12 @@ export default class Recorder extends EventEmitter {
     const { chatOverlayOwnImage, chatOverlayOwnImagePath } = config;
 
     if (!chatOverlayOwnImage) {
-      console.info('[Recorder] Configured to use default overlay');
+      console.info("[Recorder] Configured to use default overlay");
       return true;
     }
 
     if (!chatOverlayOwnImagePath) {
-      console.warn('[Recorder] No custom image path set');
+      console.warn("[Recorder] No custom image path set");
       return true;
     }
 
@@ -1777,7 +1778,7 @@ export default class Recorder extends EventEmitter {
    * Get the last recorded file and clear it so it won't be returned again.
    */
   public getAndClearLastFile() {
-    console.info('[Recorder] Get and clear last file', this.lastFile);
+    console.info("[Recorder] Get and clear last file", this.lastFile);
     const last = this.lastFile;
     this.lastFile = null;
     return last;
