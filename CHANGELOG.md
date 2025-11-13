@@ -14,6 +14,12 @@ and this project adheres to
 
 ### Fixed
 
+## [1.0.7] - 2025-11-13
+
+### Changed
+
+- New timers as of 0.2.3.0
+
 ## [1.0.6] - 2025-11-09
 
 ### Fixed

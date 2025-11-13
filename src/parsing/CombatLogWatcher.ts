@@ -1,11 +1,11 @@
-import { EventEmitter } from 'stream';
-import fs, { watch, FSWatcher } from 'fs';
-import util from 'util';
-import { FileInfo } from 'main/types';
-import path from 'path';
-import { getFileInfo, getSortedFiles } from '../main/util';
-import LogLine from './LogLine';
-import AsyncQueue from 'utils/AsyncQueue';
+import { EventEmitter } from "stream";
+import fs, { FSWatcher, watch } from "fs";
+import util from "util";
+import { FileInfo } from "main/types";
+import path from "path";
+import { getFileInfo, getSortedFiles } from "../main/util";
+import LogLine from "./LogLine";
+import AsyncQueue from "utils/AsyncQueue";
 
 /**
  * Setup a bunch of promisified fs calls for convienence.
@@ -61,7 +61,7 @@ export default class CombatLogWatcher extends EventEmitter {
    * The most recently updated log file, we remember this purely so we can
    * log when it changes.
    */
-  private current = '';
+  private current = "";
 
   /**
    * Constructor, unit of timeout is minutes. No events will be emitted until
@@ -80,16 +80,16 @@ export default class CombatLogWatcher extends EventEmitter {
     await this.getLogDirectoryState();
     this.watcher = watch(this.logDir);
 
-    this.watcher.on('change', (type, file) => {
-      if (typeof file !== 'string') {
+    this.watcher.on("change", (type, file) => {
+      if (typeof file !== "string") {
         return;
       }
 
-      if (!file.startsWith('CombatLog')) {
+      if (!file.startsWith("CombatLog")) {
         return;
       }
 
-      if (type === 'rename') {
+      if (type === "rename") {
         // Despite this being a 'change' listener, we can still get
         // rename events here, see the Node watch API. The rename event
         // misleadingly fires for both file creation and deletion.
@@ -97,14 +97,14 @@ export default class CombatLogWatcher extends EventEmitter {
         // We reset the position in a file on either, such that a file
         // recreated with the same name will be read from the start. See
         // Issue 624.
-        console.info('[CombatLogWatcher] Create or delete event', file);
+        console.info("[CombatLogWatcher] Create or delete event", file);
         const fullPath = path.join(this.logDir, file);
         delete this.state[fullPath];
         return;
       }
 
       if (file !== this.current) {
-        console.info('[CombatLogWatcher] New active log file', file);
+        console.info("[CombatLogWatcher] New active log file", file);
         this.current = file;
       }
 
@@ -126,7 +126,7 @@ export default class CombatLogWatcher extends EventEmitter {
    * already exists.
    */
   private async getLogDirectoryState() {
-    const logs = await getSortedFiles(this.logDir, 'CombatLog.*.txt');
+    const logs = await getSortedFiles(this.logDir, "CombatLog.*.txt");
 
     if (logs.length < 1) {
       return;
@@ -176,26 +176,33 @@ export default class CombatLogWatcher extends EventEmitter {
    */
   private async parseFileChunk(file: string, bytes: number, position: number) {
     const buffer = Buffer.alloc(bytes);
-    const handle = await open(file, 'r');
+    const handle = await open(file, "r");
     const { bytesRead } = await read(handle, buffer, 0, bytes, position);
     close(handle);
 
     if (bytesRead !== bytes) {
       console.error(
-        '[CombatLogParser] Read attempted for',
+        "[CombatLogParser] Read attempted for",
         bytes,
-        'bytes, but read',
+        "bytes, but read",
         bytesRead,
       );
     }
 
     const lines = buffer
-      .toString('utf-8')
-      .split('\n')
+      .toString("utf-8")
+      .split("\n")
       .map((s) => s.trim())
       .filter((s) => s);
 
     lines.forEach((line) => {
+      if (line.indexOf("|") === -1) {
+        console.warn(
+          `[CombatLogWatcher] Skipping malformed line fragment: ${line}`,
+        );
+        return;
+      }
+
       this.handleLogLine(line);
     });
 
@@ -223,7 +230,7 @@ export default class CombatLogWatcher extends EventEmitter {
     }
 
     this.timer = setTimeout(() => {
-      this.emit('timeout', this.timeout);
+      this.emit("timeout", this.timeout);
     }, this.timeout);
   }
 }
