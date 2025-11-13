@@ -5,11 +5,11 @@ import { getLocalePhrase } from 'localisation/translations';
 import GeneralSettings from './GeneralSettings';
 import FlavourSettings from './FlavourSettings';
 import PVESettings from './PVESettings';
-import CloudSettings from './CloudSettings';
+// import CloudSettings from './CloudSettings';
 import {
   Tabs,
-  TabsList,
   TabsContent,
+  TabsList,
   TabsTrigger,
 } from './components/Tabs/Tabs';
 import Separator from './components/Separator/Separator';

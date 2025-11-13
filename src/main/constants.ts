@@ -1762,13 +1762,13 @@ const FellowshipEncounterById: NumberKeyToStringValueMapType = {
 };
 
 const adventureTimersByLevelID: { [id: number]: number } = {
-  6: 734,
-  8: 780,
-  11: 660,
+  6: 754,
+  8: 795,
+  11: 708,
   12: 900,
-  15: 720,
-  21: 780,
-  24: 780,
+  15: 740,
+  21: 800,
+  24: 830,
   25: 720,
 };
 
