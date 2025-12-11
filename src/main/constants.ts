@@ -1811,6 +1811,9 @@ const dungeonAffixesById: NumberKeyToStringValueMapType = {
   15: "Stone Skin",
   16: "Ultimatum",
   19: "Shadow Lord's Trial",
+  20: "Ghorn the Avalanche",
+  21: "Krumbug the Naughty",
+  22: "Eira the White Witch",
 };
 
 type HeroDamageType = "melee" | "ranged";
