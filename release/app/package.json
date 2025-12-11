@@ -1,6 +1,6 @@
 {
   "name": "Fellowsnip",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Fellowsnip",
   "main": "./dist/main/main.js",
   "author": {
