@@ -76,6 +76,11 @@ import affix14 from "../../assets/affixes/14.png";
 import affix15 from "../../assets/affixes/15.png";
 import affix16 from "../../assets/affixes/16.png";
 import affix19 from "../../assets/affixes/19.png";
+import affix20 from "../../assets/affixes/20.png";
+import affix22 from "../../assets/affixes/22.png";
+import affix23 from "../../assets/affixes/23.png";
+import affix24 from "../../assets/affixes/24.png";
+import affix25 from "../../assets/affixes/25.png";
 
 import ardeos from "../../assets/heroes/7.jpg";
 import elarion from "../../assets/heroes/2.jpg";
@@ -86,6 +91,8 @@ import rime from "../../assets/heroes/17.jpg";
 import sylvie from "../../assets/heroes/14.jpg";
 import tariq from "../../assets/heroes/10.jpg";
 import vigour from "../../assets/heroes/20.jpg";
+import aeona from "../../assets/heroes/24.jpg";
+import xavian from "../../assets/heroes/25.jpg";
 
 import demonicritual from "../../assets/dungeons/5.png";
 import desertdunes from "../../assets/dungeons/6.png";
@@ -128,6 +135,11 @@ const affixImages = {
   15: affix15,
   16: affix16,
   19: affix19,
+  20: affix20,
+  22: affix22,
+  23: affix23,
+  24: affix24,
+  25: affix25
 };
 
 const dungeonImages = {
@@ -163,6 +175,8 @@ const heroImages: Record<HeroType, string> = {
   SYLVIE: sylvie,
   TARIQ: tariq,
   VIGOUR: vigour,
+  XAVIAN: xavian,
+  AEONA: aeona
 };
 
 const specImages = {

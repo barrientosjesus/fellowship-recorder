@@ -1717,6 +1717,8 @@ const mopChallengeModesTimers: Record<number, number[]> = {
   78: [45, 22, 13], // Scarlet Monastery
 };
 
+
+// MARK: FELLOWSHIP
 // FELLOWSHIP
 /**
  * Fellowship Adventures
@@ -1811,6 +1813,12 @@ const dungeonAffixesById: NumberKeyToStringValueMapType = {
   15: "Stone Skin",
   16: "Ultimatum",
   19: "Shadow Lord's Trial",
+  20: "Ghorn the Avalanche",
+  21: "Krumbug the Naughty",
+  22: "Eira the White Witch",
+  23: "Pathfinder's Guidance",
+  24: "Anomalous Orbs",
+  25: "Storm Shield"
 };
 
 type HeroDamageType = "melee" | "ranged";
@@ -1824,7 +1832,9 @@ type HeroType =
   | "MEIKO"
   | "MARA"
   | "ELARION"
-  | "ARDEOS";
+  | "ARDEOS"
+  | "XAVIAN"
+  | "AEONA";
 
 const HeroColor = {
   HELENA: "#B46932",
@@ -1836,6 +1846,8 @@ const HeroColor = {
   MARA: "#6F2EF1",
   ELARION: "#89FF00",
   ARDEOS: "#EB6329",
+  XAVIAN: "#077365",
+  AEONA: "#fc9fec"
 };
 
 type HeroObjectType = {
@@ -1906,6 +1918,18 @@ const heroById: { [id: number]: HeroObjectType } = {
     name: "ARDEOS",
     color: "#EB6329",
   },
+  24: {
+    type: "ranged",
+    role: "healer",
+    name: "AEONA",
+    color: "#fc9fec"
+  },
+  25: {
+    type: "melee",
+    role: "tank",
+    name: "XAVIAN",
+    color: "#077365"
+  }
 };
 const AllDungeonAndAdventuresByLevelId = {
   ...DungeonsByLevelID,

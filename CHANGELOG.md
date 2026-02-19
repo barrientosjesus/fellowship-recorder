@@ -14,6 +14,20 @@ and this project adheres to
 
 ### Fixed
 
+## [1.1.0] - 2026-2-19
+
+### Added
+
+- Aeona & Xavian
+- New Affixes
+
+
+## [1.0.9] - 2025-12-10
+
+### Added
+
+- Holiday affixes
+
 ## [1.0.7] - 2025-11-13
 
 ### Changed
