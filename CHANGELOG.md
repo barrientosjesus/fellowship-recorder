@@ -14,6 +14,14 @@ and this project adheres to
 
 ### Fixed
 
+## [1.1.0] - 2026-2-19
+
+### Added
+
+- Aeona & Xavian
+- New Affixes
+
+
 ## [1.0.9] - 2025-12-10
 
 ### Added
